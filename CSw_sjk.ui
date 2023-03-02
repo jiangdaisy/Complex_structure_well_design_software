@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>982</width>
+    <height>636</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTreeWidget" name="treeWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>30</y>
+      <width>256</width>
+      <height>541</height>
+     </rect>
+    </property>
+    <column>
+     <property name="text">
+      <string notr="true"/>
+     </property>
+    </column>
+    <item>
+     <property name="text">
+      <string>模型数据</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>孔隙度</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>渗透率</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>沉积相</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>相渗曲线</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>含油饱和度</string>
+      </property>
+     </item>
+    </item>
+    <item>
+     <property name="text">
+      <string>注采井数据</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>油水井史</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>沉积单元数据</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>射孔数据</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>吸水剖面数据</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>单井地质数据</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>措施数据</string>
+      </property>
+     </item>
+    </item>
+   </widget>
+   <widget class="QChartView" name="graphicsView">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>30</y>
+      <width>611</width>
+      <height>541</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>982</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>数据库</string>
+    </property>
+    <widget class="QMenu" name="menu_2">
+     <property name="title">
+      <string>保存数据库</string>
+     </property>
+     <addaction name="actionbao"/>
+     <addaction name="actionlingc"/>
+    </widget>
+    <addaction name="actionfd"/>
+    <addaction name="actionxi"/>
+    <addaction name="actionfsdf"/>
+    <addaction name="menu_2"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>属性插值计算</string>
+    </property>
+    <addaction name="actionfsd"/>
+    <addaction name="actionfds"/>
+    <addaction name="actionfda"/>
+    <addaction name="actionfdsa"/>
+    <addaction name="actionfda_2"/>
+   </widget>
+   <widget class="QMenu" name="menu_4">
+    <property name="title">
+     <string>潜力区筛选与评价</string>
+    </property>
+    <widget class="QMenu" name="menu_6">
+     <property name="title">
+      <string>潜力区评价</string>
+     </property>
+     <addaction name="actionfds_2"/>
+     <addaction name="actionfdf_4"/>
+    </widget>
+    <addaction name="actionfdf_2"/>
+    <addaction name="actionfdf"/>
+    <addaction name="menu_6"/>
+   </widget>
+   <widget class="QMenu" name="menu_5">
+    <property name="title">
+     <string>复杂结构井设计</string>
+    </property>
+    <addaction name="actionfdf_5"/>
+    <addaction name="actionfdf_6"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menu_3"/>
+   <addaction name="menu_4"/>
+   <addaction name="menu_5"/>
+  </widget>
+  <action name="actionfd">
+   <property name="text">
+    <string>查看数据库</string>
+   </property>
+  </action>
+  <action name="actionxi">
+   <property name="text">
+    <string>新建数据库</string>
+   </property>
+  </action>
+  <action name="actionfsdf">
+   <property name="text">
+    <string>导入数据库</string>
+   </property>
+  </action>
+  <action name="actionbao">
+   <property name="text">
+    <string>保存</string>
+   </property>
+  </action>
+  <action name="actionlingc">
+   <property name="text">
+    <string>另存为</string>
+   </property>
+  </action>
+  <action name="actionfsd">
+   <property name="text">
+    <string>计算所有参数</string>
+   </property>
+  </action>
+  <action name="actionfds">
+   <property name="text">
+    <string>孔隙度计算</string>
+   </property>
+  </action>
+  <action name="actionfda">
+   <property name="text">
+    <string>渗透率计算</string>
+   </property>
+  </action>
+  <action name="actionfdsa">
+   <property name="text">
+    <string>有效厚度计算</string>
+   </property>
+  </action>
+  <action name="actionfda_2">
+   <property name="text">
+    <string>砂岩厚度计算</string>
+   </property>
+  </action>
+  <action name="actionfdf">
+   <property name="text">
+    <string>潜力区验证</string>
+   </property>
+  </action>
+  <action name="actionfdf_2">
+   <property name="text">
+    <string>潜力区筛选</string>
+   </property>
+  </action>
+  <action name="actionfds_2">
+   <property name="text">
+    <string>模糊综合评价法</string>
+   </property>
+  </action>
+  <action name="actionfdf_4">
+   <property name="text">
+    <string>随机森林评价法</string>
+   </property>
+  </action>
+  <action name="actionfdf_5">
+   <property name="text">
+    <string>设计方案优选</string>
+   </property>
+  </action>
+  <action name="actionfdf_6">
+   <property name="text">
+    <string>导出为CMG模型</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QChartView</class>
+   <extends>QGraphicsView</extends>
+   <header location="global">qchartview.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
