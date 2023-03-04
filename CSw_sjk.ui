@@ -25,7 +25,7 @@
     </property>
     <column>
      <property name="text">
-      <string notr="true"/>
+      <string notr="true">数据目录</string>
      </property>
     </column>
     <item>
@@ -125,9 +125,15 @@
      <addaction name="actionbao"/>
      <addaction name="actionlingc"/>
     </widget>
+    <widget class="QMenu" name="menu_7">
+     <property name="title">
+      <string>导入数据库</string>
+     </property>
+     <addaction name="actiongfd"/>
+    </widget>
     <addaction name="actionfd"/>
     <addaction name="actionxi"/>
-    <addaction name="actionfsdf"/>
+    <addaction name="menu_7"/>
     <addaction name="menu_2"/>
    </widget>
    <widget class="QMenu" name="menu_3">
@@ -175,11 +181,6 @@
   <action name="actionxi">
    <property name="text">
     <string>新建数据库</string>
-   </property>
-  </action>
-  <action name="actionfsdf">
-   <property name="text">
-    <string>导入数据库</string>
    </property>
   </action>
   <action name="actionbao">
@@ -245,6 +246,11 @@
   <action name="actionfdf_6">
    <property name="text">
     <string>导出为CMG模型</string>
+   </property>
+  </action>
+  <action name="actiongfd">
+   <property name="text">
+    <string>沉积相</string>
    </property>
   </action>
  </widget>
