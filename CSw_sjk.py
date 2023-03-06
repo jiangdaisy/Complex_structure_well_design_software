@@ -9,12 +9,10 @@
 import re
 import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import pyqtSlot, QDir, QIODevice, QFile
-from PyQt5.QtWidgets import QFileDialog
+
 from PyQt5.QtChart import QChartView
 
-global CJX
-CJX = {}
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -162,46 +160,10 @@ class Ui_MainWindow(object):
         self.actionfdf_5.setText(_translate("MainWindow", "设计方案优选"))
         self.actionfdf_6.setText(_translate("MainWindow", "导出为CMG模型"))
         self.actiongfd.setText(_translate("MainWindow", "沉积相"))
-        self.actiongfd.triggered.connect(self.on_actiongfd_triggered)
+        # self.treeWidget.clicked.connect(self.on_treeWidget_clicked)
         # print('init')
 
-   ##导入沉积相数据
-    def on_actiongfd_triggered(self):
-        # print("test")
-        curDir=QDir.currentPath()
-        aDir=QFileDialog.getExistingDirectory(self.centralwidget,"选择一个目录",
-                              curDir,QFileDialog.ShowDirsOnly)
-        dirObj=QDir(aDir)
-        strList = dirObj.entryList(QDir.Files)
-        # print(strList)
-        for str in strList:
-            floor = []
-            fileName = re.findall(".*\.txt", str)
-            if fileName != []:
-                # print(fileName[0][0:-4])
-                filePath = aDir + "/" + fileName[0]
-                # print(filePath)
-                fileDevice = QFile(filePath)
-                fileDevice.open(QIODevice.ReadOnly | QIODevice.Text)
-                try:
-                    while not fileDevice.atEnd():
-                        qtBytes = fileDevice.readLine()  # 返回QByteArray类型
-                        pyBytes = bytes(qtBytes.data())  # QByteArray转换为bytes类型
-                        lineStr = pyBytes.decode("utf-8")  # bytes转换为str型
-                        lineStr = lineStr.strip()  # 去除结尾增加的空行
 
-                        # print(lineStr.split(" "))
-                        floor.append(lineStr.split(" ")) #将读取出的数据按列表形式存储
-                except UnicodeDecodeError:
-                    print(fileName[0] + "文件编码格式有误！")
-
-
-                finally:
-                    fileDevice.close()
-                f = np.array(floor)
-                print(f.shape)
-                CJX[fileName[0][0:-4]] = floor #用文件名作为键值将不同文件的数据存储在字典中
-        # print(CJX["S28b"])
 
 
 
