@@ -1,18 +1,22 @@
 import re
 import sys
 
-from PyQt5.QtCore import pyqtSlot, Qt
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import pyqtSlot, Qt, QThread, pyqtSignal
 import matplotlib as mpl
 import matplotlib.style as mplStyle
-from matplotlib.backends.backend_qt5agg import FigureCanvas
+from matplotlib.backends.backend_qt5agg import (FigureCanvas,
+                                                NavigationToolbar2QT as NavigationToolbar)
+from matplotlib import colorbar
 from matplotlib.figure import Figure
 from scipy.interpolate import griddata
 from CSw_sjk import Ui_MainWindow
 
 from PyQt5.QtWidgets import (QApplication, QMainWindow,
-                             QSplitter, QColorDialog, QLabel, QComboBox, QTreeWidgetItem)
+                             QSplitter, QColorDialog, QLabel, QComboBox, QTreeWidgetItem, QProgressDialog)
 from PyQt5.QtCore import pyqtSlot, QDir, QIODevice, QFile, QTextStream
 from PyQt5.QtWidgets import QFileDialog
+
 import numpy as np
 
 
@@ -30,6 +34,9 @@ class QmyMainWindow(QMainWindow):
         self.ui.treeWidget.clicked.connect(self.on_treeWidget_clicked)
 
         self.CJX = {}
+        self.BHD = {}
+        self.KXD = {}
+        self.STL = {}
 
         mplStyle.use("classic")  # 使用样式，必须在绘图之前调用,修改字体后才可显示汉字
         mpl.rcParams['font.sans-serif'] = ['KaiTi', 'SimHei']  # 显示汉字为 楷体， 汉字不支持 粗体，斜体等设置
@@ -49,8 +56,26 @@ class QmyMainWindow(QMainWindow):
         ##      self.__fig=mpl.figure.Figure(figsize=(8, 5),constrained_layout=True, tight_layout=None)  #单位英寸
         ##      self.__fig=mpl.figure.Figure(figsize=(8, 5))  #单位英寸
         self.__fig = Figure()
+        self.__fig.tight_layout()
         figCanvas = FigureCanvas(self.__fig)  # 创建FigureCanvas对象，必须传递一个Figure对象
-        self.__fig.suptitle("suptitle:matplotlib in Qt GUI", fontsize=16, fontweight='bold')  # 总的图标题
+
+        # self.__fig.suptitle("数据展示区", fontsize=16, fontweight='bold')  # 总的图标题
+
+        naviToolbar = NavigationToolbar(figCanvas, self)  # 创建NavigationToolbar工具栏
+
+        # actList = naviToolbar.actions()  # 关联的Action列表
+        # count = len(actList)  # Action的个数
+        # lastAction = actList[count - 1]  # 最后一个Action
+
+        # self.progressLable = QLabel("当前子图")
+        # self.progressLable.setVisible(False)
+        # naviToolbar.insertWidget(lastAction, self.progressLable)
+        #
+        # self.progressBar = QtWidgets.QProgressBar()
+        # self.progressBar.setVisible(False)
+        # naviToolbar.insertWidget(lastAction, self.progressBar)
+
+        self.addToolBar(naviToolbar)
 
         splitter = QSplitter(self)
         splitter.setOrientation(Qt.Horizontal)
@@ -61,71 +86,231 @@ class QmyMainWindow(QMainWindow):
     ##树组件响应画图
     @pyqtSlot()
     def on_treeWidget_clicked(self):
-        itemParent = self.ui.treeWidget.currentItem().parent()
-        item = self.ui.treeWidget.currentItem()
+        try:
+            itemParent = self.ui.treeWidget.currentItem().parent()
+            item = self.ui.treeWidget.currentItem()
 
-        if itemParent.text(0) == "沉积相":
-            x = self.CJX[item.text(0)][0]  # float 型
-            y = self.CJX[item.text(0)][1]
-            v = self.CJX[item.text(0)][2]
+            if itemParent.text(0) == "沉积相":
+                x = self.CJX[item.text(0)][0]  # float 型
+                y = self.CJX[item.text(0)][1]
+                v = self.CJX[item.text(0)][2]
 
-            for i in range(len(v)):
-                if v[i] == -999:
-                    v[i] = 0
+                for i in range(len(v)):
+                    if v[i] == -999:
+                        v[i] = 0
 
-            x = np.array(x)
-            y = np.array(y)
-            v = np.array(v)
+                x = np.array(x)
+                y = np.array(y)
+                v = np.array(v)
 
-            x = x.T
-            y = y.T
-            v = v.T
+                x = x.T
+                y = y.T
+                v = v.T
 
-            xq = list(range(int(min(x)), int(max(x)), 50))
-            yq = list(range(int(min(y)), int(max(y)), 50))
+                xq = list(range(int(min(x)), int(max(x)), 50))
+                yq = list(range(int(min(y)), int(max(y)), 50))
+
+                xq = np.array(xq)
+                yq = np.array(yq)
+
+                xq, yq = np.meshgrid(xq, yq)
+
+                vq = griddata((x, y), v, (xq, yq), method="linear")
+                # print(vq.shape)
+                # print(vq.shape[0])
+                # print(vq.shape[1])
+                # print(vq)
+                for i in range(vq.shape[0]):
+                    for j in range(vq.shape[1]):
+                        if (np.isnan(vq[i][j]) == False):
+                            # print(str(i)+" "+str(j))
+                            # print(type(vq[i][j]))
+                            # print(vq[i][j])
+                            vq[i][j] = vq[i][j].astype(int)
+                # print(vq)
+
+                ax1 = self.__fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图1
+
+                ax1.set_xlabel('X 轴')  # X轴标题
+                ax1.set_ylabel('Y 轴')  # Y轴标题
+                ax1.set_title("沉积相展示")
+
+                im = ax1.pcolormesh(xq, yq, vq, )
+                self.__fig.colorbar(im)
+
+                # ax1.plot(t, y1, 'r-o', label="sin", linewidth=2, markersize=5)  # 绘制一条曲线
+                # ax1.plot(t, y2, 'b--', label="cos", linewidth=2)  # 绘制一条曲线
+                # ax1.set_xlabel('X 轴')  # X轴标题
+                # ax1.set_ylabel('Y 轴')  # Y轴标题
+                # ax1.set_xlim([0, 10])  # X轴坐标范围
+                # ax1.set_ylim([-1.5, 1.5])  # Y轴坐标范围
+                # ax1.set_title("三角函数曲线")
+                # ax1.legend()  # 自动创建图例
+                self.__fig.canvas.draw()  ##刷新
+                print(item.text(0))
 
 
-            xq = np.array(xq)
-            yq = np.array(yq)
 
-            xq, yq = np.meshgrid(xq, yq)
+            elif itemParent.text(0) == "孔隙度":
+                x = self.KXD[item.text(0)][0]  # float 型
+                y = self.KXD[item.text(0)][1]
+                v = self.KXD[item.text(0)][2]
+
+                for i in range(len(v)):
+                    if v[i] == -999:
+                        v[i] = 0
+
+                x = np.array(x)
+                y = np.array(y)
+                v = np.array(v)
+
+                x = x.T
+                y = y.T
+                v = v.T
+
+                xq = list(range(int(min(x)), int(max(x)), 50))
+                yq = list(range(int(min(y)), int(max(y)), 50))
+
+                xq = np.array(xq)
+                yq = np.array(yq)
+
+                xq, yq = np.meshgrid(xq, yq)
+
+                vq = griddata((x, y), v, (xq, yq), method="linear")
+
+                # for i in range(vq.shape[0]):
+                #     for j in range(vq.shape[1]):
+                #         if np.isnan(vq[i][j]) == False:
+                #             vq[i][j] = vq[i][j].astype(int)
+
+                ax1 = self.__fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图1
+                ax1.set_xlabel('X 轴')  # X轴标题
+                ax1.set_ylabel('Y 轴')  # Y轴标题
+                ax1.set_title("沉积相展示")
+
+                im = ax1.pcolormesh(xq, yq, vq, )
+                self.__fig.colorbar(im)
+
+                self.__fig.canvas.draw()  ##刷新
+                print(item.text(0))
 
 
-        vq = griddata((x, y), v, (xq, yq), method="linear")
-        print(vq)
-        vq = vq.astype(int)
-        print(vq)
+            elif itemParent.text(0) == "渗透率":
+                x = self.STL[item.text(0)][0]  # float 型
+                y = self.STL[item.text(0)][1]
+                v = self.STL[item.text(0)][2]
 
-        f = np.array(vq)
-        print(f.shape)
+                for i in range(len(v)):
+                    if v[i] == -999:
+                        v[i] = 0
 
-        ax1 = self.__fig.add_subplot(2, 1, 1, label="sin-cos plot")  # 子图1
-        ax2 = self.__fig.add_subplot(2, 1, 2, label="sin-cos plot")
+                x = np.array(x)
+                y = np.array(y)
+                v = np.array(v)
 
-        ax1.pcolormesh(xq, yq, vq)
-        ax2.scatter(x, y, v)
-        # ax1.plot(t, y1, 'r-o', label="sin", linewidth=2, markersize=5)  # 绘制一条曲线
-        # ax1.plot(t, y2, 'b--', label="cos", linewidth=2)  # 绘制一条曲线
-        # ax1.set_xlabel('X 轴')  # X轴标题
-        # ax1.set_ylabel('Y 轴')  # Y轴标题
-        # ax1.set_xlim([0, 10])  # X轴坐标范围
-        # ax1.set_ylim([-1.5, 1.5])  # Y轴坐标范围
-        # ax1.set_title("三角函数曲线")
-        ax1.legend()  # 自动创建图例
-        self.__fig.canvas.draw()  ##刷新
-        print(item.text(0))
+                x = x.T
+                y = y.T
+                v = v.T
+
+                xq = list(range(int(min(x)), int(max(x)), 50))
+                yq = list(range(int(min(y)), int(max(y)), 50))
+
+                xq = np.array(xq)
+                yq = np.array(yq)
+
+                xq, yq = np.meshgrid(xq, yq)
+
+                vq = griddata((x, y), v, (xq, yq), method="linear")
+
+                for i in range(vq.shape[0]):
+                    for j in range(vq.shape[1]):
+                        if np.isnan(vq[i][j]) == False:
+                            vq[i][j] = vq[i][j].astype(int)
+
+                ax1 = self.__fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图1
+                ax1.set_xlabel('X 轴')  # X轴标题
+                ax1.set_ylabel('Y 轴')  # Y轴标题
+                ax1.set_title("沉积相展示")
+
+                im = ax1.pcolormesh(xq, yq, vq, )
+                self.__fig.colorbar(im)
+
+                self.__fig.canvas.draw()  ##刷新
+                print(item.text(0))
+
+
+            elif itemParent.text(0) == "含油饱和度":
+                x = self.BHD[item.text(0)][0]  # float 型
+                y = self.BHD[item.text(0)][1]
+                v = self.BHD[item.text(0)][2]
+
+                for i in range(len(v)):
+                    if v[i] == -999:
+                        v[i] = 0
+
+                x = np.array(x)
+                y = np.array(y)
+                v = np.array(v)
+
+                x = x.T
+                y = y.T
+                v = v.T
+
+                xq = list(range(int(min(x)), int(max(x)), 50))
+                yq = list(range(int(min(y)), int(max(y)), 50))
+
+                xq = np.array(xq)
+                yq = np.array(yq)
+
+                xq, yq = np.meshgrid(xq, yq)
+
+                vq = griddata((x, y), v, (xq, yq), method="linear")
+
+                # for i in range(vq.shape[0]):
+                #     for j in range(vq.shape[1]):
+                #         if np.isnan(vq[i][j]) == False:
+                #             vq[i][j] = vq[i][j].astype(int)
+
+                ax1 = self.__fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图1
+                ax1.set_xlabel('X 轴')  # X轴标题
+                ax1.set_ylabel('Y 轴')  # Y轴标题
+                ax1.set_title("沉积相展示")
+
+                im = ax1.pcolormesh(xq, yq, vq, )
+                self.__fig.colorbar(im)
+
+                self.__fig.canvas.draw()  ##刷新
+                print(item.text(0))
+
+        except AttributeError:
+            print("AttributeError")
 
     ##导入沉积相数据
     @pyqtSlot()
     def on_actiongfd_triggered(self):
-        # print("test")
+
+        print("test")
         curDir = QDir.currentPath()
         aDir = QFileDialog.getExistingDirectory(self, "选择一个目录",
                                                 curDir, QFileDialog.ShowDirsOnly)
         dirObj = QDir(aDir)
         strList = dirObj.entryList(QDir.Files)
-        # print(strList)
+
+        labText = "正在导入文件..."  # 文本信息
+        btnText = "取消"  # "取消"按钮的标题
+        minV = 0
+        maxV = len(strList)
+        dlgProgress = QProgressDialog(labText, btnText, minV, maxV, self)
+        dlgProgress.setWindowTitle("导入文件")
+        dlgProgress.setWindowModality(Qt.WindowModal)  # 模态对话框
+        dlgProgress.setAutoReset(True)  # value()达到最大值时自动调用reset()
+        dlgProgress.setAutoClose(True)  # 调用reset()时隐藏窗口
+        i = 1
         for str in strList:
+            # self.progressBar.setValue(i)
+            dlgProgress.setValue(i)
+            dlgProgress.setLabelText("正在复制文件,第 %d 个" % i)
+
             floor = []
             x = []
             y = []
@@ -140,9 +325,10 @@ class QmyMainWindow(QMainWindow):
                 try:
                     fileStream = QTextStream(fileDevice)
                     fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
-                    fileStream.setCodec("utf-8")  # 必须设置编码，否则不能正常显示汉字
+                    fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
                     while not fileStream.atEnd():
                         lineStr = fileStream.readLine()  # 返回QByteArray类型
+                        # print(lineStr)
 
                         lineList = lineStr.split(" ")
                         x.append(float(lineList[0]))
@@ -167,8 +353,222 @@ class QmyMainWindow(QMainWindow):
                 item = QTreeWidgetItem()
                 item.setText(0, fileName[0][0:-4])
                 self.ui.treeWidget.topLevelItem(0).child(2).addChild(item)
+            i = i + 1
 
         self.ui.treeWidget.topLevelItem(0).child(2).setExpanded(True)
+
+
+        # print(self.CJX["S21"])
+
+    @pyqtSlot()
+    def on_actionBHD_triggered(self):
+        # print("test")
+        curDir = QDir.currentPath()
+        aDir = QFileDialog.getExistingDirectory(self, "选择一个目录",
+                                                curDir, QFileDialog.ShowDirsOnly)
+        dirObj = QDir(aDir)
+        strList = dirObj.entryList(QDir.Files)
+        # print(strList)
+        labText = "正在导入文件..."  # 文本信息
+        btnText = "取消"  # "取消"按钮的标题
+        minV = 0
+        maxV = len(strList)
+        dlgProgress = QProgressDialog(labText, btnText, minV, maxV, self)
+        dlgProgress.setWindowTitle("导入文件")
+        dlgProgress.setWindowModality(Qt.WindowModal)  # 模态对话框
+        dlgProgress.setAutoReset(True)  # value()达到最大值时自动调用reset()
+        dlgProgress.setAutoClose(True)  # 调用reset()时隐藏窗口
+        i = 1
+        for str in strList:
+            dlgProgress.setValue(i)
+            dlgProgress.setLabelText("正在复制文件,第 %d 个" % i)
+            floor = []
+            x = []
+            y = []
+            phase = []  ##相
+            fileName = re.findall(".*\.txt", str)
+            if fileName != []:
+                # print(fileName[0][0:-4])
+                filePath = aDir + "/" + fileName[0]
+                # print(filePath)
+                fileDevice = QFile(filePath)
+                fileDevice.open(QIODevice.ReadOnly | QIODevice.Text)
+                try:
+                    fileStream = QTextStream(fileDevice)
+                    fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
+                    fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
+                    while not fileStream.atEnd():
+                        lineStr = fileStream.readLine()  # 返回QByteArray类型
+
+                        lineList = lineStr.split("\t")
+                        x.append(float(lineList[0]))
+                        y.append(float(lineList[1]))
+                        phase.append(float(lineList[2]))
+
+
+
+                except UnicodeDecodeError:
+                    print(fileName[0] + "文件编码格式有误！")
+
+
+                finally:
+                    fileDevice.close()
+
+                floor.append(x)  # 将读取出的数据按列表形式存储
+                floor.append(y)  # 将读取出的数据按列表形式存储
+                floor.append(phase)  # 将读取出的数据按列表形式存储
+                f = np.array(floor)
+                print(f.shape)
+                self.BHD[fileName[0][0:-4]] = floor  # 用文件名作为键值将不同文件的数据存储在字典中
+                item = QTreeWidgetItem()
+                item.setText(0, fileName[0][0:-4])
+                self.ui.treeWidget.topLevelItem(0).child(4).addChild(item)
+            i = i + 1
+
+        self.ui.treeWidget.topLevelItem(0).child(4).setExpanded(True)
+        # print(self.CJX["S21"])
+
+    @pyqtSlot()
+    def on_actionKXD_triggered(self):
+        # print("test")
+        curDir = QDir.currentPath()
+        aDir = QFileDialog.getExistingDirectory(self, "选择一个目录",
+                                                curDir, QFileDialog.ShowDirsOnly)
+        dirObj = QDir(aDir)
+        strList = dirObj.entryList(QDir.Files)
+        # print(strList)
+        labText = "正在导入文件..."  # 文本信息
+        btnText = "取消"  # "取消"按钮的标题
+        minV = 0
+        maxV = len(strList)
+        dlgProgress = QProgressDialog(labText, btnText, minV, maxV, self)
+        dlgProgress.setWindowTitle("导入文件")
+        dlgProgress.setWindowModality(Qt.WindowModal)  # 模态对话框
+        dlgProgress.setAutoReset(True)  # value()达到最大值时自动调用reset()
+        dlgProgress.setAutoClose(True)  # 调用reset()时隐藏窗口
+        i = 1
+
+        for str in strList:
+
+            dlgProgress.setValue(i)
+            dlgProgress.setLabelText("正在复制文件,第 %d 个" % i)
+
+            floor = []
+            x = []
+            y = []
+            phase = []  ##相
+            fileName = re.findall(".*\.txt", str)
+            if fileName != []:
+                # print(fileName[0][0:-4])
+                filePath = aDir + "/" + fileName[0]
+                # print(filePath)
+                fileDevice = QFile(filePath)
+                fileDevice.open(QIODevice.ReadOnly | QIODevice.Text)
+                try:
+                    fileStream = QTextStream(fileDevice)
+                    fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
+                    fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
+                    while not fileStream.atEnd():
+                        lineStr = fileStream.readLine()  # 返回QByteArray类型
+
+                        lineList = lineStr.split("\t")
+                        x.append(float(lineList[0]))
+                        y.append(float(lineList[1]))
+                        phase.append(float(lineList[2]))
+
+
+
+                except UnicodeDecodeError:
+                    print(fileName[0] + "文件编码格式有误！")
+
+
+                finally:
+                    fileDevice.close()
+
+                floor.append(x)  # 将读取出的数据按列表形式存储
+                floor.append(y)  # 将读取出的数据按列表形式存储
+                floor.append(phase)  # 将读取出的数据按列表形式存储
+                f = np.array(floor)
+                print(f.shape)
+                self.KXD[fileName[0][0:-4]] = floor  # 用文件名作为键值将不同文件的数据存储在字典中
+                item = QTreeWidgetItem()
+                item.setText(0, fileName[0][0:-4])
+                self.ui.treeWidget.topLevelItem(0).child(0).addChild(item)
+            i = i + 1
+
+        self.ui.treeWidget.topLevelItem(0).child(0).setExpanded(True)
+        # print(self.CJX["S21"])
+
+    @pyqtSlot()
+    def on_actionSTL_triggered(self):
+        # print("test")
+        curDir = QDir.currentPath()
+        aDir = QFileDialog.getExistingDirectory(self, "选择一个目录",
+                                                curDir, QFileDialog.ShowDirsOnly)
+        dirObj = QDir(aDir)
+        strList = dirObj.entryList(QDir.Files)
+        # print(strList)
+
+        labText = "正在导入文件..."  # 文本信息
+        btnText = "取消"  # "取消"按钮的标题
+        minV = 0
+        maxV = len(strList)
+        dlgProgress = QProgressDialog(labText, btnText, minV, maxV, self)
+        dlgProgress.setWindowTitle("导入文件")
+        dlgProgress.setWindowModality(Qt.WindowModal)  # 模态对话框
+        dlgProgress.setAutoReset(True)  # value()达到最大值时自动调用reset()
+        dlgProgress.setAutoClose(True)  # 调用reset()时隐藏窗口
+        i = 1
+
+        for str in strList:
+
+            dlgProgress.setValue(i)
+            dlgProgress.setLabelText("正在复制文件,第 %d 个" % i)
+
+            floor = []
+            x = []
+            y = []
+            phase = []  ##相
+            fileName = re.findall(".*\.txt", str)
+            if fileName != []:
+                # print(fileName[0][0:-4])
+                filePath = aDir + "/" + fileName[0]
+                # print(filePath)
+                fileDevice = QFile(filePath)
+                fileDevice.open(QIODevice.ReadOnly | QIODevice.Text)
+                try:
+                    fileStream = QTextStream(fileDevice)
+                    fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
+                    fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
+                    while not fileStream.atEnd():
+                        lineStr = fileStream.readLine()  # 返回QByteArray类型
+
+                        lineList = lineStr.split("\t")
+                        x.append(float(lineList[0]))
+                        y.append(float(lineList[1]))
+                        phase.append(float(lineList[2]))
+
+
+
+                except UnicodeDecodeError:
+                    print(fileName[0] + "文件编码格式有误！")
+
+
+                finally:
+                    fileDevice.close()
+
+                floor.append(x)  # 将读取出的数据按列表形式存储
+                floor.append(y)  # 将读取出的数据按列表形式存储
+                floor.append(phase)  # 将读取出的数据按列表形式存储
+                f = np.array(floor)
+                print(f.shape)
+                self.STL[fileName[0][0:-4]] = floor  # 用文件名作为键值将不同文件的数据存储在字典中
+                item = QTreeWidgetItem()
+                item.setText(0, fileName[0][0:-4])
+                self.ui.treeWidget.topLevelItem(0).child(1).addChild(item)
+            i = i + 1
+
+        self.ui.treeWidget.topLevelItem(0).child(1).setExpanded(True)
         # print(self.CJX["S21"])
 
 

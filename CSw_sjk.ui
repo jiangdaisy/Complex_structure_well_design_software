@@ -94,16 +94,6 @@
      </item>
     </item>
    </widget>
-   <widget class="QChartView" name="graphicsView">
-    <property name="geometry">
-     <rect>
-      <x>280</x>
-      <y>30</y>
-      <width>611</width>
-      <height>541</height>
-     </rect>
-    </property>
-   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -127,14 +117,18 @@
     </widget>
     <widget class="QMenu" name="menu_7">
      <property name="title">
-      <string>导入数据库</string>
+      <string>导入单项数据</string>
      </property>
      <addaction name="actiongfd"/>
+     <addaction name="actionBHD"/>
+     <addaction name="actionKXD"/>
+     <addaction name="actionSTL"/>
     </widget>
     <addaction name="actionfd"/>
     <addaction name="actionxi"/>
     <addaction name="menu_7"/>
     <addaction name="menu_2"/>
+    <addaction name="actiondataset"/>
    </widget>
    <widget class="QMenu" name="menu_3">
     <property name="title">
@@ -253,14 +247,27 @@
     <string>沉积相</string>
    </property>
   </action>
+  <action name="actionBHD">
+   <property name="text">
+    <string>含油饱和度</string>
+   </property>
+  </action>
+  <action name="actionKXD">
+   <property name="text">
+    <string>孔隙度</string>
+   </property>
+  </action>
+  <action name="actionSTL">
+   <property name="text">
+    <string>渗透率</string>
+   </property>
+  </action>
+  <action name="actiondataset">
+   <property name="text">
+    <string>导入数据库</string>
+   </property>
+  </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QChartView</class>
-   <extends>QGraphicsView</extends>
-   <header location="global">qchartview.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>
