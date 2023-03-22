@@ -19,7 +19,7 @@
      <rect>
       <x>0</x>
       <y>30</y>
-      <width>256</width>
+      <width>201</width>
       <height>541</height>
      </rect>
     </property>
@@ -123,6 +123,15 @@
      <addaction name="actionBHD"/>
      <addaction name="actionKXD"/>
      <addaction name="actionSTL"/>
+     <addaction name="actiondjdzsj"/>
+     <addaction name="actionxspmsj"/>
+     <addaction name="actionsksj"/>
+     <addaction name="actioncssj"/>
+     <addaction name="actioncjdysj"/>
+     <addaction name="actionzsjs"/>
+     <addaction name="actionxsqx"/>
+     <addaction name="actioncyjs"/>
+     <addaction name="actionds"/>
     </widget>
     <addaction name="actionfd"/>
     <addaction name="actionxi"/>
@@ -265,6 +274,51 @@
   <action name="actiondataset">
    <property name="text">
     <string>导入数据库</string>
+   </property>
+  </action>
+  <action name="actiondjdzsj">
+   <property name="text">
+    <string>单井地质数据</string>
+   </property>
+  </action>
+  <action name="actionxspmsj">
+   <property name="text">
+    <string>吸水剖面数据</string>
+   </property>
+  </action>
+  <action name="actionsksj">
+   <property name="text">
+    <string>射孔数据</string>
+   </property>
+  </action>
+  <action name="actioncssj">
+   <property name="text">
+    <string>措施数据</string>
+   </property>
+  </action>
+  <action name="actioncjdysj">
+   <property name="text">
+    <string>沉积单元数据</string>
+   </property>
+  </action>
+  <action name="actionzsjs">
+   <property name="text">
+    <string>注水井史</string>
+   </property>
+  </action>
+  <action name="actionxsqx">
+   <property name="text">
+    <string>相渗曲线</string>
+   </property>
+  </action>
+  <action name="actioncyjs">
+   <property name="text">
+    <string>采油井史</string>
+   </property>
+  </action>
+  <action name="actionds">
+   <property name="text">
+    <string>顶深</string>
    </property>
   </action>
  </widget>

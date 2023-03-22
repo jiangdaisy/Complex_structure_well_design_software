@@ -18,6 +18,7 @@ from PyQt5.QtCore import pyqtSlot, QDir, QIODevice, QFile, QTextStream
 from PyQt5.QtWidgets import QFileDialog
 
 import numpy as np
+import CSw_dcfbx_Slot
 
 
 class QmyMainWindow(QMainWindow):
@@ -37,6 +38,16 @@ class QmyMainWindow(QMainWindow):
         self.BHD = {}
         self.KXD = {}
         self.STL = {}
+
+        self.DJDZSJ = []
+        self.XSPMSJ = []
+        self.SKSJ = []
+        self.CSSJ = []
+        self.CJDYSJ = []
+        self.ZSJS = []
+        self.XSQX = []
+        self.CYJS = []
+        self.DS = []
 
         mplStyle.use("classic")  # 使用样式，必须在绘图之前调用,修改字体后才可显示汉字
         mpl.rcParams['font.sans-serif'] = ['KaiTi', 'SimHei']  # 显示汉字为 楷体， 汉字不支持 粗体，斜体等设置
@@ -81,6 +92,7 @@ class QmyMainWindow(QMainWindow):
         splitter.setOrientation(Qt.Horizontal)
         splitter.addWidget(self.ui.treeWidget)  # 左侧控制面板
         splitter.addWidget(figCanvas)  # 右侧FigureCanvas对象
+
         self.setCentralWidget(splitter)
 
     ##树组件响应画图
@@ -309,7 +321,7 @@ class QmyMainWindow(QMainWindow):
         for str in strList:
             # self.progressBar.setValue(i)
             dlgProgress.setValue(i)
-            dlgProgress.setLabelText("正在复制文件,第 %d 个" % i)
+            dlgProgress.setLabelText("正在导入文件,第 %d 个" % i)
 
             floor = []
             x = []
@@ -356,7 +368,6 @@ class QmyMainWindow(QMainWindow):
             i = i + 1
 
         self.ui.treeWidget.topLevelItem(0).child(2).setExpanded(True)
-
 
         # print(self.CJX["S21"])
 
@@ -570,6 +581,213 @@ class QmyMainWindow(QMainWindow):
 
         self.ui.treeWidget.topLevelItem(0).child(1).setExpanded(True)
         # print(self.CJX["S21"])
+
+    # 导入单井地质数据
+    @pyqtSlot()
+    def on_actiondjdzsj_triggered(self):
+
+        curPath = QDir.currentPath()  # 获取系统当前目录
+        title = "打开一个文件"
+        filt = "文本文件(*.txt);;所有文件(*.*)"
+        fileName, flt = QFileDialog.getOpenFileName(self, title, curPath, filt)
+
+        if fileName != "":
+            fileDevice = QFile(fileName)
+            fileDevice.open(QIODevice.ReadOnly | QIODevice.Text)
+            try:
+                fileStream = QTextStream(fileDevice)
+                fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
+                fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
+                while not fileStream.atEnd():
+                    lineStr = fileStream.readLine()  # 返回QByteArray类型
+
+                    lineList = lineStr.split("\t")
+                    self.DJDZSJ.append(lineList)
+
+            except UnicodeDecodeError:
+                print(fileName[0] + "文件编码格式有误！")
+
+            finally:
+                fileDevice.close()
+
+            # print(self.DJDZSJ[-1])
+
+            item = QTreeWidgetItem()
+            item.setText(0, "单井地质数据")
+            self.ui.treeWidget.topLevelItem(1).child(4).addChild(item)
+        self.ui.treeWidget.topLevelItem(1).child(4).setExpanded(True)
+
+    @pyqtSlot()
+    def on_actionxspmsj_triggered(self):
+        curPath = QDir.currentPath()  # 获取系统当前目录
+        title = "打开一个文件"
+        filt = "文本文件(*.txt);;所有文件(*.*)"
+        fileName, flt = QFileDialog.getOpenFileName(self, title, curPath, filt)
+
+        if fileName != "":
+            fileDevice = QFile(fileName)
+            fileDevice.open(QIODevice.ReadOnly | QIODevice.Text)
+            try:
+                fileStream = QTextStream(fileDevice)
+                fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
+                fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
+                while not fileStream.atEnd():
+                    lineStr = fileStream.readLine()  # 返回QByteArray类型
+
+                    lineList = lineStr.split("\t")
+                    self.XSPMSJ.append(lineList)
+
+            except UnicodeDecodeError:
+                print(fileName[0] + "文件编码格式有误！")
+
+            finally:
+                fileDevice.close()
+
+            # print(self.XSPMSJ[-1])
+
+            item = QTreeWidgetItem()
+            item.setText(0, "吸水剖面数据")
+            self.ui.treeWidget.topLevelItem(1).child(3).addChild(item)
+        self.ui.treeWidget.topLevelItem(1).child(3).setExpanded(True)
+
+    def on_actionsksj_triggered(self):
+        curPath = QDir.currentPath()  # 获取系统当前目录
+        title = "打开一个文件"
+        filt = "文本文件(*.txt);;所有文件(*.*)"
+        fileName, flt = QFileDialog.getOpenFileName(self, title, curPath, filt)
+
+        if fileName != "":
+            fileDevice = QFile(fileName)
+            fileDevice.open(QIODevice.ReadOnly | QIODevice.Text)
+            try:
+                fileStream = QTextStream(fileDevice)
+                fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
+                fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
+                while not fileStream.atEnd():
+                    lineStr = fileStream.readLine()  # 返回QByteArray类型
+
+                    lineList = lineStr.split("\t")
+                    self.XSPMSJ.append(lineList)
+
+            except UnicodeDecodeError:
+                print(fileName[0] + "文件编码格式有误！")
+
+            finally:
+                fileDevice.close()
+
+            # print(self.XSPMSJ[-1])
+
+            item = QTreeWidgetItem()
+            item.setText(0, "射孔数据")
+            self.ui.treeWidget.topLevelItem(1).child(2).addChild(item)
+        self.ui.treeWidget.topLevelItem(1).child(2).setExpanded(True)
+
+
+    def on_actioncssj_triggered(self):
+        curPath = QDir.currentPath()  # 获取系统当前目录
+        title = "打开一个文件"
+        filt = "文本文件(*.txt);;所有文件(*.*)"
+        fileName, flt = QFileDialog.getOpenFileName(self, title, curPath, filt)
+
+        if fileName != "":
+            fileDevice = QFile(fileName)
+            fileDevice.open(QIODevice.ReadOnly | QIODevice.Text)
+            try:
+                fileStream = QTextStream(fileDevice)
+                fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
+                fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
+                while not fileStream.atEnd():
+                    lineStr = fileStream.readLine()  # 返回QByteArray类型
+
+                    lineList = lineStr.split("\t")
+                    self.CSSJ.append(lineList)
+
+            except UnicodeDecodeError:
+                print(fileName[0] + "文件编码格式有误！")
+
+            finally:
+                fileDevice.close()
+
+            # print(self.XSPMSJ[-1])
+
+            item = QTreeWidgetItem()
+            item.setText(0, "措施数据")
+            self.ui.treeWidget.topLevelItem(1).child(5).addChild(item)
+        self.ui.treeWidget.topLevelItem(1).child(5).setExpanded(True)
+
+
+    def on_actioncjdysj_triggered(self):
+        curPath = QDir.currentPath()  # 获取系统当前目录
+        title = "打开一个文件"
+        filt = "文本文件(*.txt);;所有文件(*.*)"
+        fileName, flt = QFileDialog.getOpenFileName(self, title, curPath, filt)
+
+        if fileName != "":
+            fileDevice = QFile(fileName)
+            fileDevice.open(QIODevice.ReadOnly | QIODevice.Text)
+            try:
+                fileStream = QTextStream(fileDevice)
+                fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
+                fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
+                while not fileStream.atEnd():
+                    lineStr = fileStream.readLine()  # 返回QByteArray类型
+
+                    lineList = lineStr.split("\t")
+                    self.CJDYSJ.append(lineList)
+
+            except UnicodeDecodeError:
+                print(fileName[0] + "文件编码格式有误！")
+
+            finally:
+                fileDevice.close()
+
+            # print(self.XSPMSJ[-1])
+
+            item = QTreeWidgetItem()
+            item.setText(0, "沉积单元数据")
+            self.ui.treeWidget.topLevelItem(1).child(1).addChild(item)
+        self.ui.treeWidget.topLevelItem(1).child(1).setExpanded(True)
+
+
+    def on_actionzsjs_triggered(self):
+        curPath = QDir.currentPath()  # 获取系统当前目录
+        title = "打开一个文件"
+        filt = "文本文件(*.txt);;所有文件(*.*)"
+        fileName, flt = QFileDialog.getOpenFileName(self, title, curPath, filt)
+
+        if fileName != "":
+            fileDevice = QFile(fileName)
+            fileDevice.open(QIODevice.ReadOnly | QIODevice.Text)
+            try:
+                fileStream = QTextStream(fileDevice)
+                fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
+                fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
+                while not fileStream.atEnd():
+                    lineStr = fileStream.readLine()  # 返回QByteArray类型
+
+                    lineList = lineStr.split("\t")
+                    self.ZSJS.append(lineList)
+
+            except UnicodeDecodeError:
+                print(fileName[0] + "文件编码格式有误！")
+
+            finally:
+                fileDevice.close()
+
+            # print(self.XSPMSJ[-1])
+
+            item = QTreeWidgetItem()
+            item.setText(0, "注水井史")
+            self.ui.treeWidget.topLevelItem(1).child(0).addChild(item)
+        self.ui.treeWidget.topLevelItem(1).child(0).setExpanded(True)
+
+
+
+    @pyqtSlot()
+    def on_actionfsd_triggered(self):
+        newWindow = CSw_dcfbx_Slot.QmyMainWindow(self)
+        newWindow.show()
+
 
 
 if __name__ == "__main__":  # 用于当前窗体测试
