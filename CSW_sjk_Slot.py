@@ -20,6 +20,21 @@ from PyQt5.QtWidgets import QFileDialog
 import numpy as np
 import CSw_dcfbx_Slot
 
+CJX = {}
+BHD = {}
+KXD = {}
+STL = {}
+
+DJDZSJ = {}
+XSPMSJ = []
+SKSJ = []
+CSSJ = []
+CJDYSJ = {}
+ZSJS = []
+XSQX = []
+CYJS = []
+DS = []
+
 
 class QmyMainWindow(QMainWindow):
 
@@ -34,20 +49,7 @@ class QmyMainWindow(QMainWindow):
         self.ui.treeWidget.setAlternatingRowColors(True)
         self.ui.treeWidget.clicked.connect(self.on_treeWidget_clicked)
 
-        self.CJX = {}
-        self.BHD = {}
-        self.KXD = {}
-        self.STL = {}
 
-        self.DJDZSJ = []
-        self.XSPMSJ = []
-        self.SKSJ = []
-        self.CSSJ = []
-        self.CJDYSJ = []
-        self.ZSJS = []
-        self.XSQX = []
-        self.CYJS = []
-        self.DS = []
 
         mplStyle.use("classic")  # 使用样式，必须在绘图之前调用,修改字体后才可显示汉字
         mpl.rcParams['font.sans-serif'] = ['KaiTi', 'SimHei']  # 显示汉字为 楷体， 汉字不支持 粗体，斜体等设置
@@ -103,9 +105,9 @@ class QmyMainWindow(QMainWindow):
             item = self.ui.treeWidget.currentItem()
 
             if itemParent.text(0) == "沉积相":
-                x = self.CJX[item.text(0)][0]  # float 型
-                y = self.CJX[item.text(0)][1]
-                v = self.CJX[item.text(0)][2]
+                x = CJX[item.text(0)][0]  # float 型
+                y = CJX[item.text(0)][1]
+                v = CJX[item.text(0)][2]
 
                 for i in range(len(v)):
                     if v[i] == -999:
@@ -164,9 +166,9 @@ class QmyMainWindow(QMainWindow):
 
 
             elif itemParent.text(0) == "孔隙度":
-                x = self.KXD[item.text(0)][0]  # float 型
-                y = self.KXD[item.text(0)][1]
-                v = self.KXD[item.text(0)][2]
+                x = KXD[item.text(0)][0]  # float 型
+                y = KXD[item.text(0)][1]
+                v = KXD[item.text(0)][2]
 
                 for i in range(len(v)):
                     if v[i] == -999:
@@ -208,9 +210,9 @@ class QmyMainWindow(QMainWindow):
 
 
             elif itemParent.text(0) == "渗透率":
-                x = self.STL[item.text(0)][0]  # float 型
-                y = self.STL[item.text(0)][1]
-                v = self.STL[item.text(0)][2]
+                x = STL[item.text(0)][0]  # float 型
+                y = STL[item.text(0)][1]
+                v = STL[item.text(0)][2]
 
                 for i in range(len(v)):
                     if v[i] == -999:
@@ -252,9 +254,9 @@ class QmyMainWindow(QMainWindow):
 
 
             elif itemParent.text(0) == "含油饱和度":
-                x = self.BHD[item.text(0)][0]  # float 型
-                y = self.BHD[item.text(0)][1]
-                v = self.BHD[item.text(0)][2]
+                x = BHD[item.text(0)][0]  # float 型
+                y = BHD[item.text(0)][1]
+                v = BHD[item.text(0)][2]
 
                 for i in range(len(v)):
                     if v[i] == -999:
@@ -290,6 +292,81 @@ class QmyMainWindow(QMainWindow):
 
                 im = ax1.pcolormesh(xq, yq, vq, )
                 self.__fig.colorbar(im)
+
+                self.__fig.canvas.draw()  ##刷新
+                print(item.text(0))
+
+            elif itemParent.text(0) == "沉积单元数据":
+
+                floor = CJDYSJ[item.text(0)]  # float 型
+                floor = np.array(floor)
+                floor = floor.T
+                floor = floor.tolist()
+                wellNum = floor[2]
+                x = []
+                y = []
+                yxhd = floor[13]
+                kxd = floor[14]
+                stl = floor[15]
+
+                for i in wellNum:
+                    x.append(DJDZSJ[i][0])
+                    y.append(DJDZSJ[i][1])
+
+                x = np.array(x)
+                y = np.array(y)
+                yxhd = np.array(yxhd)
+                kxd = np.array(kxd)
+                stl = np.array(stl)
+
+                x = x.T
+                y = y.T
+                yxhd = yxhd.T
+                kxd = kxd.T
+                stl = stl.T
+
+                xq = list(range(int(min(x)), int(max(x)), 50))
+                yq = list(range(int(min(y)), int(max(y)), 50))
+
+                xq = np.array(xq)
+                yq = np.array(yq)
+
+                xq, yq = np.meshgrid(xq, yq)
+
+                yxhdq = griddata((x, y), yxhd, (xq, yq), method="linear")
+                kxdq = griddata((x, y), kxd, (xq, yq), method="linear")
+                stlq = griddata((x, y), stl, (xq, yq), method="linear")
+
+                # # for i in range(vq.shape[0]):
+                # #     for j in range(vq.shape[1]):
+                # #         if np.isnan(vq[i][j]) == False:
+                # #             vq[i][j] = vq[i][j].astype(int)
+
+                ax1 = self.__fig.add_subplot(3, 1, 1, label="sin-cos plot")  # 子图1
+                ax1.set_xlabel('X 轴')  # X轴标题
+                ax1.set_ylabel('Y 轴')  # Y轴标题
+                ax1.set_title("沉积相展示")
+
+                ax2 = self.__fig.add_subplot(3, 1, 2, label="sin-cos plot")  # 子图2
+                ax2.set_xlabel('X 轴')  # X轴标题
+                ax2.set_ylabel('Y 轴')  # Y轴标题
+                ax2.set_title("孔隙度展示")
+
+                ax3 = self.__fig.add_subplot(3, 1, 3, label="sin-cos plot")  # 子图3
+                ax3.set_xlabel('X 轴')  # X轴标题
+                ax3.set_ylabel('Y 轴')  # Y轴标题
+                ax3.set_title("渗透率展示")
+
+                im1 = ax1.pcolormesh(xq, yq, kxdq)
+                self.__fig.colorbar(im1,ax=ax1)
+
+                im2 = ax2.pcolormesh(xq, yq, yxhdq)
+                self.__fig.colorbar(im2, ax=ax2)
+
+                im3 = ax3.pcolormesh(xq, yq, stlq)
+                self.__fig.colorbar(im3, ax=ax3)
+
+
 
                 self.__fig.canvas.draw()  ##刷新
                 print(item.text(0))
@@ -361,7 +438,7 @@ class QmyMainWindow(QMainWindow):
                 floor.append(phase)  # 将读取出的数据按列表形式存储
                 f = np.array(floor)
                 print(f.shape)
-                self.CJX[fileName[0][0:-4]] = floor  # 用文件名作为键值将不同文件的数据存储在字典中
+                CJX[fileName[0][0:-4]] = floor  # 用文件名作为键值将不同文件的数据存储在字典中
                 item = QTreeWidgetItem()
                 item.setText(0, fileName[0][0:-4])
                 self.ui.treeWidget.topLevelItem(0).child(2).addChild(item)
@@ -430,7 +507,7 @@ class QmyMainWindow(QMainWindow):
                 floor.append(phase)  # 将读取出的数据按列表形式存储
                 f = np.array(floor)
                 print(f.shape)
-                self.BHD[fileName[0][0:-4]] = floor  # 用文件名作为键值将不同文件的数据存储在字典中
+                BHD[fileName[0][0:-4]] = floor  # 用文件名作为键值将不同文件的数据存储在字典中
                 item = QTreeWidgetItem()
                 item.setText(0, fileName[0][0:-4])
                 self.ui.treeWidget.topLevelItem(0).child(4).addChild(item)
@@ -501,7 +578,7 @@ class QmyMainWindow(QMainWindow):
                 floor.append(phase)  # 将读取出的数据按列表形式存储
                 f = np.array(floor)
                 print(f.shape)
-                self.KXD[fileName[0][0:-4]] = floor  # 用文件名作为键值将不同文件的数据存储在字典中
+                KXD[fileName[0][0:-4]] = floor  # 用文件名作为键值将不同文件的数据存储在字典中
                 item = QTreeWidgetItem()
                 item.setText(0, fileName[0][0:-4])
                 self.ui.treeWidget.topLevelItem(0).child(0).addChild(item)
@@ -573,7 +650,7 @@ class QmyMainWindow(QMainWindow):
                 floor.append(phase)  # 将读取出的数据按列表形式存储
                 f = np.array(floor)
                 print(f.shape)
-                self.STL[fileName[0][0:-4]] = floor  # 用文件名作为键值将不同文件的数据存储在字典中
+                STL[fileName[0][0:-4]] = floor  # 用文件名作为键值将不同文件的数据存储在字典中
                 item = QTreeWidgetItem()
                 item.setText(0, fileName[0][0:-4])
                 self.ui.treeWidget.topLevelItem(0).child(1).addChild(item)
@@ -598,11 +675,22 @@ class QmyMainWindow(QMainWindow):
                 fileStream = QTextStream(fileDevice)
                 fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
                 fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
+                i = 1
                 while not fileStream.atEnd():
-                    lineStr = fileStream.readLine()  # 返回QByteArray类型
 
+                    lineStr = fileStream.readLine()  # 返回QByteArray类型
                     lineList = lineStr.split("\t")
-                    self.DJDZSJ.append(lineList)
+
+                    if lineList[0] != str(i):
+                        continue
+
+                    DJDZSJ[lineList[1]] = lineList[2:]
+                    item = QTreeWidgetItem()
+                    item.setText(0, lineList[1])
+                    self.ui.treeWidget.topLevelItem(1).child(4).addChild(item)
+                    i = i + 1
+
+
 
             except UnicodeDecodeError:
                 print(fileName[0] + "文件编码格式有误！")
@@ -614,7 +702,7 @@ class QmyMainWindow(QMainWindow):
 
             item = QTreeWidgetItem()
             item.setText(0, "单井地质数据")
-            self.ui.treeWidget.topLevelItem(1).child(4).addChild(item)
+            # self.ui.treeWidget.topLevelItem(1).child(4).addChild(item)
         self.ui.treeWidget.topLevelItem(1).child(4).setExpanded(True)
 
     @pyqtSlot()
@@ -635,7 +723,8 @@ class QmyMainWindow(QMainWindow):
                     lineStr = fileStream.readLine()  # 返回QByteArray类型
 
                     lineList = lineStr.split("\t")
-                    self.XSPMSJ.append(lineList)
+
+                    XSPMSJ.append(lineList)
 
             except UnicodeDecodeError:
                 print(fileName[0] + "文件编码格式有误！")
@@ -650,6 +739,7 @@ class QmyMainWindow(QMainWindow):
             self.ui.treeWidget.topLevelItem(1).child(3).addChild(item)
         self.ui.treeWidget.topLevelItem(1).child(3).setExpanded(True)
 
+    @pyqtSlot()
     def on_actionsksj_triggered(self):
         curPath = QDir.currentPath()  # 获取系统当前目录
         title = "打开一个文件"
@@ -667,7 +757,7 @@ class QmyMainWindow(QMainWindow):
                     lineStr = fileStream.readLine()  # 返回QByteArray类型
 
                     lineList = lineStr.split("\t")
-                    self.XSPMSJ.append(lineList)
+                    XSPMSJ.append(lineList)
 
             except UnicodeDecodeError:
                 print(fileName[0] + "文件编码格式有误！")
@@ -682,7 +772,7 @@ class QmyMainWindow(QMainWindow):
             self.ui.treeWidget.topLevelItem(1).child(2).addChild(item)
         self.ui.treeWidget.topLevelItem(1).child(2).setExpanded(True)
 
-
+    @pyqtSlot()
     def on_actioncssj_triggered(self):
         curPath = QDir.currentPath()  # 获取系统当前目录
         title = "打开一个文件"
@@ -700,7 +790,7 @@ class QmyMainWindow(QMainWindow):
                     lineStr = fileStream.readLine()  # 返回QByteArray类型
 
                     lineList = lineStr.split("\t")
-                    self.CSSJ.append(lineList)
+                    CSSJ.append(lineList)
 
             except UnicodeDecodeError:
                 print(fileName[0] + "文件编码格式有误！")
@@ -715,7 +805,7 @@ class QmyMainWindow(QMainWindow):
             self.ui.treeWidget.topLevelItem(1).child(5).addChild(item)
         self.ui.treeWidget.topLevelItem(1).child(5).setExpanded(True)
 
-
+    @pyqtSlot()
     def on_actioncjdysj_triggered(self):
         curPath = QDir.currentPath()  # 获取系统当前目录
         title = "打开一个文件"
@@ -729,11 +819,23 @@ class QmyMainWindow(QMainWindow):
                 fileStream = QTextStream(fileDevice)
                 fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
                 fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
+                i = 0
                 while not fileStream.atEnd():
+                    i = i + 1
                     lineStr = fileStream.readLine()  # 返回QByteArray类型
-
                     lineList = lineStr.split("\t")
-                    self.CJDYSJ.append(lineList)
+                    if i == 1:
+                        continue
+
+                    floor = lineList[3] + lineList[4]
+                    if floor in CJDYSJ:
+                        CJDYSJ[floor].append(lineList)
+                    else:
+                        CJDYSJ[floor] = []
+                        CJDYSJ[floor].append(lineList)
+                        item = QTreeWidgetItem()
+                        item.setText(0, floor)
+                        self.ui.treeWidget.topLevelItem(1).child(1).addChild(item)
 
             except UnicodeDecodeError:
                 print(fileName[0] + "文件编码格式有误！")
@@ -741,14 +843,14 @@ class QmyMainWindow(QMainWindow):
             finally:
                 fileDevice.close()
 
-            # print(self.XSPMSJ[-1])
 
-            item = QTreeWidgetItem()
-            item.setText(0, "沉积单元数据")
-            self.ui.treeWidget.topLevelItem(1).child(1).addChild(item)
+
+            # item = QTreeWidgetItem()
+            # item.setText(0, "沉积单元数据")
+            # self.ui.treeWidget.topLevelItem(1).child(1).addChild(item)
         self.ui.treeWidget.topLevelItem(1).child(1).setExpanded(True)
 
-
+    @pyqtSlot()
     def on_actionzsjs_triggered(self):
         curPath = QDir.currentPath()  # 获取系统当前目录
         title = "打开一个文件"
@@ -766,7 +868,7 @@ class QmyMainWindow(QMainWindow):
                     lineStr = fileStream.readLine()  # 返回QByteArray类型
 
                     lineList = lineStr.split("\t")
-                    self.ZSJS.append(lineList)
+                    ZSJS.append(lineList)
 
             except UnicodeDecodeError:
                 print(fileName[0] + "文件编码格式有误！")
