@@ -1,7 +1,7 @@
 import re
 import sys
 
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSlot, Qt, QThread, pyqtSignal
 import matplotlib as mpl
 import matplotlib.style as mplStyle
@@ -46,8 +46,23 @@ class QmyMainWindow(QMainWindow):
         # 展开节点
         self.ui.treeWidget.topLevelItem(0).setExpanded(True)
         self.ui.treeWidget.topLevelItem(1).setExpanded(True)
-        self.ui.treeWidget.setAlternatingRowColors(True)
+        # self.ui.treeWidget.setAlternatingRowColors(True)
         self.ui.treeWidget.clicked.connect(self.on_treeWidget_clicked)
+        self.ui.treeWidget.topLevelItem(0).setIcon(0, QtGui.QIcon('images/122.bmp'))
+        self.ui.treeWidget.topLevelItem(1).setIcon(0, QtGui.QIcon('images/122.bmp'))
+        self.ui.treeWidget.topLevelItem(0).child(0).setIcon(0, QtGui.QIcon('images/122.bmp'))
+        self.ui.treeWidget.topLevelItem(0).child(1).setIcon(0, QtGui.QIcon('images/122.bmp'))
+        self.ui.treeWidget.topLevelItem(0).child(2).setIcon(0, QtGui.QIcon('images/122.bmp'))
+        self.ui.treeWidget.topLevelItem(0).child(3).setIcon(0, QtGui.QIcon('images/122.bmp'))
+        self.ui.treeWidget.topLevelItem(0).child(4).setIcon(0, QtGui.QIcon('images/122.bmp'))
+        self.ui.treeWidget.topLevelItem(1).child(0).setIcon(0, QtGui.QIcon('images/122.bmp'))
+        self.ui.treeWidget.topLevelItem(1).child(1).setIcon(0, QtGui.QIcon('images/122.bmp'))
+        self.ui.treeWidget.topLevelItem(1).child(2).setIcon(0, QtGui.QIcon('images/122.bmp'))
+        self.ui.treeWidget.topLevelItem(1).child(3).setIcon(0, QtGui.QIcon('images/122.bmp'))
+        self.ui.treeWidget.topLevelItem(1).child(4).setIcon(0, QtGui.QIcon('images/122.bmp'))
+        self.ui.treeWidget.topLevelItem(1).child(5).setIcon(0, QtGui.QIcon('images/122.bmp'))
+
+
 
 
 
@@ -345,7 +360,7 @@ class QmyMainWindow(QMainWindow):
                 ax1 = self.__fig.add_subplot(3, 1, 1, label="sin-cos plot")  # 子图1
                 ax1.set_xlabel('X 轴')  # X轴标题
                 ax1.set_ylabel('Y 轴')  # Y轴标题
-                ax1.set_title("沉积相展示")
+                ax1.set_title("有效厚度展示")
 
                 ax2 = self.__fig.add_subplot(3, 1, 2, label="sin-cos plot")  # 子图2
                 ax2.set_xlabel('X 轴')  # X轴标题
@@ -441,6 +456,7 @@ class QmyMainWindow(QMainWindow):
                 CJX[fileName[0][0:-4]] = floor  # 用文件名作为键值将不同文件的数据存储在字典中
                 item = QTreeWidgetItem()
                 item.setText(0, fileName[0][0:-4])
+                item.setIcon(0, QtGui.QIcon('images/29.ico'))
                 self.ui.treeWidget.topLevelItem(0).child(2).addChild(item)
             i = i + 1
 
@@ -510,6 +526,7 @@ class QmyMainWindow(QMainWindow):
                 BHD[fileName[0][0:-4]] = floor  # 用文件名作为键值将不同文件的数据存储在字典中
                 item = QTreeWidgetItem()
                 item.setText(0, fileName[0][0:-4])
+                item.setIcon(0, QtGui.QIcon('images/29.ico'))
                 self.ui.treeWidget.topLevelItem(0).child(4).addChild(item)
             i = i + 1
 
@@ -581,6 +598,7 @@ class QmyMainWindow(QMainWindow):
                 KXD[fileName[0][0:-4]] = floor  # 用文件名作为键值将不同文件的数据存储在字典中
                 item = QTreeWidgetItem()
                 item.setText(0, fileName[0][0:-4])
+                item.setIcon(0, QtGui.QIcon('images/29.ico'))
                 self.ui.treeWidget.topLevelItem(0).child(0).addChild(item)
             i = i + 1
 
@@ -653,6 +671,7 @@ class QmyMainWindow(QMainWindow):
                 STL[fileName[0][0:-4]] = floor  # 用文件名作为键值将不同文件的数据存储在字典中
                 item = QTreeWidgetItem()
                 item.setText(0, fileName[0][0:-4])
+                item.setIcon(0, QtGui.QIcon('images/29.ico'))
                 self.ui.treeWidget.topLevelItem(0).child(1).addChild(item)
             i = i + 1
 
@@ -702,6 +721,7 @@ class QmyMainWindow(QMainWindow):
 
             item = QTreeWidgetItem()
             item.setText(0, "单井地质数据")
+            item.setIcon(0, QtGui.QIcon('images/29.ico'))
             # self.ui.treeWidget.topLevelItem(1).child(4).addChild(item)
         self.ui.treeWidget.topLevelItem(1).child(4).setExpanded(True)
 
@@ -736,6 +756,7 @@ class QmyMainWindow(QMainWindow):
 
             item = QTreeWidgetItem()
             item.setText(0, "吸水剖面数据")
+            item.setIcon(0, QtGui.QIcon('images/29.ico'))
             self.ui.treeWidget.topLevelItem(1).child(3).addChild(item)
         self.ui.treeWidget.topLevelItem(1).child(3).setExpanded(True)
 
@@ -769,6 +790,7 @@ class QmyMainWindow(QMainWindow):
 
             item = QTreeWidgetItem()
             item.setText(0, "射孔数据")
+            item.setIcon(0, QtGui.QIcon('images/29.ico'))
             self.ui.treeWidget.topLevelItem(1).child(2).addChild(item)
         self.ui.treeWidget.topLevelItem(1).child(2).setExpanded(True)
 
@@ -802,6 +824,7 @@ class QmyMainWindow(QMainWindow):
 
             item = QTreeWidgetItem()
             item.setText(0, "措施数据")
+            item.setIcon(0, QtGui.QIcon('images/29.ico'))
             self.ui.treeWidget.topLevelItem(1).child(5).addChild(item)
         self.ui.treeWidget.topLevelItem(1).child(5).setExpanded(True)
 
@@ -835,6 +858,7 @@ class QmyMainWindow(QMainWindow):
                         CJDYSJ[floor].append(lineList)
                         item = QTreeWidgetItem()
                         item.setText(0, floor)
+                        item.setIcon(0, QtGui.QIcon('images/29.ico'))
                         self.ui.treeWidget.topLevelItem(1).child(1).addChild(item)
 
             except UnicodeDecodeError:
@@ -880,6 +904,7 @@ class QmyMainWindow(QMainWindow):
 
             item = QTreeWidgetItem()
             item.setText(0, "注水井史")
+            item.setIcon(0, QtGui.QIcon('images/29.ico'))
             self.ui.treeWidget.topLevelItem(1).child(0).addChild(item)
         self.ui.treeWidget.topLevelItem(1).child(0).setExpanded(True)
 
