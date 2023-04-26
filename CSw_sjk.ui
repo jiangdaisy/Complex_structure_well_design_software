@@ -6,101 +6,171 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1635</width>
-    <height>1093</height>
+    <width>1262</width>
+    <height>1206</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QTreeWidget" name="treeWidget">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>30</y>
-      <width>201</width>
-      <height>541</height>
-     </rect>
+   <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,4,1">
+    <property name="spacing">
+     <number>0</number>
     </property>
-    <column>
-     <property name="text">
-      <string notr="true">数据目录</string>
-     </property>
-    </column>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item>
-     <property name="text">
-      <string>模型数据</string>
-     </property>
-     <item>
-      <property name="text">
-       <string>孔隙度</string>
+     <widget class="QTreeWidget" name="treeWidget">
+      <property name="maximumSize">
+       <size>
+        <width>244</width>
+        <height>16777215</height>
+       </size>
       </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>渗透率</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>沉积相</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>相渗曲线</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>含油饱和度</string>
-      </property>
-     </item>
+      <column>
+       <property name="text">
+        <string notr="true">数据目录</string>
+       </property>
+      </column>
+      <item>
+       <property name="text">
+        <string>模型数据</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>孔隙度</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>渗透率</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>沉积相</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>相渗曲线</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>含油饱和度</string>
+        </property>
+       </item>
+      </item>
+      <item>
+       <property name="text">
+        <string>注采井数据</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>油水井史</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>沉积单元数据</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>射孔数据</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>吸水剖面数据</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>单井地质数据</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>措施数据</string>
+        </property>
+       </item>
+      </item>
+     </widget>
     </item>
     <item>
-     <property name="text">
-      <string>注采井数据</string>
-     </property>
-     <item>
-      <property name="text">
-       <string>油水井史</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>沉积单元数据</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>射孔数据</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>吸水剖面数据</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>单井地质数据</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>措施数据</string>
-      </property>
-     </item>
+     <widget class="QTabWidget" name="tabWidget">
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Tab 1</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Tab 2</string>
+       </attribute>
+      </widget>
+     </widget>
     </item>
-   </widget>
+    <item>
+     <widget class="QToolBox" name="toolBox">
+      <property name="maximumSize">
+       <size>
+        <width>291</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="page">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>210</width>
+         <height>1131</height>
+        </rect>
+       </property>
+       <attribute name="label">
+        <string>Page 1</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page_2">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>291</width>
+         <height>1113</height>
+        </rect>
+       </property>
+       <attribute name="label">
+        <string>Page 2</string>
+       </attribute>
+      </widget>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1635</width>
+     <width>1262</width>
      <height>23</height>
     </rect>
    </property>
