@@ -8,7 +8,6 @@ import matplotlib.style as mplStyle
 
 from scipy.interpolate import griddata
 
-
 from CSw_sjk import Ui_MainWindow
 
 from PyQt5.QtWidgets import (QApplication, QMainWindow,
@@ -68,11 +67,6 @@ class QmyMainWindow(QMainWindow):
         self.ui.tabWidget.setTabsClosable(True)  # Page有关闭按钮
 
 
-
-
-
-
-
         mplStyle.use("classic")  # 使用样式，必须在绘图之前调用,修改字体后才可显示汉字
         mpl.rcParams['font.sans-serif'] = ['KaiTi', 'SimHei']  # 显示汉字为 楷体， 汉字不支持 粗体，斜体等设置
         mpl.rcParams['font.size'] = 12
@@ -85,16 +79,16 @@ class QmyMainWindow(QMainWindow):
         # self.__createFigure()  # 创建Figure和FigureCanvas对象，初始化界面
         # self.__drawFig2X1()  # 绘图
 
-
         ##  ==============自定义功能函数========================
 
-    @pyqtSlot()
-    def on_tabWidget_currentChanged(self, index):  ##tabWidget当前页面变化
-        hasTabs = self.ui.tabWidget.count() > 0  # 页面个数
-        self.ui.tabWidget.setVisible(hasTabs)
+    # @pyqtSlot(int)
+    # def on_tabWidget_currentChanged(self, index):  ##tabWidget当前页面变化
+    #     print(self.ui.tabWidget.widget(index))
 
-    @pyqtSlot()
+
+    @pyqtSlot(int)
     def on_tabWidget_tabCloseRequested(self, index):  ##分页关闭时关闭窗体
+        print("tabclose")
         if (index < 0):
             return
         aForm = self.ui.tabWidget.widget(index)
@@ -103,291 +97,329 @@ class QmyMainWindow(QMainWindow):
     ##树组件响应画图
     @pyqtSlot()
     def on_treeWidget_clicked(self):
-        # try:
-        itemParent = self.ui.treeWidget.currentItem().parent()
-        item = self.ui.treeWidget.currentItem()
+        try:
+            itemParent = self.ui.treeWidget.currentItem().parent()
+            item = self.ui.treeWidget.currentItem()
+
+            if itemParent.text(0) == "沉积相":
+
+                title = itemParent.text(0) + ":" + item.text(0)
+                fig = QmyFigure(self)
+                fig.setAttribute(Qt.WA_DeleteOnClose)
+                curIndex = self.ui.tabWidget.addTab(fig, title)  # 添加到tabWidget
+                self.ui.tabWidget.setCurrentIndex(curIndex)
 
-        if itemParent.text(0) == "沉积相":
+                x = CJX[item.text(0)][0]  # float 型
+                y = CJX[item.text(0)][1]
+                v = CJX[item.text(0)][2]
 
-            title = itemParent.text(0)+":"+item.text(0)
-            fig = QmyFigure(self)
-            fig.setAttribute(Qt.WA_DeleteOnClose)
-            curIndex = self.ui.tabWidget.addTab(fig, title)  # 添加到tabWidget
-            self.ui.tabWidget.setCurrentIndex(curIndex)
+                for i in range(len(v)):
+                    if v[i] == -999:
+                        v[i] = 0
 
+                x = np.array(x)
+                y = np.array(y)
+                v = np.array(v)
 
+                x = x.T
+                y = y.T
+                v = v.T
 
-            x = CJX[item.text(0)][0]  # float 型
-            y = CJX[item.text(0)][1]
-            v = CJX[item.text(0)][2]
+                xq = list(range(int(min(x)), int(max(x)), 50))
+                yq = list(range(int(min(y)), int(max(y)), 50))
 
-            for i in range(len(v)):
-                if v[i] == -999:
-                    v[i] = 0
+                xq = np.array(xq)
+                yq = np.array(yq)
 
-            x = np.array(x)
-            y = np.array(y)
-            v = np.array(v)
+                xq, yq = np.meshgrid(xq, yq)
 
-            x = x.T
-            y = y.T
-            v = v.T
+                vq = griddata((x, y), v, (xq, yq), method="linear")
+                # print(vq.shape)
+                # print(vq.shape[0])
+                # print(vq.shape[1])
+                # print(vq)
+                for i in range(vq.shape[0]):
+                    for j in range(vq.shape[1]):
+                        if (np.isnan(vq[i][j]) == False):
+                            # print(str(i)+" "+str(j))
+                            # print(type(vq[i][j]))
+                            # print(vq[i][j])
+                            vq[i][j] = vq[i][j].astype(int)
+                # print(vq)
+                # print("1111111111")
 
-            xq = list(range(int(min(x)), int(max(x)), 50))
-            yq = list(range(int(min(y)), int(max(y)), 50))
+                ax1 = fig.fig.add_subplot(1, 1, 1, label=title)  # 子图1
 
-            xq = np.array(xq)
-            yq = np.array(yq)
+                ax1.set_xlabel('X 轴')  # X轴标题
+                ax1.set_ylabel('Y 轴')  # Y轴标题
+                ax1.set_title(title)
 
-            xq, yq = np.meshgrid(xq, yq)
+                im = ax1.pcolormesh(xq, yq, vq, )
+                fig.fig.colorbar(im)
 
-            vq = griddata((x, y), v, (xq, yq), method="linear")
-            # print(vq.shape)
-            # print(vq.shape[0])
-            # print(vq.shape[1])
-            # print(vq)
-            for i in range(vq.shape[0]):
-                for j in range(vq.shape[1]):
-                    if (np.isnan(vq[i][j]) == False):
-                        # print(str(i)+" "+str(j))
-                        # print(type(vq[i][j]))
-                        # print(vq[i][j])
-                        vq[i][j] = vq[i][j].astype(int)
-            # print(vq)
-            print("1111111111")
+                # ax1.plot(t, y1, 'r-o', label="sin", linewidth=2, markersize=5)  # 绘制一条曲线
+                # ax1.plot(t, y2, 'b--', label="cos", linewidth=2)  # 绘制一条曲线
+                # ax1.set_xlabel('X 轴')  # X轴标题
+                # ax1.set_ylabel('Y 轴')  # Y轴标题
+                # ax1.set_xlim([0, 10])  # X轴坐标范围
+                # ax1.set_ylim([-1.5, 1.5])  # Y轴坐标范围
+                # ax1.set_title("三角函数曲线")
+                # ax1.legend()  # 自动创建图例
+                fig.fig.canvas.draw()  ##刷新
 
-            ax1 = fig.fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图1
+                print(item.text(0))
 
-            ax1.set_xlabel('X 轴')  # X轴标题
-            ax1.set_ylabel('Y 轴')  # Y轴标题
-            ax1.set_title("沉积相展示")
 
-            im = ax1.pcolormesh(xq, yq, vq, )
-            fig.fig.colorbar(im)
 
-            # ax1.plot(t, y1, 'r-o', label="sin", linewidth=2, markersize=5)  # 绘制一条曲线
-            # ax1.plot(t, y2, 'b--', label="cos", linewidth=2)  # 绘制一条曲线
-            # ax1.set_xlabel('X 轴')  # X轴标题
-            # ax1.set_ylabel('Y 轴')  # Y轴标题
-            # ax1.set_xlim([0, 10])  # X轴坐标范围
-            # ax1.set_ylim([-1.5, 1.5])  # Y轴坐标范围
-            # ax1.set_title("三角函数曲线")
-            # ax1.legend()  # 自动创建图例
-            fig.fig.canvas.draw()  ##刷新
+            elif itemParent.text(0) == "孔隙度":
 
-            print(item.text(0))
+                title = itemParent.text(0) + ":" + item.text(0)
+                fig = QmyFigure(self)
+                fig.setAttribute(Qt.WA_DeleteOnClose)
+                curIndex = self.ui.tabWidget.addTab(fig, title)  # 添加到tabWidget
+                self.ui.tabWidget.setCurrentIndex(curIndex)
 
+                x = KXD[item.text(0)][0]  # float 型
+                y = KXD[item.text(0)][1]
+                v = KXD[item.text(0)][2]
 
+                for i in range(len(v)):
+                    if v[i] == -999:
+                        v[i] = 0
 
-        elif itemParent.text(0) == "孔隙度":
-            x = KXD[item.text(0)][0]  # float 型
-            y = KXD[item.text(0)][1]
-            v = KXD[item.text(0)][2]
+                x = np.array(x)
+                y = np.array(y)
+                v = np.array(v)
 
-            for i in range(len(v)):
-                if v[i] == -999:
-                    v[i] = 0
+                x = x.T
+                y = y.T
+                v = v.T
 
-            x = np.array(x)
-            y = np.array(y)
-            v = np.array(v)
+                xq = list(range(int(min(x)), int(max(x)), 50))
+                yq = list(range(int(min(y)), int(max(y)), 50))
 
-            x = x.T
-            y = y.T
-            v = v.T
+                xq = np.array(xq)
+                yq = np.array(yq)
 
-            xq = list(range(int(min(x)), int(max(x)), 50))
-            yq = list(range(int(min(y)), int(max(y)), 50))
+                xq, yq = np.meshgrid(xq, yq)
 
-            xq = np.array(xq)
-            yq = np.array(yq)
+                vq = griddata((x, y), v, (xq, yq), method="linear")
 
-            xq, yq = np.meshgrid(xq, yq)
+                # for i in range(vq.shape[0]):
+                #     for j in range(vq.shape[1]):
+                #         if np.isnan(vq[i][j]) == False:
+                #             vq[i][j] = vq[i][j].astype(int)
 
-            vq = griddata((x, y), v, (xq, yq), method="linear")
+                ax1 = fig.fig.add_subplot(1, 1, 1, label=title)  # 子图1
+                ax1.set_xlabel('X 轴')  # X轴标题
+                ax1.set_ylabel('Y 轴')  # Y轴标题
+                ax1.set_title(title)
 
-            # for i in range(vq.shape[0]):
-            #     for j in range(vq.shape[1]):
-            #         if np.isnan(vq[i][j]) == False:
-            #             vq[i][j] = vq[i][j].astype(int)
+                im = ax1.pcolormesh(xq, yq, vq, )
+                fig.fig.colorbar(im)
 
+                fig.fig.canvas.draw()  #刷新
+                print(item.text(0))
 
-            ax1 = self.__fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图1
-            ax1.set_xlabel('X 轴')  # X轴标题
-            ax1.set_ylabel('Y 轴')  # Y轴标题
-            ax1.set_title("沉积相展示")
 
-            im = ax1.pcolormesh(xq, yq, vq, )
-            self.__fig.colorbar(im)
+            elif itemParent.text(0) == "渗透率":
 
-            self.__fig.canvas.draw()  ##刷新
-            print(item.text(0))
+                title = itemParent.text(0) + ":" + item.text(0)
+                fig = QmyFigure(self)
+                fig.setAttribute(Qt.WA_DeleteOnClose)
+                curIndex = self.ui.tabWidget.addTab(fig, title)  # 添加到tabWidget
+                self.ui.tabWidget.setCurrentIndex(curIndex)
 
+                x = STL[item.text(0)][0]  # float 型
+                y = STL[item.text(0)][1]
+                v = STL[item.text(0)][2]
 
-        elif itemParent.text(0) == "渗透率":
-            x = STL[item.text(0)][0]  # float 型
-            y = STL[item.text(0)][1]
-            v = STL[item.text(0)][2]
+                for i in range(len(v)):
+                    if v[i] == -999:
+                        v[i] = 0
 
-            for i in range(len(v)):
-                if v[i] == -999:
-                    v[i] = 0
+                x = np.array(x)
+                y = np.array(y)
+                v = np.array(v)
 
-            x = np.array(x)
-            y = np.array(y)
-            v = np.array(v)
+                x = x.T
+                y = y.T
+                v = v.T
 
-            x = x.T
-            y = y.T
-            v = v.T
+                xq = list(range(int(min(x)), int(max(x)), 50))
+                yq = list(range(int(min(y)), int(max(y)), 50))
 
-            xq = list(range(int(min(x)), int(max(x)), 50))
-            yq = list(range(int(min(y)), int(max(y)), 50))
+                xq = np.array(xq)
+                yq = np.array(yq)
 
-            xq = np.array(xq)
-            yq = np.array(yq)
+                xq, yq = np.meshgrid(xq, yq)
 
-            xq, yq = np.meshgrid(xq, yq)
+                vq = griddata((x, y), v, (xq, yq), method="linear")
 
-            vq = griddata((x, y), v, (xq, yq), method="linear")
+                for i in range(vq.shape[0]):
+                    for j in range(vq.shape[1]):
+                        if np.isnan(vq[i][j]) == False:
+                            vq[i][j] = vq[i][j].astype(int)
 
-            for i in range(vq.shape[0]):
-                for j in range(vq.shape[1]):
-                    if np.isnan(vq[i][j]) == False:
-                        vq[i][j] = vq[i][j].astype(int)
+                ax1 = fig.fig.add_subplot(1, 1, 1, label=title)  # 子图1
+                ax1.set_xlabel('X 轴')  # X轴标题
+                ax1.set_ylabel('Y 轴')  # Y轴标题
+                ax1.set_title(title)
 
-            ax1 = self.__fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图1
-            ax1.set_xlabel('X 轴')  # X轴标题
-            ax1.set_ylabel('Y 轴')  # Y轴标题
-            ax1.set_title("沉积相展示")
+                im = ax1.pcolormesh(xq, yq, vq, )
+                fig.fig.colorbar(im)
 
-            im = ax1.pcolormesh(xq, yq, vq, )
-            self.__fig.colorbar(im)
+                fig.fig.canvas.draw()  ##刷新
+                print(item.text(0))
 
-            self.__fig.canvas.draw()  ##刷新
-            print(item.text(0))
 
+            elif itemParent.text(0) == "含油饱和度":
 
-        elif itemParent.text(0) == "含油饱和度":
-            x = BHD[item.text(0)][0]  # float 型
-            y = BHD[item.text(0)][1]
-            v = BHD[item.text(0)][2]
+                title = itemParent.text(0) + ":" + item.text(0)
+                fig = QmyFigure(self)
+                fig.setAttribute(Qt.WA_DeleteOnClose)
+                curIndex = self.ui.tabWidget.addTab(fig, title)  # 添加到tabWidget
+                self.ui.tabWidget.setCurrentIndex(curIndex)
 
-            for i in range(len(v)):
-                if v[i] == -999:
-                    v[i] = 0
+                x = BHD[item.text(0)][0]  # float 型
+                y = BHD[item.text(0)][1]
+                v = BHD[item.text(0)][2]
 
-            x = np.array(x)
-            y = np.array(y)
-            v = np.array(v)
+                for i in range(len(v)):
+                    if v[i] == -999:
+                        v[i] = 0
 
-            x = x.T
-            y = y.T
-            v = v.T
+                x = np.array(x)
+                y = np.array(y)
+                v = np.array(v)
 
-            xq = list(range(int(min(x)), int(max(x)), 50))
-            yq = list(range(int(min(y)), int(max(y)), 50))
+                x = x.T
+                y = y.T
+                v = v.T
 
-            xq = np.array(xq)
-            yq = np.array(yq)
+                xq = list(range(int(min(x)), int(max(x)), 50))
+                yq = list(range(int(min(y)), int(max(y)), 50))
 
-            xq, yq = np.meshgrid(xq, yq)
+                xq = np.array(xq)
+                yq = np.array(yq)
 
-            vq = griddata((x, y), v, (xq, yq), method="linear")
+                xq, yq = np.meshgrid(xq, yq)
 
-            # for i in range(vq.shape[0]):
-            #     for j in range(vq.shape[1]):
-            #         if np.isnan(vq[i][j]) == False:
-            #             vq[i][j] = vq[i][j].astype(int)
+                vq = griddata((x, y), v, (xq, yq), method="linear")
 
-            ax1 = self.__fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图1
-            ax1.set_xlabel('X 轴')  # X轴标题
-            ax1.set_ylabel('Y 轴')  # Y轴标题
-            ax1.set_title("沉积相展示")
+                # for i in range(vq.shape[0]):
+                #     for j in range(vq.shape[1]):
+                #         if np.isnan(vq[i][j]) == False:
+                #             vq[i][j] = vq[i][j].astype(int)
 
-            im = ax1.pcolormesh(xq, yq, vq, )
-            self.__fig.colorbar(im)
+                ax1 = self.__fig.add_subplot(1, 1, 1, label=title)  # 子图1
+                ax1.set_xlabel('X 轴')  # X轴标题
+                ax1.set_ylabel('Y 轴')  # Y轴标题
+                ax1.set_title(title)
 
-            self.__fig.canvas.draw()  ##刷新
-            print(item.text(0))
+                im = ax1.pcolormesh(xq, yq, vq, )
+                fig.fig.colorbar(im)
 
-        elif itemParent.text(0) == "沉积单元数据":
+                fig.fig.canvas.draw()  ##刷新
+                print(item.text(0))
 
-            floor = CJDYSJ[item.text(0)]  # float 型
-            floor = np.array(floor)
-            floor = floor.T
-            floor = floor.tolist()
-            wellNum = floor[2]
-            x = []
-            y = []
-            yxhd = floor[13]
-            kxd = floor[14]
-            stl = floor[15]
+            elif itemParent.text(0) == "沉积单元数据":
 
-            for i in wellNum:
-                x.append(DJDZSJ[i][0])
-                y.append(DJDZSJ[i][1])
+                title = itemParent.text(0) + ":" + item.text(0)
+                fig1 = QmyFigure(self)
+                fig1.setAttribute(Qt.WA_DeleteOnClose)
+                curIndex = self.ui.tabWidget.addTab(fig1, title)  # 添加到tabWidget
+                self.ui.tabWidget.setCurrentIndex(curIndex)
 
-            x = np.array(x)
-            y = np.array(y)
-            yxhd = np.array(yxhd)
-            kxd = np.array(kxd)
-            stl = np.array(stl)
+                floor = CJDYSJ[item.text(0)]  # float 型
+                floor = np.array(floor)
+                floor = floor.T
+                floor = floor.tolist()
+                wellNum = floor[2]
+                x = []
+                y = []
+                yxhd = floor[13]
+                kxd = floor[14]
+                stl = floor[15]
 
-            x = x.T
-            y = y.T
-            yxhd = yxhd.T
-            kxd = kxd.T
-            stl = stl.T
+                for i in wellNum:
+                    x.append(DJDZSJ[i][0])
+                    y.append(DJDZSJ[i][1])
 
-            xq = list(range(int(min(x)), int(max(x)), 50))
-            yq = list(range(int(min(y)), int(max(y)), 50))
+                x = np.array(x)
+                y = np.array(y)
+                yxhd = np.array(yxhd)
+                kxd = np.array(kxd)
+                stl = np.array(stl)
 
-            xq = np.array(xq)
-            yq = np.array(yq)
+                x = x.T
+                y = y.T
+                yxhd = yxhd.T
+                kxd = kxd.T
+                stl = stl.T
 
-            xq, yq = np.meshgrid(xq, yq)
+                xq = list(range(int(min(x)), int(max(x)), 50))
+                yq = list(range(int(min(y)), int(max(y)), 50))
 
-            yxhdq = griddata((x, y), yxhd, (xq, yq), method="linear")
-            kxdq = griddata((x, y), kxd, (xq, yq), method="linear")
-            stlq = griddata((x, y), stl, (xq, yq), method="linear")
+                xq = np.array(xq)
+                yq = np.array(yq)
 
-            # # for i in range(vq.shape[0]):
-            # #     for j in range(vq.shape[1]):
-            # #         if np.isnan(vq[i][j]) == False:
-            # #             vq[i][j] = vq[i][j].astype(int)
+                xq, yq = np.meshgrid(xq, yq)
 
-            ax1 = self.__fig.add_subplot(3, 1, 1, label="sin-cos plot")  # 子图1
-            ax1.set_xlabel('X 轴')  # X轴标题
-            ax1.set_ylabel('Y 轴')  # Y轴标题
-            ax1.set_title("有效厚度展示")
+                yxhdq = griddata((x, y), yxhd, (xq, yq), method="linear")
+                kxdq = griddata((x, y), kxd, (xq, yq), method="linear")
+                stlq = griddata((x, y), stl, (xq, yq), method="linear")
 
-            ax2 = self.__fig.add_subplot(3, 1, 2, label="sin-cos plot")  # 子图2
-            ax2.set_xlabel('X 轴')  # X轴标题
-            ax2.set_ylabel('Y 轴')  # Y轴标题
-            ax2.set_title("孔隙度展示")
+                # # for i in range(vq.shape[0]):
+                # #     for j in range(vq.shape[1]):
+                # #         if np.isnan(vq[i][j]) == False:
+                # #             vq[i][j] = vq[i][j].astype(int)
 
-            ax3 = self.__fig.add_subplot(3, 1, 3, label="sin-cos plot")  # 子图3
-            ax3.set_xlabel('X 轴')  # X轴标题
-            ax3.set_ylabel('Y 轴')  # Y轴标题
-            ax3.set_title("渗透率展示")
+                ax1 = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图1
+                ax1.set_xlabel('X 轴')  # X轴标题
+                ax1.set_ylabel('Y 轴')  # Y轴标题
+                ax1.set_title(title+"有效厚度展示")
 
-            im1 = ax1.pcolormesh(xq, yq, kxdq)
-            self.__fig.colorbar(im1,ax=ax1)
+                title = itemParent.text(0) + ":" + item.text(0)
+                fig2 = QmyFigure(self)
+                fig2.setAttribute(Qt.WA_DeleteOnClose)
+                curIndex = self.ui.tabWidget.addTab(fig2, title)  # 添加到tabWidget
+                self.ui.tabWidget.setCurrentIndex(curIndex)
 
-            im2 = ax2.pcolormesh(xq, yq, yxhdq)
-            self.__fig.colorbar(im2, ax=ax2)
+                ax2 = fig2.fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图2
+                ax2.set_xlabel('X 轴')  # X轴标题
+                ax2.set_ylabel('Y 轴')  # Y轴标题
+                ax2.set_title(title+"孔隙度展示")
 
-            im3 = ax3.pcolormesh(xq, yq, stlq)
-            self.__fig.colorbar(im3, ax=ax3)
+                title = itemParent.text(0) + ":" + item.text(0)
+                fig3 = QmyFigure(self)
+                fig3.setAttribute(Qt.WA_DeleteOnClose)
+                curIndex = self.ui.tabWidget.addTab(fig3, title)  # 添加到tabWidget
+                self.ui.tabWidget.setCurrentIndex(curIndex)
 
+                ax3 = fig3.fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图3
+                ax3.set_xlabel('X 轴')  # X轴标题
+                ax3.set_ylabel('Y 轴')  # Y轴标题
+                ax3.set_title(title+"渗透率展示")
 
+                im1 = ax1.pcolormesh(xq, yq, kxdq)
+                fig1.fig.colorbar(im1, ax=ax1)
 
-            self.__fig.canvas.draw()  ##刷新
-            print(item.text(0))
+                im2 = ax2.pcolormesh(xq, yq, yxhdq)
+                fig2.fig.colorbar(im2, ax=ax2)
 
-        # except AttributeError:
-        #     print("AttributeError")
+                im3 = ax3.pcolormesh(xq, yq, stlq)
+                fig3.fig.colorbar(im3, ax=ax3)
+
+                fig1.fig.canvas.draw()  ##刷新
+
+                fig2.fig.canvas.draw()  ##刷新
+
+                fig3.fig.canvas.draw()  ##刷新
+                print(item.text(0))
+
+        except AttributeError:
+            print("AttributeError")
 
     ##导入沉积相数据
     @pyqtSlot()
@@ -867,8 +899,6 @@ class QmyMainWindow(QMainWindow):
             finally:
                 fileDevice.close()
 
-
-
             # item = QTreeWidgetItem()
             # item.setText(0, "沉积单元数据")
             # self.ui.treeWidget.topLevelItem(1).child(1).addChild(item)
@@ -908,13 +938,10 @@ class QmyMainWindow(QMainWindow):
             self.ui.treeWidget.topLevelItem(1).child(0).addChild(item)
         self.ui.treeWidget.topLevelItem(1).child(0).setExpanded(True)
 
-
-
     @pyqtSlot()
     def on_actionfsd_triggered(self):
         newWindow = CSw_dcfbx_Slot.QmyMainWindow(self)
         newWindow.show()
-
 
 
 if __name__ == "__main__":  # 用于当前窗体测试
