@@ -315,7 +315,7 @@ class QmyMainWindow(QMainWindow):
                 #         if np.isnan(vq[i][j]) == False:
                 #             vq[i][j] = vq[i][j].astype(int)
 
-                ax1 = self.__fig.add_subplot(1, 1, 1, label=title)  # 子图1
+                ax1 = fig.fig.add_subplot(1, 1, 1, label=title)  # 子图1
                 ax1.set_xlabel('X 轴')  # X轴标题
                 ax1.set_ylabel('Y 轴')  # Y轴标题
                 ax1.set_title(title)
@@ -968,7 +968,6 @@ class QmyMainWindow(QMainWindow):
         x = []
         y = []
         yxhd = floor[13]
-        kxd = floor[14]
         stl = floor[15]
 
         for i in wellNum:
@@ -978,13 +977,11 @@ class QmyMainWindow(QMainWindow):
         x = np.array(x)
         y = np.array(y)
         yxhd = np.array(yxhd)
-        kxd = np.array(kxd)
         stl = np.array(stl)
 
         x = x.T
         y = y.T
         yxhd = yxhd.T
-        kxd = kxd.T
         stl = stl.T
 
         xq = list(range(int(min(x)), int(max(x)), 50))
@@ -996,55 +993,98 @@ class QmyMainWindow(QMainWindow):
         xq, yq = np.meshgrid(xq, yq)
 
         yxhdq = griddata((x, y), yxhd, (xq, yq), method="linear")
-        kxdq = griddata((x, y), kxd, (xq, yq), method="linear")
         stlq = griddata((x, y), stl, (xq, yq), method="linear")
 
-        # # for i in range(vq.shape[0]):
-        # #     for j in range(vq.shape[1]):
-        # #         if np.isnan(vq[i][j]) == False:
-        # #             vq[i][j] = vq[i][j].astype(int)
+        x = BHD[comBoxText][0]  # float 型
+        y = BHD[comBoxText][1]
+        v = BHD[comBoxText][2]
 
-        ax1 = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图1
-        ax1.set_xlabel('X 轴')  # X轴标题
-        ax1.set_ylabel('Y 轴')  # Y轴标题
-        ax1.set_title(title + "有效厚度展示")
+        for i in range(len(v)):
+            if v[i] == -999:
+                v[i] = 0
 
-        title = ""
-        fig2 = QmyFigure(self)
-        fig2.setAttribute(Qt.WA_DeleteOnClose)
-        curIndex = self.ui.tabWidget.addTab(fig2, title)  # 添加到tabWidget
-        self.ui.tabWidget.setCurrentIndex(curIndex)
+        x = np.array(x)
+        y = np.array(y)
+        v = np.array(v)
 
-        ax2 = fig2.fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图2
-        ax2.set_xlabel('X 轴')  # X轴标题
-        ax2.set_ylabel('Y 轴')  # Y轴标题
-        ax2.set_title(title + "孔隙度展示")
+        x = x.T
+        y = y.T
+        v = v.T
 
-        title = ""
-        fig3 = QmyFigure(self)
-        fig3.setAttribute(Qt.WA_DeleteOnClose)
-        curIndex = self.ui.tabWidget.addTab(fig3, title)  # 添加到tabWidget
-        self.ui.tabWidget.setCurrentIndex(curIndex)
+        xb = list(range(int(min(x)), int(max(x)), 50))
+        yb = list(range(int(min(y)), int(max(y)), 50))
 
-        ax3 = fig3.fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图3
-        ax3.set_xlabel('X 轴')  # X轴标题
-        ax3.set_ylabel('Y 轴')  # Y轴标题
-        ax3.set_title(title + "渗透率展示")
+        xb = np.array(xb)
+        yb = np.array(yb)
 
-        im1 = ax1.pcolormesh(xq, yq, kxdq)
-        fig1.fig.colorbar(im1, ax=ax1)
+        xb, yb = np.meshgrid(xb, yb)
 
-        im2 = ax2.pcolormesh(xq, yq, yxhdq)
-        fig2.fig.colorbar(im2, ax=ax2)
+        vq = griddata((x, y), v, (xb, yb), method="linear")
 
-        im3 = ax3.pcolormesh(xq, yq, stlq)
-        fig3.fig.colorbar(im3, ax=ax3)
+        print(yxhdq.shape)
+        print(stlq.shape)
+        print(vq.shape)
 
-        fig1.fig.canvas.draw()  ##刷新
 
-        fig2.fig.canvas.draw()  ##刷新
 
-        fig3.fig.canvas.draw()  ##刷新
+
+        # qlq = yxhdq
+        #
+        # for point,pointyxhdq,pointkxdq,pointstlq in qlq,yxhdq,kxdq,stlq:
+        #     if np.isnan(point) == False:
+        #         if pointkxdq > 2 and pointstlq > 200 :
+        #             point = 1
+        #         else:
+        #             point = 0
+        #
+        #
+        #
+        # # # for i in range(vq.shape[0]):
+        # # #     for j in range(vq.shape[1]):
+        # # #         if np.isnan(vq[i][j]) == False:
+        # # #             vq[i][j] = vq[i][j].astype(int)
+        #
+        # ax1 = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图1
+        # ax1.set_xlabel('X 轴')  # X轴标题
+        # ax1.set_ylabel('Y 轴')  # Y轴标题
+        # ax1.set_title(title + "有效厚度展示")
+        #
+        # title = ""
+        # fig2 = QmyFigure(self)
+        # fig2.setAttribute(Qt.WA_DeleteOnClose)
+        # curIndex = self.ui.tabWidget.addTab(fig2, title)  # 添加到tabWidget
+        # self.ui.tabWidget.setCurrentIndex(curIndex)
+        #
+        # ax2 = fig2.fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图2
+        # ax2.set_xlabel('X 轴')  # X轴标题
+        # ax2.set_ylabel('Y 轴')  # Y轴标题
+        # ax2.set_title(title + "孔隙度展示")
+        #
+        # title = ""
+        # fig3 = QmyFigure(self)
+        # fig3.setAttribute(Qt.WA_DeleteOnClose)
+        # curIndex = self.ui.tabWidget.addTab(fig3, title)  # 添加到tabWidget
+        # self.ui.tabWidget.setCurrentIndex(curIndex)
+        #
+        # ax3 = fig3.fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图3
+        # ax3.set_xlabel('X 轴')  # X轴标题
+        # ax3.set_ylabel('Y 轴')  # Y轴标题
+        # ax3.set_title(title + "渗透率展示")
+        #
+        # im1 = ax1.pcolormesh(xq, yq, kxdq)
+        # fig1.fig.colorbar(im1, ax=ax1)
+        #
+        # im2 = ax2.pcolormesh(xq, yq, yxhdq)
+        # fig2.fig.colorbar(im2, ax=ax2)
+        #
+        # im3 = ax3.pcolormesh(xq, yq, stlq)
+        # fig3.fig.colorbar(im3, ax=ax3)
+        #
+        # fig1.fig.canvas.draw()  ##刷新
+        #
+        # fig2.fig.canvas.draw()  ##刷新
+        #
+        # fig3.fig.canvas.draw()  ##刷新
 
 
         print("pushBotton")
