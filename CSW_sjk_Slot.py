@@ -1,6 +1,8 @@
 import re
 import sys
 
+from skimage import measure
+
 from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSlot, Qt, QThread, pyqtSignal
 import matplotlib as mpl
@@ -209,6 +211,7 @@ class QmyMainWindow(QMainWindow):
                 #     for j in range(vq.shape[1]):
                 #         if np.isnan(vq[i][j]) == False:
                 #             vq[i][j] = vq[i][j].astype(int)
+
 
                 ax1 = fig.fig.add_subplot(1, 1, 1, label=title)  # 子图1
                 ax1.set_xlabel('X 轴')  # X轴标题
@@ -584,7 +587,6 @@ class QmyMainWindow(QMainWindow):
         dlgProgress.setAutoReset(True)  # value()达到最大值时自动调用reset()
         dlgProgress.setAutoClose(True)  # 调用reset()时隐藏窗口
         i = 1
-asdf
         for str in strList:
 
             dlgProgress.setValue(i)
@@ -669,6 +671,7 @@ asdf
             phase = []  ##相
             fileName = re.findall(".*\.txt", str)
             if fileName != []:
+
                 # print(fileName[0][0:-4])
                 filePath = aDir + "/" + fileName[0]
                 # print(filePath)
