@@ -584,7 +584,7 @@ class QmyMainWindow(QMainWindow):
         dlgProgress.setAutoReset(True)  # value()达到最大值时自动调用reset()
         dlgProgress.setAutoClose(True)  # 调用reset()时隐藏窗口
         i = 1
-
+asdf
         for str in strList:
 
             dlgProgress.setValue(i)
