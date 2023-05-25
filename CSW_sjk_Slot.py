@@ -346,8 +346,12 @@ class QmyMainWindow(QMainWindow):
                 stl = floor[15]
 
                 for i in wellNum:
-                    x.append(DJDZSJ[i][0])
-                    y.append(DJDZSJ[i][1])
+                    if DJDZSJ[i][2] == '0':
+                        y.append(DJDZSJ[i][0])
+                        x.append(DJDZSJ[i][1])
+                    else:
+                        y.append(DJDZSJ[i][2])
+                        x.append(DJDZSJ[i][3])
 
                 x = np.array(x)
                 y = np.array(y)
@@ -360,6 +364,11 @@ class QmyMainWindow(QMainWindow):
                 yxhd = yxhd.T
                 kxd = kxd.T
                 stl = stl.T
+
+                print(int(min(x)))
+                print(int(max(x)))
+                print(int(min(y)))
+                print(int(max(y)))
 
                 xq = list(range(int(min(x)), int(max(x)), 50))
                 yq = list(range(int(min(y)), int(max(y)), 50))
@@ -529,6 +538,9 @@ class QmyMainWindow(QMainWindow):
             if fileName != []:
                 # print(fileName[0][0:-4])
                 filePath = aDir + "/" + fileName[0]
+
+                self.ui.comboBox.addItem(fileName[0][0:-4])
+
                 # print(filePath)
                 fileDevice = QFile(filePath)
                 fileDevice.open(QIODevice.ReadOnly | QIODevice.Text)
@@ -886,7 +898,7 @@ class QmyMainWindow(QMainWindow):
                     if i == 1:
                         continue
 
-                    floor = lineList[3] + lineList[4]
+                    floor = lineList[3] + "-" + lineList[4]
                     if floor in CJDYSJ:
                         CJDYSJ[floor].append(lineList)
                     else:
@@ -895,7 +907,7 @@ class QmyMainWindow(QMainWindow):
                         item = QTreeWidgetItem()
                         item.setText(0, floor)
                         item.setIcon(0, QtGui.QIcon('images/29.ico'))
-                        self.ui.comboBox.addItem(floor)
+
                         self.ui.treeWidget.topLevelItem(1).child(1).addChild(item)
 
             except UnicodeDecodeError:
@@ -971,8 +983,12 @@ class QmyMainWindow(QMainWindow):
         stl = floor[15]
 
         for i in wellNum:
-            x.append(DJDZSJ[i][0])
-            y.append(DJDZSJ[i][1])
+            if DJDZSJ[i][2] == '0':
+                y.append(DJDZSJ[i][0])
+                x.append(DJDZSJ[i][1])
+            else:
+                y.append(DJDZSJ[i][2])
+                x.append(DJDZSJ[i][3])
 
         x = np.array(x)
         y = np.array(y)
