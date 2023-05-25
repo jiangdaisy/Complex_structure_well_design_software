@@ -1020,6 +1020,9 @@ class QmyMainWindow(QMainWindow):
         y = np.array(y)
         yxhd = np.array(yxhd)
         stl = np.array(stl)
+        for i in range(stl.shape[0]):
+            for j in range(stl.shape[1]):
+                stl[i][j] *= 1000
 
         x = x.T
         y = y.T
@@ -1042,7 +1045,7 @@ class QmyMainWindow(QMainWindow):
         for i in range(bhdq.shape[0]):
             for j in range(bhdq.shape[1]):
                 if np.isnan(bhdq[i][j]) == False and np.isnan(stlq[i][j]) == False and np.isnan(yxhdq[i][j]) == False:
-                    if stlq[i][j] > 200 and bhdq[i][j] > 0.5 and yxhdq[i][j] > 2:
+                    if stlq[i][j] > 0.2 and bhdq[i][j] > 0.5 and yxhdq[i][j] > 2:
                         qlq[i][j] = 1
                     else:
                         qlq[i][j] = 0
