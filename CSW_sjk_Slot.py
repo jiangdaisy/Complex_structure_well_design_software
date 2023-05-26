@@ -1020,9 +1020,7 @@ class QmyMainWindow(QMainWindow):
         y = np.array(y)
         yxhd = np.array(yxhd)
         stl = np.array(stl)
-        for i in range(stl.shape[0]):
-            for j in range(stl.shape[1]):
-                stl[i][j] *= 1000
+
 
         x = x.T
         y = y.T
@@ -1060,43 +1058,14 @@ class QmyMainWindow(QMainWindow):
         im1 = ax1.pcolormesh(xb, yb, qlq)
         fig1.fig.colorbar(im1, ax=ax1)
 
-        #
-        # title = ""
-        # fig2 = QmyFigure(self)
-        # fig2.setAttribute(Qt.WA_DeleteOnClose)
-        # curIndex = self.ui.tabWidget.addTab(fig2, title)  # 添加到tabWidget
-        # self.ui.tabWidget.setCurrentIndex(curIndex)
-        #
-        # ax2 = fig2.fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图2
-        # ax2.set_xlabel('X 轴')  # X轴标题
-        # ax2.set_ylabel('Y 轴')  # Y轴标题
-        # ax2.set_title(title + "孔隙度展示")
-        #
-        # title = ""
-        # fig3 = QmyFigure(self)
-        # fig3.setAttribute(Qt.WA_DeleteOnClose)
-        # curIndex = self.ui.tabWidget.addTab(fig3, title)  # 添加到tabWidget
-        # self.ui.tabWidget.setCurrentIndex(curIndex)
-        #
-        # ax3 = fig3.fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图3
-        # ax3.set_xlabel('X 轴')  # X轴标题
-        # ax3.set_ylabel('Y 轴')  # Y轴标题
-        # ax3.set_title(title + "渗透率展示")
-        #
-        # im1 = ax1.pcolormesh(xq, yq, kxdq)
-        # fig1.fig.colorbar(im1, ax=ax1)
-        #
-        # im2 = ax2.pcolormesh(xq, yq, yxhdq)
-        # fig2.fig.colorbar(im2, ax=ax2)
-        #
-        # im3 = ax3.pcolormesh(xq, yq, stlq)
-        # fig3.fig.colorbar(im3, ax=ax3)
-        #
+        contours = measure.find_contours(qlq, 0.5)
+
+        for n, contour in enumerate(contours):
+            ax1.plot(contour[:, 1], contour[:, 0], linewidth=2)
+
+
         fig1.fig.canvas.draw()  ##刷新
-        #
-        # fig2.fig.canvas.draw()  ##刷新
-        #
-        # fig3.fig.canvas.draw()  ##刷新
+
 
 
         print("pushBotton")
