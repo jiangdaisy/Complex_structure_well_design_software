@@ -2,7 +2,7 @@ import re
 import sys
 
 from skimage import measure
-
+import cv2
 from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSlot, Qt, QThread, pyqtSignal
 import matplotlib as mpl
@@ -37,12 +37,22 @@ CYJS = []
 DS = []
 
 
+
+
 class QmyMainWindow(QMainWindow):
 
     def __init__(self, parent=None):
         super().__init__(parent)  # 调用父类构造函数，创建窗体
         self.ui = Ui_MainWindow()  # 创建UI对象
         self.ui.setupUi(self)  # 构造UI界面
+
+        self.stepx = 50
+        self.stepy = 50
+        self.qlqFloor = []  #潜力区所有需要筛选层的层名
+        self.qlqBinary = {}
+        self.qlqXb = {}
+        self.qlqYb = {}
+        self.qlqContours = {}
 
         # 展开节点
         self.ui.treeWidget.topLevelItem(0).setExpanded(True)
@@ -127,8 +137,8 @@ class QmyMainWindow(QMainWindow):
                 y = y.T
                 v = v.T
 
-                xq = list(range(int(min(x)), int(max(x)), 50))
-                yq = list(range(int(min(y)), int(max(y)), 50))
+                xq = list(range(int(min(x)), int(max(x)), self.stepx))
+                yq = list(range(int(min(y)), int(max(y)), self.stepy))
 
                 xq = np.array(xq)
                 yq = np.array(yq)
@@ -197,8 +207,8 @@ class QmyMainWindow(QMainWindow):
                 y = y.T
                 v = v.T
 
-                xq = list(range(int(min(x)), int(max(x)), 50))
-                yq = list(range(int(min(y)), int(max(y)), 50))
+                xq = list(range(int(min(x)), int(max(x)), self.stepx))
+                yq = list(range(int(min(y)), int(max(y)), self.stepy))
 
                 xq = np.array(xq)
                 yq = np.array(yq)
@@ -249,8 +259,8 @@ class QmyMainWindow(QMainWindow):
                 y = y.T
                 v = v.T
 
-                xq = list(range(int(min(x)), int(max(x)), 50))
-                yq = list(range(int(min(y)), int(max(y)), 50))
+                xq = list(range(int(min(x)), int(max(x)), self.stepx))
+                yq = list(range(int(min(y)), int(max(y)), self.stepy))
 
                 xq = np.array(xq)
                 yq = np.array(yq)
@@ -300,8 +310,11 @@ class QmyMainWindow(QMainWindow):
                 y = y.T
                 v = v.T
 
-                xq = list(range(int(min(x)), int(max(x)), 50))
-                yq = list(range(int(min(y)), int(max(y)), 50))
+                print(self.stepx)
+                print(self.stepy)
+
+                xq = list(range(int(min(x)), int(max(x)), self.stepx))
+                yq = list(range(int(min(y)), int(max(y)), self.stepy))
 
                 xq = np.array(xq)
                 yq = np.array(yq)
@@ -370,8 +383,8 @@ class QmyMainWindow(QMainWindow):
                 print(int(min(y)))
                 print(int(max(y)))
 
-                xq = list(range(int(min(x)), int(max(x)), 50))
-                yq = list(range(int(min(y)), int(max(y)), 50))
+                xq = list(range(int(min(x)), int(max(x)), self.stepx))
+                yq = list(range(int(min(y)), int(max(y)), self.stepy))
 
                 xq = np.array(xq)
                 yq = np.array(yq)
@@ -448,6 +461,7 @@ class QmyMainWindow(QMainWindow):
         btnText = "取消"  # "取消"按钮的标题
         minV = 0
         maxV = len(strList)
+
         dlgProgress = QProgressDialog(labText, btnText, minV, maxV, self)
         dlgProgress.setWindowTitle("导入文件")
         dlgProgress.setWindowModality(Qt.WindowModal)  # 模态对话框
@@ -540,6 +554,7 @@ class QmyMainWindow(QMainWindow):
                 filePath = aDir + "/" + fileName[0]
 
                 self.ui.comboBox.addItem(fileName[0][0:-4])
+                self.qlqFloor.append(fileName[0][0:-4])
 
                 # print(filePath)
                 fileDevice = QFile(filePath)
@@ -960,111 +975,271 @@ class QmyMainWindow(QMainWindow):
         newWindow = CSw_dcfbx_Slot.QmyMainWindow(self)
         newWindow.show()
 
+    @pyqtSlot()
+    def on_pushButton_2_clicked(self):
+        self.stepx = int(self.ui.lineEdit.text())
+        self.stepy = int(self.ui.lineEdit_2.text())
+
+        print(self.stepx)
+        print(self.stepy)
+        print("pushbotton2")
+
+    @pyqtSlot()
+    def on_pushButton_3_clicked(self):
+
+        labText = "正在导入文件..."  # 文本信息
+        btnText = "取消"  # "取消"按钮的标题
+        minV = 0
+        maxV = len(self.qlqFloor)
+
+        dlgProgress = QProgressDialog(labText, btnText, minV, maxV, self)
+        dlgProgress.setWindowTitle("导入文件")
+        dlgProgress.setWindowModality(Qt.WindowModal)  # 模态对话框
+        dlgProgress.setAutoReset(True)  # value()达到最大值时自动调用reset()
+        dlgProgress.setAutoClose(True)  # 调用reset()时隐藏窗口
+
+        pross = 1
+        for qlqFloorName in self.qlqFloor:
+
+            dlgProgress.setValue(pross)
+            dlgProgress.setLabelText("正在筛选数据,第 %d 个" % pross)
+
+            x = BHD[qlqFloorName][0]  # float 型
+            y = BHD[qlqFloorName][1]
+            v = BHD[qlqFloorName][2]
+
+            for i in range(len(v)):
+                if v[i] == -999:
+                    v[i] = 0
+
+            x = np.array(x)
+            y = np.array(y)
+            v = np.array(v)
+
+            x = x.T
+            y = y.T
+            v = v.T
+
+            xb = list(range(int(min(x)), int(max(x)), self.stepx))
+            yb = list(range(int(min(y)), int(max(y)), self.stepy))
+
+            xb = np.array(xb)
+            yb = np.array(yb)
+
+            xb, yb = np.meshgrid(xb, yb)
+
+            bhdq = griddata((x, y), v, (xb, yb), method="linear")
+
+            floor = CJDYSJ[qlqFloorName]  # float 型
+            floor = np.array(floor)
+            floor = floor.T
+            floor = floor.tolist()
+            wellNum = floor[2]
+            x = []
+            y = []
+            yxhd = floor[13]
+            stl = floor[15]
+
+            for i in wellNum:
+                if DJDZSJ[i][2] == '0':
+                    y.append(DJDZSJ[i][0])
+                    x.append(DJDZSJ[i][1])
+                else:
+                    y.append(DJDZSJ[i][2])
+                    x.append(DJDZSJ[i][3])
+
+            x = np.array(x)
+            y = np.array(y)
+            yxhd = np.array(yxhd)
+            stl = np.array(stl)
+
+            x = x.T
+            y = y.T
+            yxhd = yxhd.T
+            stl = stl.T
+
+            yxhdq = griddata((x, y), yxhd, (xb, yb), method="linear")
+            stlq = griddata((x, y), stl, (xb, yb), method="linear")
+
+            # print(yxhdq.shape)
+            # print(stlq.shape)
+            # print(bhdq.shape)
+
+            qlq = yxhdq
+
+            for i in range(bhdq.shape[0]):
+                for j in range(bhdq.shape[1]):
+                    if np.isnan(bhdq[i][j]) == False and np.isnan(stlq[i][j]) == False and np.isnan(
+                            yxhdq[i][j]) == False:
+                        if stlq[i][j] > 0.2 and bhdq[i][j] > 0.5 and yxhdq[i][j] > 2:
+                            qlq[i][j] = 1
+                        else:
+                            qlq[i][j] = 0
+
+            self.qlqBinary[qlqFloorName] = qlq
+            self.qlqXb[qlqFloorName] = xb
+            self.qlqYb[qlqFloorName] = yb
+
+            # ax1 = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图1
+            # ax1.set_xlabel('X 轴')  # X轴标题
+            # ax1.set_ylabel('Y 轴')  # Y轴标题
+            # ax1.set_title(title + "潜力区")
+            #
+            # im1 = ax1.pcolormesh(xb, yb, qlq)
+            # fig1.fig.colorbar(im1, ax=ax1)
+
+            contours = measure.find_contours(qlq, 0.5)
+
+            for n, contour in enumerate(contours):
+                for i in range(contour.shape[0]):
+                    contour[i][1] = contour[i][1] * self.stepx + xb[0][0]
+                    contour[i][0] = contour[i][0] * self.stepy + yb[0][0]
+
+            areaX = int(self.ui.lineEdit_3.text())
+            areaY = int(self.ui.lineEdit_4.text())
+
+            self.qlqContours[qlqFloorName] = []
+
+            for n, contour in enumerate(contours):
+                contour = np.float32(contour)
+                # 计算最小内接矩形
+                rect = cv2.minAreaRect(contour)
+
+                # 提取矩形的关键信息
+                center, size, angle = rect
+                width, height = size
+                if width > areaX and height > areaY:
+                    self.qlqContours[qlqFloorName].append(contour)
+                #     ax1.plot(contour[:, 1], contour[:, 0], linewidth=2)
+
+            # fig1.fig.canvas.draw()  ##刷新
+
+            print("pushBotton")
+            pross = pross + 1
+
+
 
     @pyqtSlot()
     def on_pushButton_clicked(self):
 
         comBoxText = self.ui.comboBox.currentText()
 
-        title = "潜力区筛选"
+        title = comBoxText + "潜力区"
         fig1 = QmyFigure(self)
         fig1.setAttribute(Qt.WA_DeleteOnClose)
         curIndex = self.ui.tabWidget.addTab(fig1, title)  # 添加到tabWidget
         self.ui.tabWidget.setCurrentIndex(curIndex)
 
-        x = BHD[comBoxText][0]  # float 型
-        y = BHD[comBoxText][1]
-        v = BHD[comBoxText][2]
+        # x = BHD[comBoxText][0]  # float 型
+        # y = BHD[comBoxText][1]
+        # v = BHD[comBoxText][2]
+        #
+        # for i in range(len(v)):
+        #     if v[i] == -999:
+        #         v[i] = 0
+        #
+        # x = np.array(x)
+        # y = np.array(y)
+        # v = np.array(v)
+        #
+        # x = x.T
+        # y = y.T
+        # v = v.T
+        #
+        # xb = list(range(int(min(x)), int(max(x)), self.stepx))
+        # yb = list(range(int(min(y)), int(max(y)), self.stepy))
+        #
+        # xb = np.array(xb)
+        # yb = np.array(yb)
+        #
+        # xb, yb = np.meshgrid(xb, yb)
+        #
+        # bhdq = griddata((x, y), v, (xb, yb), method="linear")
+        #
+        # floor = CJDYSJ[comBoxText]  # float 型
+        # floor = np.array(floor)
+        # floor = floor.T
+        # floor = floor.tolist()
+        # wellNum = floor[2]
+        # x = []
+        # y = []
+        # yxhd = floor[13]
+        # stl = floor[15]
+        #
+        # for i in wellNum:
+        #     if DJDZSJ[i][2] == '0':
+        #         y.append(DJDZSJ[i][0])
+        #         x.append(DJDZSJ[i][1])
+        #     else:
+        #         y.append(DJDZSJ[i][2])
+        #         x.append(DJDZSJ[i][3])
+        #
+        # x = np.array(x)
+        # y = np.array(y)
+        # yxhd = np.array(yxhd)
+        # stl = np.array(stl)
+        #
+        #
+        # x = x.T
+        # y = y.T
+        # yxhd = yxhd.T
+        # stl = stl.T
+        #
+        #
+        # yxhdq = griddata((x, y), yxhd, (xb, yb), method="linear")
+        # stlq = griddata((x, y), stl, (xb, yb), method="linear")
+        #
+        #
+        #
+        # print(yxhdq.shape)
+        # print(stlq.shape)
+        # print(bhdq.shape)
+        #
+        #
+        # qlq = yxhdq
+        #
+        # for i in range(bhdq.shape[0]):
+        #     for j in range(bhdq.shape[1]):
+        #         if np.isnan(bhdq[i][j]) == False and np.isnan(stlq[i][j]) == False and np.isnan(yxhdq[i][j]) == False:
+        #             if stlq[i][j] > 0.2 and bhdq[i][j] > 0.5 and yxhdq[i][j] > 2:
+        #                 qlq[i][j] = 1
+        #             else:
+        #                 qlq[i][j] = 0
 
-        for i in range(len(v)):
-            if v[i] == -999:
-                v[i] = 0
-
-        x = np.array(x)
-        y = np.array(y)
-        v = np.array(v)
-
-        x = x.T
-        y = y.T
-        v = v.T
-
-        xb = list(range(int(min(x)), int(max(x)), 50))
-        yb = list(range(int(min(y)), int(max(y)), 50))
-
-        xb = np.array(xb)
-        yb = np.array(yb)
-
-        xb, yb = np.meshgrid(xb, yb)
-
-        bhdq = griddata((x, y), v, (xb, yb), method="linear")
-
-        floor = CJDYSJ[comBoxText]  # float 型
-        floor = np.array(floor)
-        floor = floor.T
-        floor = floor.tolist()
-        wellNum = floor[2]
-        x = []
-        y = []
-        yxhd = floor[13]
-        stl = floor[15]
-
-        for i in wellNum:
-            if DJDZSJ[i][2] == '0':
-                y.append(DJDZSJ[i][0])
-                x.append(DJDZSJ[i][1])
-            else:
-                y.append(DJDZSJ[i][2])
-                x.append(DJDZSJ[i][3])
-
-        x = np.array(x)
-        y = np.array(y)
-        yxhd = np.array(yxhd)
-        stl = np.array(stl)
 
 
-        x = x.T
-        y = y.T
-        yxhd = yxhd.T
-        stl = stl.T
-
-
-        yxhdq = griddata((x, y), yxhd, (xb, yb), method="linear")
-        stlq = griddata((x, y), stl, (xb, yb), method="linear")
-
-
-
-        print(yxhdq.shape)
-        print(stlq.shape)
-        print(bhdq.shape)
-
-
-        qlq = yxhdq
-
-        for i in range(bhdq.shape[0]):
-            for j in range(bhdq.shape[1]):
-                if np.isnan(bhdq[i][j]) == False and np.isnan(stlq[i][j]) == False and np.isnan(yxhdq[i][j]) == False:
-                    if stlq[i][j] > 0.2 and bhdq[i][j] > 0.5 and yxhdq[i][j] > 2:
-                        qlq[i][j] = 1
-                    else:
-                        qlq[i][j] = 0
-
-
-
-        ax1 = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图1
+        ax1 = fig1.fig.add_subplot(1, 1, 1)  # 子图1
         ax1.set_xlabel('X 轴')  # X轴标题
         ax1.set_ylabel('Y 轴')  # Y轴标题
-        ax1.set_title(title + "潜力区")
+        ax1.set_title(title)
 
-        im1 = ax1.pcolormesh(xb, yb, qlq)
+        im1 = ax1.pcolormesh(self.qlqXb[comBoxText], self.qlqYb[comBoxText], self.qlqBinary[comBoxText])
         fig1.fig.colorbar(im1, ax=ax1)
 
-        contours = measure.find_contours(qlq, 0.5)
+        # contours = measure.find_contours(self.qlqBinary[comBoxText], 0.5)
 
-        for n, contour in enumerate(contours):
+        # for n, contour in enumerate(contours):
+        #     for i in range(contour.shape[0]):
+        #         contour[i][1] = contour[i][1] * self.stepx + xb[0][0]
+        #         contour[i][0] = contour[i][0] * self.stepy + yb[0][0]
+
+        #
+        # areaX = int(self.ui.lineEdit_3.text())
+        # areaY = int(self.ui.lineEdit_4.text())
+
+        for n, contour in enumerate(self.qlqContours[comBoxText]):
+            # contour = np.float32(contour)
+            # # 计算最小内接矩形
+            # rect = cv2.minAreaRect(contour)
+
+            # 提取矩形的关键信息
+            # center, size, angle = rect
+            # width, height = size
+            # if width > areaX and height > areaY:
             ax1.plot(contour[:, 1], contour[:, 0], linewidth=2)
 
 
-        fig1.fig.canvas.draw()  ##刷新
+        # fig1.fig.canvas.draw()  ##刷新
 
 
 
