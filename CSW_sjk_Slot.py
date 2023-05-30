@@ -36,6 +36,8 @@ XSQX = []
 CYJS = []
 DS = []
 
+step = 50
+
 
 class QmyMainWindow(QMainWindow):
 
@@ -127,8 +129,8 @@ class QmyMainWindow(QMainWindow):
                 y = y.T
                 v = v.T
 
-                xq = list(range(int(min(x)), int(max(x)), 50))
-                yq = list(range(int(min(y)), int(max(y)), 50))
+                xq = list(range(int(min(x)), int(max(x)), step))
+                yq = list(range(int(min(y)), int(max(y)), step))
 
                 xq = np.array(xq)
                 yq = np.array(yq)
@@ -197,8 +199,8 @@ class QmyMainWindow(QMainWindow):
                 y = y.T
                 v = v.T
 
-                xq = list(range(int(min(x)), int(max(x)), 50))
-                yq = list(range(int(min(y)), int(max(y)), 50))
+                xq = list(range(int(min(x)), int(max(x)), step))
+                yq = list(range(int(min(y)), int(max(y)), step))
 
                 xq = np.array(xq)
                 yq = np.array(yq)
@@ -249,8 +251,8 @@ class QmyMainWindow(QMainWindow):
                 y = y.T
                 v = v.T
 
-                xq = list(range(int(min(x)), int(max(x)), 50))
-                yq = list(range(int(min(y)), int(max(y)), 50))
+                xq = list(range(int(min(x)), int(max(x)), step))
+                yq = list(range(int(min(y)), int(max(y)), step))
 
                 xq = np.array(xq)
                 yq = np.array(yq)
@@ -300,8 +302,8 @@ class QmyMainWindow(QMainWindow):
                 y = y.T
                 v = v.T
 
-                xq = list(range(int(min(x)), int(max(x)), 50))
-                yq = list(range(int(min(y)), int(max(y)), 50))
+                xq = list(range(int(min(x)), int(max(x)), step))
+                yq = list(range(int(min(y)), int(max(y)), step))
 
                 xq = np.array(xq)
                 yq = np.array(yq)
@@ -370,8 +372,8 @@ class QmyMainWindow(QMainWindow):
                 print(int(min(y)))
                 print(int(max(y)))
 
-                xq = list(range(int(min(x)), int(max(x)), 50))
-                yq = list(range(int(min(y)), int(max(y)), 50))
+                xq = list(range(int(min(x)), int(max(x)), step))
+                yq = list(range(int(min(y)), int(max(y)), step))
 
                 xq = np.array(xq)
                 yq = np.array(yq)
@@ -988,8 +990,8 @@ class QmyMainWindow(QMainWindow):
         y = y.T
         v = v.T
 
-        xb = list(range(int(min(x)), int(max(x)), 50))
-        yb = list(range(int(min(y)), int(max(y)), 50))
+        xb = list(range(int(min(x)), int(max(x)), step))
+        yb = list(range(int(min(y)), int(max(y)), step))
 
         xb = np.array(xb)
         yb = np.array(yb)
@@ -1061,10 +1063,16 @@ class QmyMainWindow(QMainWindow):
         contours = measure.find_contours(qlq, 0.5)
 
         for n, contour in enumerate(contours):
+            for i in range(contour.shape[0]):
+                contour[i][1] = contour[i][1] * step + xb[0][0]
+                contour[i][0] = contour[i][0] * step + yb[0][0]
+
+
+        for n, contour in enumerate(contours):
             ax1.plot(contour[:, 1], contour[:, 0], linewidth=2)
 
 
-        fig1.fig.canvas.draw()  ##刷新
+        # fig1.fig.canvas.draw()  ##刷新
 
 
 
