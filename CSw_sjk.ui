@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1262</width>
+    <width>1709</width>
     <height>1206</height>
    </rect>
   </property>
@@ -135,18 +135,33 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
+      <property name="tabSpacing">
+       <number>100</number>
+      </property>
       <widget class="QWidget" name="page">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>210</width>
-         <height>1131</height>
+         <width>291</width>
+         <height>823</height>
         </rect>
        </property>
        <attribute name="label">
-        <string>Page 1</string>
+        <string>潜力区筛选</string>
        </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QComboBox" name="comboBox"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QPushButton" name="pushButton">
+          <property name="text">
+           <string>潜力区筛选</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="page_2">
        <property name="geometry">
@@ -154,11 +169,16 @@
          <x>0</x>
          <y>0</y>
          <width>291</width>
-         <height>1113</height>
+         <height>823</height>
         </rect>
        </property>
        <attribute name="label">
         <string>Page 2</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="page_3">
+       <attribute name="label">
+        <string>页</string>
        </attribute>
       </widget>
      </widget>
@@ -170,7 +190,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1262</width>
+     <width>1709</width>
      <height>23</height>
     </rect>
    </property>
