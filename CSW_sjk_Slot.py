@@ -53,6 +53,8 @@ class QmyMainWindow(QMainWindow):
         self.qlqXb = {}
         self.qlqYb = {}
         self.qlqContours = {}
+        self.qlqTable = {}
+        self.qlqTableRow = {}
 
         # 展开节点
         self.ui.treeWidget.topLevelItem(0).setExpanded(True)
@@ -987,6 +989,12 @@ class QmyMainWindow(QMainWindow):
     @pyqtSlot()
     def on_pushButton_3_clicked(self):
 
+        headerText = ["潜力区序号", "层号", "平面规模", "平均含油饱和度", "平均有效厚度", "平均渗透率","井数量"]
+        self.ui.tableWidget.setColumnCount(len(headerText))
+        self.ui.tableWidget.setHorizontalHeaderLabels(headerText)
+        self.ui.tableWidget.clearContents()
+
+
         labText = "正在导入文件..."  # 文本信息
         btnText = "取消"  # "取消"按钮的标题
         minV = 0
@@ -999,6 +1007,7 @@ class QmyMainWindow(QMainWindow):
         dlgProgress.setAutoClose(True)  # 调用reset()时隐藏窗口
 
         pross = 1
+        index = 0
         for qlqFloorName in self.qlqFloor:
 
             dlgProgress.setValue(pross)
@@ -1100,7 +1109,7 @@ class QmyMainWindow(QMainWindow):
 
             self.qlqContours[qlqFloorName] = []
 
-            for n, contour in enumerate(contours):
+            for _, contour in enumerate(contours):
                 contour = np.float32(contour)
                 # 计算最小内接矩形
                 rect = cv2.minAreaRect(contour)
@@ -1109,7 +1118,52 @@ class QmyMainWindow(QMainWindow):
                 center, size, angle = rect
                 width, height = size
                 if width > areaX and height > areaY:
+                    index = index + 1
+                    self.qlqTableRow["index"] = index
                     self.qlqContours[qlqFloorName].append(contour)
+                    minx = min(contour[:,1])
+                    miny = min(contour[:,0])
+                    maxx = max(contour[:,1])
+                    maxy = max(contour[:,0])
+                    well = []
+
+                    x = np.float32(x)
+                    y = np.float32(y)
+
+                    for i in range(len(wellNum)):
+                        if x[i] > minx and x[i] < maxx and y[i] > miny and y[i] < maxy:
+                            well.append(wellNum[i])
+
+                    self.qlqTableRow["well"] = len(well)
+
+                    n = 0
+                    sumStl = 0
+                    sumYxhd = 0
+                    sumBhd = 0
+                    for i in range(bhdq.shape[0]):
+                        for j in range(bhdq.shape[1]):
+                            if xb[i][j] > minx and xb[i][j] < maxx and yb[i][j] > miny and yb[i][j] < maxy and qlq[i][j] == 1:
+                                n = n + 1
+                                sumBhd = sumBhd + bhdq[i][j]
+                                sumStl = sumStl + stlq[i][j]
+                                sumYxhd = sumYxhd + yxhdq[i][j]
+
+                    avStl = sumStl / n
+                    avBhd = sumBhd / n
+                    avYxhd = sumYxhd / n
+                    self.qlqTableRow["avStl"] = avStl
+                    self.qlqTableRow["avBhd"] = avBhd
+                    self.qlqTableRow["avYxhd"] = avYxhd
+                    self.qlqTable[index] = self.qlqTableRow
+
+
+
+
+
+
+
+
+
                 #     ax1.plot(contour[:, 1], contour[:, 0], linewidth=2)
 
             # fig1.fig.canvas.draw()  ##刷新
