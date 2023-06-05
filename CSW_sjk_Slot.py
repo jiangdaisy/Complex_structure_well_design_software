@@ -1097,12 +1097,16 @@ class QmyMainWindow(QMainWindow):
             # im1 = ax1.pcolormesh(xb, yb, qlq)
             # fig1.fig.colorbar(im1, ax=ax1)
 
-            contours = measure.find_contours(qlq, 0.5)
+            contours = measure.find_contours(qlq, 0.4)
+
 
             for n, contour in enumerate(contours):
                 for i in range(contour.shape[0]):
-                    contour[i][1] = contour[i][1] * self.stepx + xb[0][0]
-                    contour[i][0] = contour[i][0] * self.stepy + yb[0][0]
+                    xcontour = round(contour[i][1])
+                    ycontour = round(contour[i][0])
+
+                    contour[i][1] = xcontour * self.stepx + xb[0][0]
+                    contour[i][0] = ycontour * self.stepy + yb[0][0]
 
             areaX = int(self.ui.lineEdit_3.text())
             areaY = int(self.ui.lineEdit_4.text())
@@ -1142,7 +1146,7 @@ class QmyMainWindow(QMainWindow):
                     sumBhd = 0
                     for i in range(bhdq.shape[0]):
                         for j in range(bhdq.shape[1]):
-                            if xb[i][j] > minx and xb[i][j] < maxx and yb[i][j] > miny and yb[i][j] < maxy and qlq[i][j] == 1:
+                            if xb[i][j] >= minx and xb[i][j] <= maxx and yb[i][j] >= miny and yb[i][j] <= maxy and qlq[i][j] == 1:
                                 n = n + 1
                                 sumBhd = sumBhd + bhdq[i][j]
                                 sumStl = sumStl + stlq[i][j]
