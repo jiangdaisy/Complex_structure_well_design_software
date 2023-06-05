@@ -13,7 +13,8 @@ from scipy.interpolate import griddata
 from CSw_sjk import Ui_MainWindow
 
 from PyQt5.QtWidgets import (QApplication, QMainWindow,
-                             QSplitter, QColorDialog, QLabel, QComboBox, QTreeWidgetItem, QProgressDialog)
+                             QSplitter, QColorDialog, QLabel, QComboBox, QTreeWidgetItem, QProgressDialog,
+                             QTableWidgetItem)
 from PyQt5.QtCore import pyqtSlot, QDir, QIODevice, QFile, QTextStream
 from PyQt5.QtWidgets import QFileDialog
 from myfigure import QmyFigure
@@ -54,7 +55,7 @@ class QmyMainWindow(QMainWindow):
         self.qlqYb = {}
         self.qlqContours = {}
         self.qlqTable = {}
-        self.qlqTableRow = {}
+        # self.qlqTableRow = {}
 
         # 展开节点
         self.ui.treeWidget.topLevelItem(0).setExpanded(True)
@@ -1010,6 +1011,7 @@ class QmyMainWindow(QMainWindow):
         index = 0
         for qlqFloorName in self.qlqFloor:
 
+
             dlgProgress.setValue(pross)
             dlgProgress.setLabelText("正在筛选数据,第 %d 个" % pross)
 
@@ -1114,16 +1116,22 @@ class QmyMainWindow(QMainWindow):
             self.qlqContours[qlqFloorName] = []
 
             for _, contour in enumerate(contours):
+                qlqTableRow = {}
+
                 contour = np.float32(contour)
                 # 计算最小内接矩形
                 rect = cv2.minAreaRect(contour)
+                area = cv2.contourArea(contour)
+                qlqTableRow["floor"] = qlqFloorName
+                qlqTableRow["area"] = area
 
                 # 提取矩形的关键信息
                 center, size, angle = rect
                 width, height = size
                 if width > areaX and height > areaY:
                     index = index + 1
-                    self.qlqTableRow["index"] = index
+                    qlqTableRow["index"] = index
+
                     self.qlqContours[qlqFloorName].append(contour)
                     minx = min(contour[:,1])
                     miny = min(contour[:,0])
@@ -1138,7 +1146,7 @@ class QmyMainWindow(QMainWindow):
                         if x[i] > minx and x[i] < maxx and y[i] > miny and y[i] < maxy:
                             well.append(wellNum[i])
 
-                    self.qlqTableRow["well"] = len(well)
+                    qlqTableRow["well"] = len(well)
 
                     n = 0
                     sumStl = 0
@@ -1155,25 +1163,68 @@ class QmyMainWindow(QMainWindow):
                     avStl = sumStl / n
                     avBhd = sumBhd / n
                     avYxhd = sumYxhd / n
-                    self.qlqTableRow["avStl"] = avStl
-                    self.qlqTableRow["avBhd"] = avBhd
-                    self.qlqTableRow["avYxhd"] = avYxhd
-                    self.qlqTable[index] = self.qlqTableRow
-
-
-
-
-
-
-
-
-
-                #     ax1.plot(contour[:, 1], contour[:, 0], linewidth=2)
-
-            # fig1.fig.canvas.draw()  ##刷新
+                    qlqTableRow["avStl"] = avStl
+                    qlqTableRow["avBhd"] = avBhd
+                    qlqTableRow["avYxhd"] = avYxhd
+                    self.qlqTable[index] = qlqTableRow
 
             print("pushBotton")
             pross = pross + 1
+        self.ui.tableWidget.setRowCount(index)
+        self.ui.tableWidget.setAlternatingRowColors(True)
+        for i in range(1,index):
+            # 潜力区编号
+            item = QTableWidgetItem(str(self.qlqTable[i]["index"]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget.setItem(i-1, 0,item)
+
+            # 层号
+            item = QTableWidgetItem(self.qlqTable[i]["floor"])
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget.setItem(i-1, 1,item)
+
+            # 平面规模
+            item = QTableWidgetItem(str(self.qlqTable[i]["area"]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget.setItem(i-1, 2,item)
+
+            # 平均含油饱和度
+            item = QTableWidgetItem(str(self.qlqTable[i]["avBhd"]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget.setItem(i-1, 3,item)
+
+            # 平均有效厚度
+            item = QTableWidgetItem(str(self.qlqTable[i]["avYxhd"]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget.setItem(i-1, 4,item)
+
+            # 平均渗透率
+            item = QTableWidgetItem(str(self.qlqTable[i]["avStl"]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget.setItem(i-1, 5,item)
+
+            # 井数量
+            item = QTableWidgetItem(str(self.qlqTable[i]["well"]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget.setItem(i-1, 6,item)
+
+
+
+
 
 
 
