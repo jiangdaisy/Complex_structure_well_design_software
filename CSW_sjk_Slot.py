@@ -557,6 +557,7 @@ class QmyMainWindow(QMainWindow):
                 filePath = aDir + "/" + fileName[0]
 
                 self.ui.comboBox.addItem(fileName[0][0:-4])
+                self.ui.comboBox_2.addItem(fileName[0][0:-4])
                 self.qlqFloor.append(fileName[0][0:-4])
 
                 # print(filePath)
@@ -1239,82 +1240,6 @@ class QmyMainWindow(QMainWindow):
         curIndex = self.ui.tabWidget.addTab(fig1, title)  # 添加到tabWidget
         self.ui.tabWidget.setCurrentIndex(curIndex)
 
-        # x = BHD[comBoxText][0]  # float 型
-        # y = BHD[comBoxText][1]
-        # v = BHD[comBoxText][2]
-        #
-        # for i in range(len(v)):
-        #     if v[i] == -999:
-        #         v[i] = 0
-        #
-        # x = np.array(x)
-        # y = np.array(y)
-        # v = np.array(v)
-        #
-        # x = x.T
-        # y = y.T
-        # v = v.T
-        #
-        # xb = list(range(int(min(x)), int(max(x)), self.stepx))
-        # yb = list(range(int(min(y)), int(max(y)), self.stepy))
-        #
-        # xb = np.array(xb)
-        # yb = np.array(yb)
-        #
-        # xb, yb = np.meshgrid(xb, yb)
-        #
-        # bhdq = griddata((x, y), v, (xb, yb), method="linear")
-        #
-        # floor = CJDYSJ[comBoxText]  # float 型
-        # floor = np.array(floor)
-        # floor = floor.T
-        # floor = floor.tolist()
-        # wellNum = floor[2]
-        # x = []
-        # y = []
-        # yxhd = floor[13]
-        # stl = floor[15]
-        #
-        # for i in wellNum:
-        #     if DJDZSJ[i][2] == '0':
-        #         y.append(DJDZSJ[i][0])
-        #         x.append(DJDZSJ[i][1])
-        #     else:
-        #         y.append(DJDZSJ[i][2])
-        #         x.append(DJDZSJ[i][3])
-        #
-        # x = np.array(x)
-        # y = np.array(y)
-        # yxhd = np.array(yxhd)
-        # stl = np.array(stl)
-        #
-        #
-        # x = x.T
-        # y = y.T
-        # yxhd = yxhd.T
-        # stl = stl.T
-        #
-        #
-        # yxhdq = griddata((x, y), yxhd, (xb, yb), method="linear")
-        # stlq = griddata((x, y), stl, (xb, yb), method="linear")
-        #
-        #
-        #
-        # print(yxhdq.shape)
-        # print(stlq.shape)
-        # print(bhdq.shape)
-        #
-        #
-        # qlq = yxhdq
-        #
-        # for i in range(bhdq.shape[0]):
-        #     for j in range(bhdq.shape[1]):
-        #         if np.isnan(bhdq[i][j]) == False and np.isnan(stlq[i][j]) == False and np.isnan(yxhdq[i][j]) == False:
-        #             if stlq[i][j] > 0.2 and bhdq[i][j] > 0.5 and yxhdq[i][j] > 2:
-        #                 qlq[i][j] = 1
-        #             else:
-        #                 qlq[i][j] = 0
-
 
 
         ax1 = fig1.fig.add_subplot(1, 1, 1)  # 子图1
@@ -1325,34 +1250,20 @@ class QmyMainWindow(QMainWindow):
         im1 = ax1.pcolormesh(self.qlqXb[comBoxText], self.qlqYb[comBoxText], self.qlqBinary[comBoxText])
         fig1.fig.colorbar(im1, ax=ax1)
 
-        # contours = measure.find_contours(self.qlqBinary[comBoxText], 0.5)
 
-        # for n, contour in enumerate(contours):
-        #     for i in range(contour.shape[0]):
-        #         contour[i][1] = contour[i][1] * self.stepx + xb[0][0]
-        #         contour[i][0] = contour[i][0] * self.stepy + yb[0][0]
-
-        #
-        # areaX = int(self.ui.lineEdit_3.text())
-        # areaY = int(self.ui.lineEdit_4.text())
 
         for n, contour in enumerate(self.qlqContours[comBoxText]):
-            # contour = np.float32(contour)
-            # # 计算最小内接矩形
-            # rect = cv2.minAreaRect(contour)
 
-            # 提取矩形的关键信息
-            # center, size, angle = rect
-            # width, height = size
-            # if width > areaX and height > areaY:
             ax1.plot(contour[:, 1], contour[:, 0], linewidth=2)
 
-
-        # fig1.fig.canvas.draw()  ##刷新
-
-
-
         print("pushBotton")
+
+    @pyqtSlot(str)  #层间联通性判断得下拉列表变化时运行得函数
+    def on_comboBox_2_currentIndexChanged(self, curText):
+        print(curText)
+
+
+
 
 if __name__ == "__main__":  # 用于当前窗体测试
     app = QApplication(sys.argv)  # 创建GUI应用程序
