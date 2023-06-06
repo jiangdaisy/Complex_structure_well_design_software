@@ -991,14 +991,14 @@ class QmyMainWindow(QMainWindow):
     @pyqtSlot()
     def on_pushButton_3_clicked(self):
 
-        headerText = ["潜力区序号", "层号", "平面规模", "平均含油饱和度", "平均有效厚度", "平均渗透率","井数量"]
+        headerText = ["潜力区序号", "层号", "平面规模", "平均含油饱和度", "平均有效厚度", "平均渗透率","平均孔隙度","剩余油量","井数量","平均水淹程度"]
         self.ui.tableWidget.setColumnCount(len(headerText))
         self.ui.tableWidget.setHorizontalHeaderLabels(headerText)
         self.ui.tableWidget.clearContents()
 
 
         labText = "正在导入文件..."  # 文本信息
-        btnText = "取消"  # "取消"按钮的标题
+        btnText = "取消"  # "取消"按钮的标
         minV = 0
         maxV = len(self.qlqFloor)
 
@@ -1043,6 +1043,13 @@ class QmyMainWindow(QMainWindow):
             bhdq = griddata((x, y), v, (xb, yb), method="linear")
 
             floor = CJDYSJ[qlqFloorName]  # float 型
+
+            sycd = {}
+            for i in floor:
+                if i[16] != "":
+                    sycd[i[2]] = i[16]
+
+
             floor = np.array(floor)
             floor = floor.T
             floor = floor.tolist()
@@ -1051,6 +1058,8 @@ class QmyMainWindow(QMainWindow):
             y = []
             yxhd = floor[13]
             stl = floor[15]
+            kxd = floor[14]
+
 
             for i in wellNum:
                 if DJDZSJ[i][2] == '0':
@@ -1064,14 +1073,17 @@ class QmyMainWindow(QMainWindow):
             y = np.array(y)
             yxhd = np.array(yxhd)
             stl = np.array(stl)
+            kxd = np.array(kxd)
 
             x = x.T
             y = y.T
             yxhd = yxhd.T
             stl = stl.T
+            kxd = kxd.T
 
             yxhdq = griddata((x, y), yxhd, (xb, yb), method="linear")
             stlq = griddata((x, y), stl, (xb, yb), method="linear")
+            kxdq = griddata((x, y), kxd, (xb, yb), method="linear")
 
             # print(yxhdq.shape)
             # print(stlq.shape)
@@ -1092,13 +1104,6 @@ class QmyMainWindow(QMainWindow):
             self.qlqXb[qlqFloorName] = xb
             self.qlqYb[qlqFloorName] = yb
 
-            # ax1 = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图1
-            # ax1.set_xlabel('X 轴')  # X轴标题
-            # ax1.set_ylabel('Y 轴')  # Y轴标题
-            # ax1.set_title(title + "潜力区")
-            #
-            # im1 = ax1.pcolormesh(xb, yb, qlq)
-            # fig1.fig.colorbar(im1, ax=ax1)
 
             contours = measure.find_contours(qlq, 0.4)
 
@@ -1144,29 +1149,57 @@ class QmyMainWindow(QMainWindow):
                     y = np.float32(y)
 
                     for i in range(len(wellNum)):
-                        if x[i] > minx and x[i] < maxx and y[i] > miny and y[i] < maxy:
+                        if minx < x[i] < maxx and miny < y[i] < maxy:
                             well.append(wellNum[i])
 
-                    qlqTableRow["well"] = len(well)
+                    qlqTableRow["well"] = well
 
                     n = 0
                     sumStl = 0
                     sumYxhd = 0
                     sumBhd = 0
+                    sumKxd = 0
                     for i in range(bhdq.shape[0]):
                         for j in range(bhdq.shape[1]):
-                            if xb[i][j] >= minx and xb[i][j] <= maxx and yb[i][j] >= miny and yb[i][j] <= maxy and qlq[i][j] == 1:
+                            if minx <= xb[i][j] <= maxx and miny <= yb[i][j] <= maxy and qlq[i][j] == 1:
                                 n = n + 1
                                 sumBhd = sumBhd + bhdq[i][j]
                                 sumStl = sumStl + stlq[i][j]
                                 sumYxhd = sumYxhd + yxhdq[i][j]
+                                sumKxd = sumKxd + kxdq[i][j]
 
                     avStl = sumStl / n
                     avBhd = sumBhd / n
                     avYxhd = sumYxhd / n
+                    avKxd = sumKxd / n
                     qlqTableRow["avStl"] = avStl
                     qlqTableRow["avBhd"] = avBhd
                     qlqTableRow["avYxhd"] = avYxhd
+                    qlqTableRow["avKxd"] = avKxd
+                    qlqTableRow["syyl"] = avKxd * avBhd * avYxhd * area
+                    avsycd = ''
+                    D = 0
+                    Z = 0
+                    G = 0
+                    for i in well:
+                        try:
+                            if sycd[i] == 'D':
+                                D = D + 1
+                            if sycd[i] == 'Z':
+                                Z = Z + 1
+                            if sycd[i] == 'G':
+                                G = G + 1
+                        except KeyError:
+                            print(KeyError)
+
+                    if G > Z and G > D:
+                        avsycd = "高"
+                    if Z > G and Z > D:
+                        avsycd = "中"
+                    if D > G and D > Z:
+                        avsycd = "低"
+
+                    qlqTableRow["avsycd"] = avsycd
                     self.qlqTable[index] = qlqTableRow
 
             print("pushBotton")
@@ -1216,12 +1249,33 @@ class QmyMainWindow(QMainWindow):
                           | Qt.ItemIsUserCheckable)  # 不允许编辑文字
             self.ui.tableWidget.setItem(i-1, 5,item)
 
-            # 井数量
-            item = QTableWidgetItem(str(self.qlqTable[i]["well"]))
+            # 平均孔隙度
+            item = QTableWidgetItem(str(self.qlqTable[i]["avKxd"]))
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
                           | Qt.ItemIsUserCheckable)  # 不允许编辑文字
             self.ui.tableWidget.setItem(i-1, 6,item)
+
+            # 剩余油量
+            item = QTableWidgetItem(str(self.qlqTable[i]["syyl"]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget.setItem(i-1, 7,item)
+
+            # 井数量
+            item = QTableWidgetItem(str(len(self.qlqTable[i]["well"])))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget.setItem(i-1, 8,item)
+
+            # 平均水淹程度
+            item = QTableWidgetItem(str(self.qlqTable[i]["avsycd"]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget.setItem(i-1, 9,item)
 
 
 
