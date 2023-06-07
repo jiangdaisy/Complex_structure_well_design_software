@@ -590,7 +590,7 @@ class QmyMainWindow(QMainWindow):
                 filePath = aDir + "/" + fileName[0]
 
                 self.ui.comboBox.addItem(fileName[0][0:-4])
-                self.ui.comboBox_2.addItem(fileName[0][0:-4])
+
                 self.qlqFloor.append(fileName[0][0:-4])
 
                 # print(filePath)
@@ -1274,6 +1274,7 @@ class QmyMainWindow(QMainWindow):
 
             # 潜力区编号
             listrow.append(self.qlqTable[i]["index"])
+            self.ui.comboBox_2.addItem(self.qlqTable[i]["index"])
             item = QTableWidgetItem(str(self.qlqTable[i]["index"]))
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
