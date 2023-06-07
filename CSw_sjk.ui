@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,4,1">
+   <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,4,2">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -127,7 +127,7 @@
     <item>
      <widget class="QToolBox" name="toolBox">
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <property name="tabSpacing">
        <number>10</number>
@@ -137,8 +137,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>268</width>
-         <height>194</height>
+         <width>488</width>
+         <height>1063</height>
         </rect>
        </property>
        <attribute name="label">
@@ -323,8 +323,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>293</width>
-         <height>1093</height>
+         <width>488</width>
+         <height>1063</height>
         </rect>
        </property>
        <attribute name="label">
@@ -516,13 +516,91 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>98</width>
-         <height>28</height>
+         <width>488</width>
+         <height>1063</height>
         </rect>
        </property>
        <attribute name="label">
-        <string>页</string>
+        <string>层间连通性</string>
        </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,1,2">
+        <item>
+         <widget class="QLabel" name="label_13">
+          <property name="font">
+           <font>
+            <family>Adobe Arabic</family>
+            <pointsize>24</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>层间连通性判断</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBox_2">
+          <property name="font">
+           <font>
+            <family>Adobe Arabic</family>
+            <pointsize>24</pointsize>
+           </font>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="tableWidget_2"/>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="tableWidget_3"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_4">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>488</width>
+         <height>1063</height>
+        </rect>
+       </property>
+       <attribute name="label">
+        <string>随机森林模型</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QPushButton" name="pushButton_4">
+          <property name="font">
+           <font>
+            <family>Adobe Arabic</family>
+            <pointsize>16</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>导入模型</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_5">
+          <property name="font">
+           <font>
+            <family>Adobe Arabic</family>
+            <pointsize>16</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>随机森林评价</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableView" name="tableView"/>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>

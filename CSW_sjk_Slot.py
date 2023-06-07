@@ -1,5 +1,7 @@
 import re
 import sys
+from sklearn.ensemble import RandomForestClassifier
+import random
 
 from skimage import measure
 import cv2
@@ -55,7 +57,7 @@ class QmyMainWindow(QMainWindow):
         self.qlqYb = {}
         self.qlqContours = {}
         self.qlqTable = {}
-        # self.qlqTableRow = {}
+        self.qlqTableList = []
 
         # 展开节点
         self.ui.treeWidget.topLevelItem(0).setExpanded(True)
@@ -148,20 +150,15 @@ class QmyMainWindow(QMainWindow):
 
                 xq, yq = np.meshgrid(xq, yq)
 
-                vq = griddata((x, y), v, (xq, yq), method="linear")
-                # print(vq.shape)
-                # print(vq.shape[0])
-                # print(vq.shape[1])
-                # print(vq)
-                for i in range(vq.shape[0]):
-                    for j in range(vq.shape[1]):
-                        if (np.isnan(vq[i][j]) == False):
-                            # print(str(i)+" "+str(j))
-                            # print(type(vq[i][j]))
-                            # print(vq[i][j])
-                            vq[i][j] = vq[i][j].astype(int)
-                # print(vq)
-                # print("1111111111")
+                vq1 = griddata((x, y), v, (xq, yq), method="linear")
+                vq = griddata((x, y), v, (xq, yq), method="nearest")
+
+
+                for i in range(vq1.shape[0]):
+                    for j in range(vq1.shape[1]):
+                        if (np.isnan(vq1[i][j]) == True):
+                            vq[i][j] = vq1[i][j]
+
 
                 ax1 = fig.fig.add_subplot(1, 1, 1, label=title)  # 子图1
 
@@ -183,8 +180,6 @@ class QmyMainWindow(QMainWindow):
                 fig.fig.canvas.draw()  ##刷新
 
                 print(item.text(0))
-
-
 
             elif itemParent.text(0) == "孔隙度":
 
@@ -357,17 +352,55 @@ class QmyMainWindow(QMainWindow):
                 wellNum = floor[2]
                 x = []
                 y = []
-                yxhd = floor[13]
-                kxd = floor[14]
-                stl = floor[15]
 
-                for i in wellNum:
-                    if DJDZSJ[i][2] == '0':
-                        y.append(DJDZSJ[i][0])
-                        x.append(DJDZSJ[i][1])
+
+
+                bj1 = 1
+                bj2 = 1
+                yxhd = []
+                yxhd1 = float(floor[13][0])
+                kxd = []
+                kxd1 = float(floor[14][0])
+                stl = []
+                stl1 = float(floor[15][0])
+
+                for i in range(1,len(floor[0])-1):
+                    print(i)
+                    if floor[2][i] == floor[2][i-1]:
+
+                        yxhd1 = yxhd1 + float(floor[13][i])
+                        if float(floor[14][i]) == 0:
+                            kxd1 = kxd1 + float(floor[14][i])
+                        else:
+                            bj1 = bj1 + 1
+                            kxd1 = kxd1 + float(floor[14][i])
+
+                        if float(floor[15][i]) == 0:
+                            stl1 = stl1 + float(floor[15][i])
+                        else:
+                            bj2 = bj2 + 1
+                            stl1 = stl1 + float(floor[15][i])
                     else:
-                        y.append(DJDZSJ[i][2])
-                        x.append(DJDZSJ[i][3])
+                        for j in range(len(DJDZSJ)):
+                            if floor[2][i-1] == list(DJDZSJ.keys())[j]:
+                                if DJDZSJ[list(DJDZSJ.keys())[j]][2] == '0':
+                                    y.append(DJDZSJ[list(DJDZSJ.keys())[j]][0])
+                                    x.append(DJDZSJ[list(DJDZSJ.keys())[j]][1])
+                                else:
+                                    y.append(DJDZSJ[list(DJDZSJ.keys())[j]][2])
+                                    x.append(DJDZSJ[list(DJDZSJ.keys())[j]][3])
+                                yxhd.append(str(yxhd1))
+                                kxd.append(str(kxd1/bj1))
+                                stl.append(str(stl1/bj2))
+
+                        bj1 = 1
+                        bj2 = 1
+                        yxhd1 = float(floor[13][i])
+                        kxd1 = float(floor[14][i])
+                        stl1 = float(floor[15][i])
+
+                print(floor[13])
+                print(yxhd)
 
                 x = np.array(x)
                 y = np.array(y)
@@ -430,10 +463,10 @@ class QmyMainWindow(QMainWindow):
                 ax3.set_ylabel('Y 轴')  # Y轴标题
                 ax3.set_title(title+"渗透率展示")
 
-                im1 = ax1.pcolormesh(xq, yq, kxdq)
+                im1 = ax1.pcolormesh(xq, yq, yxhdq)
                 fig1.fig.colorbar(im1, ax=ax1)
 
-                im2 = ax2.pcolormesh(xq, yq, yxhdq)
+                im2 = ax2.pcolormesh(xq, yq, kxdq)
                 fig2.fig.colorbar(im2, ax=ax2)
 
                 im3 = ax3.pcolormesh(xq, yq, stlq)
@@ -557,6 +590,7 @@ class QmyMainWindow(QMainWindow):
                 filePath = aDir + "/" + fileName[0]
 
                 self.ui.comboBox.addItem(fileName[0][0:-4])
+
                 self.qlqFloor.append(fileName[0][0:-4])
 
                 # print(filePath)
@@ -990,14 +1024,14 @@ class QmyMainWindow(QMainWindow):
     @pyqtSlot()
     def on_pushButton_3_clicked(self):
 
-        headerText = ["潜力区序号", "层号", "平面规模", "平均含油饱和度", "平均有效厚度", "平均渗透率","井数量"]
+        headerText = ["潜力区序号", "层号", "平面规模", "平均含油饱和度", "平均有效厚度", "平均渗透率","平均孔隙度","剩余油量","井数量","平均水淹程度"]
         self.ui.tableWidget.setColumnCount(len(headerText))
         self.ui.tableWidget.setHorizontalHeaderLabels(headerText)
         self.ui.tableWidget.clearContents()
 
 
         labText = "正在导入文件..."  # 文本信息
-        btnText = "取消"  # "取消"按钮的标题
+        btnText = "取消"  # "取消"按钮的标
         minV = 0
         maxV = len(self.qlqFloor)
 
@@ -1042,35 +1076,75 @@ class QmyMainWindow(QMainWindow):
             bhdq = griddata((x, y), v, (xb, yb), method="linear")
 
             floor = CJDYSJ[qlqFloorName]  # float 型
+            sycd = {}
+
             floor = np.array(floor)
             floor = floor.T
             floor = floor.tolist()
-            wellNum = floor[2]
+            # wellNum = floor[2]
             x = []
             y = []
-            yxhd = floor[13]
-            stl = floor[15]
 
-            for i in wellNum:
-                if DJDZSJ[i][2] == '0':
-                    y.append(DJDZSJ[i][0])
-                    x.append(DJDZSJ[i][1])
+            bj1 = 1
+            bj2 = 1
+            yxhd = []
+            yxhd1 = float(floor[13][0])
+            kxd = []
+            kxd1 = float(floor[14][0])
+            stl = []
+            stl1 = float(floor[15][0])
+            wellNum = []
+
+            for i in range(1, len(floor[0]) - 1):
+                if floor[2][i] == floor[2][i - 1]:
+
+                    yxhd1 = yxhd1 + float(floor[13][i])
+                    if float(floor[14][i]) == 0:
+                        kxd1 = kxd1 + float(floor[14][i])
+                    else:
+                        bj1 = bj1 + 1
+                        kxd1 = kxd1 + float(floor[14][i])
+
+                    if float(floor[15][i]) == 0:
+                        stl1 = stl1 + float(floor[15][i])
+                    else:
+                        bj2 = bj2 + 1
+                        stl1 = stl1 + float(floor[15][i])
                 else:
-                    y.append(DJDZSJ[i][2])
-                    x.append(DJDZSJ[i][3])
+                    for j in range(len(DJDZSJ)):
+                        if floor[2][i - 1] == list(DJDZSJ.keys())[j]:
+                            if DJDZSJ[list(DJDZSJ.keys())[j]][2] == '0':
+                                y.append(DJDZSJ[list(DJDZSJ.keys())[j]][0])
+                                x.append(DJDZSJ[list(DJDZSJ.keys())[j]][1])
+                            else:
+                                y.append(DJDZSJ[list(DJDZSJ.keys())[j]][2])
+                                x.append(DJDZSJ[list(DJDZSJ.keys())[j]][3])
+                            wellNum.append(floor[2][i - 1])
+                            yxhd.append(str(yxhd1))
+                            kxd.append(str(kxd1 / bj1))
+                            stl.append(str(stl1 / bj2))
+
+                    bj1 = 1
+                    bj2 = 1
+                    yxhd1 = float(floor[13][i])
+                    kxd1 = float(floor[14][i])
+                    stl1 = float(floor[15][i])
 
             x = np.array(x)
             y = np.array(y)
             yxhd = np.array(yxhd)
             stl = np.array(stl)
+            kxd = np.array(kxd)
 
             x = x.T
             y = y.T
             yxhd = yxhd.T
             stl = stl.T
+            kxd = kxd.T
 
             yxhdq = griddata((x, y), yxhd, (xb, yb), method="linear")
             stlq = griddata((x, y), stl, (xb, yb), method="linear")
+            kxdq = griddata((x, y), kxd, (xb, yb), method="linear")
 
             # print(yxhdq.shape)
             # print(stlq.shape)
@@ -1082,7 +1156,7 @@ class QmyMainWindow(QMainWindow):
                 for j in range(bhdq.shape[1]):
                     if np.isnan(bhdq[i][j]) == False and np.isnan(stlq[i][j]) == False and np.isnan(
                             yxhdq[i][j]) == False:
-                        if stlq[i][j] > 0.2 and bhdq[i][j] > 0.5 and yxhdq[i][j] > 2:
+                        if stlq[i][j] > 0.15 and bhdq[i][j] > 0.45 and yxhdq[i][j] > 2:
                             qlq[i][j] = 1
                         else:
                             qlq[i][j] = 0
@@ -1091,13 +1165,6 @@ class QmyMainWindow(QMainWindow):
             self.qlqXb[qlqFloorName] = xb
             self.qlqYb[qlqFloorName] = yb
 
-            # ax1 = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")  # 子图1
-            # ax1.set_xlabel('X 轴')  # X轴标题
-            # ax1.set_ylabel('Y 轴')  # Y轴标题
-            # ax1.set_title(title + "潜力区")
-            #
-            # im1 = ax1.pcolormesh(xb, yb, qlq)
-            # fig1.fig.colorbar(im1, ax=ax1)
 
             contours = measure.find_contours(qlq, 0.4)
 
@@ -1143,37 +1210,71 @@ class QmyMainWindow(QMainWindow):
                     y = np.float32(y)
 
                     for i in range(len(wellNum)):
-                        if x[i] > minx and x[i] < maxx and y[i] > miny and y[i] < maxy:
+                        if minx < x[i] < maxx and miny < y[i] < maxy:
                             well.append(wellNum[i])
 
-                    qlqTableRow["well"] = len(well)
+                    qlqTableRow["well"] = well
 
                     n = 0
                     sumStl = 0
                     sumYxhd = 0
                     sumBhd = 0
+                    sumKxd = 0
                     for i in range(bhdq.shape[0]):
                         for j in range(bhdq.shape[1]):
-                            if xb[i][j] >= minx and xb[i][j] <= maxx and yb[i][j] >= miny and yb[i][j] <= maxy and qlq[i][j] == 1:
+                            if minx <= xb[i][j] <= maxx and miny <= yb[i][j] <= maxy and qlq[i][j] == 1:
                                 n = n + 1
                                 sumBhd = sumBhd + bhdq[i][j]
                                 sumStl = sumStl + stlq[i][j]
                                 sumYxhd = sumYxhd + yxhdq[i][j]
+                                sumKxd = sumKxd + kxdq[i][j]
 
                     avStl = sumStl / n
                     avBhd = sumBhd / n
                     avYxhd = sumYxhd / n
+                    avKxd = sumKxd / n
                     qlqTableRow["avStl"] = avStl
                     qlqTableRow["avBhd"] = avBhd
                     qlqTableRow["avYxhd"] = avYxhd
+                    qlqTableRow["avKxd"] = avKxd
+                    qlqTableRow["syyl"] = avKxd * avBhd * avYxhd * area
+                    avsycd = ''
+                    D = 0
+                    Z = 0
+                    G = 0
+                    for i in well:
+                        try:
+                            if sycd[i] == 'D':
+                                D = D + 1
+                            if sycd[i] == 'Z':
+                                Z = Z + 1
+                            if sycd[i] == 'G':
+                                G = G + 1
+                        except KeyError:
+                            print(KeyError)
+
+                    if G > Z and G > D:
+                        avsycd = "高"
+                    if Z > G and Z > D:
+                        avsycd = "中"
+                    if D > G and D > Z:
+                        avsycd = "低"
+
+                    qlqTableRow["avsycd"] = avsycd
                     self.qlqTable[index] = qlqTableRow
 
             print("pushBotton")
             pross = pross + 1
         self.ui.tableWidget.setRowCount(index)
         self.ui.tableWidget.setAlternatingRowColors(True)
+
+
         for i in range(1,index):
+            listrow = []
+
             # 潜力区编号
+            listrow.append(self.qlqTable[i]["index"])
+            self.ui.comboBox_2.addItem(self.qlqTable[i]["index"])
             item = QTableWidgetItem(str(self.qlqTable[i]["index"]))
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -1181,6 +1282,7 @@ class QmyMainWindow(QMainWindow):
             self.ui.tableWidget.setItem(i-1, 0,item)
 
             # 层号
+            listrow.append(self.qlqTable[i]["floor"])
             item = QTableWidgetItem(self.qlqTable[i]["floor"])
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -1188,6 +1290,7 @@ class QmyMainWindow(QMainWindow):
             self.ui.tableWidget.setItem(i-1, 1,item)
 
             # 平面规模
+            listrow.append(self.qlqTable[i]["area"])
             item = QTableWidgetItem(str(self.qlqTable[i]["area"]))
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -1195,6 +1298,7 @@ class QmyMainWindow(QMainWindow):
             self.ui.tableWidget.setItem(i-1, 2,item)
 
             # 平均含油饱和度
+            listrow.append(self.qlqTable[i]["avBhd"])
             item = QTableWidgetItem(str(self.qlqTable[i]["avBhd"]))
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -1202,6 +1306,7 @@ class QmyMainWindow(QMainWindow):
             self.ui.tableWidget.setItem(i-1, 3,item)
 
             # 平均有效厚度
+            listrow.append(self.qlqTable[i]["avYxhd"])
             item = QTableWidgetItem(str(self.qlqTable[i]["avYxhd"]))
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -1209,18 +1314,55 @@ class QmyMainWindow(QMainWindow):
             self.ui.tableWidget.setItem(i-1, 4,item)
 
             # 平均渗透率
+            listrow.append(self.qlqTable[i]["avStl"])
             item = QTableWidgetItem(str(self.qlqTable[i]["avStl"]))
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
                           | Qt.ItemIsUserCheckable)  # 不允许编辑文字
             self.ui.tableWidget.setItem(i-1, 5,item)
 
-            # 井数量
-            item = QTableWidgetItem(str(self.qlqTable[i]["well"]))
+            # 平均孔隙度
+            listrow.append(self.qlqTable[i]["avKxd"])
+            item = QTableWidgetItem(str(self.qlqTable[i]["avKxd"]))
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
                           | Qt.ItemIsUserCheckable)  # 不允许编辑文字
             self.ui.tableWidget.setItem(i-1, 6,item)
+
+            # 剩余油量
+            listrow.append(self.qlqTable[i]["syyl"])
+            item = QTableWidgetItem(str(self.qlqTable[i]["syyl"]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget.setItem(i-1, 7,item)
+
+            # 井数量
+            listrow.append(len(self.qlqTable[i]["well"]))
+            item = QTableWidgetItem(str(len(self.qlqTable[i]["well"])))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget.setItem(i-1, 8,item)
+
+            # 平均水淹程度
+            if self.qlqTable[i]["avsycd"] == "高":
+                listrow.append(3)
+            if self.qlqTable[i]["avsycd"] == "中":
+                listrow.append(2)
+            if self.qlqTable[i]["avsycd"] == "低":
+                listrow.append(1)
+            item = QTableWidgetItem(str(self.qlqTable[i]["avsycd"]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget.setItem(i-1, 9,item)
+
+            # a = random.randrange(0, 2, 1)
+            # listrow.append(a)
+            self.qlqTableList.append(listrow)
+
+
 
 
 
@@ -1239,82 +1381,6 @@ class QmyMainWindow(QMainWindow):
         curIndex = self.ui.tabWidget.addTab(fig1, title)  # 添加到tabWidget
         self.ui.tabWidget.setCurrentIndex(curIndex)
 
-        # x = BHD[comBoxText][0]  # float 型
-        # y = BHD[comBoxText][1]
-        # v = BHD[comBoxText][2]
-        #
-        # for i in range(len(v)):
-        #     if v[i] == -999:
-        #         v[i] = 0
-        #
-        # x = np.array(x)
-        # y = np.array(y)
-        # v = np.array(v)
-        #
-        # x = x.T
-        # y = y.T
-        # v = v.T
-        #
-        # xb = list(range(int(min(x)), int(max(x)), self.stepx))
-        # yb = list(range(int(min(y)), int(max(y)), self.stepy))
-        #
-        # xb = np.array(xb)
-        # yb = np.array(yb)
-        #
-        # xb, yb = np.meshgrid(xb, yb)
-        #
-        # bhdq = griddata((x, y), v, (xb, yb), method="linear")
-        #
-        # floor = CJDYSJ[comBoxText]  # float 型
-        # floor = np.array(floor)
-        # floor = floor.T
-        # floor = floor.tolist()
-        # wellNum = floor[2]
-        # x = []
-        # y = []
-        # yxhd = floor[13]
-        # stl = floor[15]
-        #
-        # for i in wellNum:
-        #     if DJDZSJ[i][2] == '0':
-        #         y.append(DJDZSJ[i][0])
-        #         x.append(DJDZSJ[i][1])
-        #     else:
-        #         y.append(DJDZSJ[i][2])
-        #         x.append(DJDZSJ[i][3])
-        #
-        # x = np.array(x)
-        # y = np.array(y)
-        # yxhd = np.array(yxhd)
-        # stl = np.array(stl)
-        #
-        #
-        # x = x.T
-        # y = y.T
-        # yxhd = yxhd.T
-        # stl = stl.T
-        #
-        #
-        # yxhdq = griddata((x, y), yxhd, (xb, yb), method="linear")
-        # stlq = griddata((x, y), stl, (xb, yb), method="linear")
-        #
-        #
-        #
-        # print(yxhdq.shape)
-        # print(stlq.shape)
-        # print(bhdq.shape)
-        #
-        #
-        # qlq = yxhdq
-        #
-        # for i in range(bhdq.shape[0]):
-        #     for j in range(bhdq.shape[1]):
-        #         if np.isnan(bhdq[i][j]) == False and np.isnan(stlq[i][j]) == False and np.isnan(yxhdq[i][j]) == False:
-        #             if stlq[i][j] > 0.2 and bhdq[i][j] > 0.5 and yxhdq[i][j] > 2:
-        #                 qlq[i][j] = 1
-        #             else:
-        #                 qlq[i][j] = 0
-
 
 
         ax1 = fig1.fig.add_subplot(1, 1, 1)  # 子图1
@@ -1325,34 +1391,20 @@ class QmyMainWindow(QMainWindow):
         im1 = ax1.pcolormesh(self.qlqXb[comBoxText], self.qlqYb[comBoxText], self.qlqBinary[comBoxText])
         fig1.fig.colorbar(im1, ax=ax1)
 
-        # contours = measure.find_contours(self.qlqBinary[comBoxText], 0.5)
 
-        # for n, contour in enumerate(contours):
-        #     for i in range(contour.shape[0]):
-        #         contour[i][1] = contour[i][1] * self.stepx + xb[0][0]
-        #         contour[i][0] = contour[i][0] * self.stepy + yb[0][0]
-
-        #
-        # areaX = int(self.ui.lineEdit_3.text())
-        # areaY = int(self.ui.lineEdit_4.text())
 
         for n, contour in enumerate(self.qlqContours[comBoxText]):
-            # contour = np.float32(contour)
-            # # 计算最小内接矩形
-            # rect = cv2.minAreaRect(contour)
 
-            # 提取矩形的关键信息
-            # center, size, angle = rect
-            # width, height = size
-            # if width > areaX and height > areaY:
             ax1.plot(contour[:, 1], contour[:, 0], linewidth=2)
 
-
-        # fig1.fig.canvas.draw()  ##刷新
-
-
-
         print("pushBotton")
+
+    @pyqtSlot(str)  #层间联通性判断得下拉列表变化时运行得函数
+    def on_comboBox_2_currentIndexChanged(self, curText):
+        print(curText)
+
+
+
 
 if __name__ == "__main__":  # 用于当前窗体测试
     app = QApplication(sys.argv)  # 创建GUI应用程序
