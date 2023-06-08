@@ -38,7 +38,7 @@ ZSJS = []
 XSQX = []
 CYJS = []
 DS = []
-
+CJDYZB = {}
 
 
 
@@ -947,8 +947,13 @@ class QmyMainWindow(QMainWindow):
                     i = i + 1
                     lineStr = fileStream.readLine()  # 返回QByteArray类型
                     lineList = lineStr.split("\t")
+
                     if i == 1:
                         continue
+
+                    floor1 = lineList[0]
+                    CJDYZB[floor1] = []
+                    CJDYZB[floor1].append(lineList)
 
                     floor = lineList[3] + "-" + lineList[4]
                     if floor in CJDYSJ:
@@ -1274,7 +1279,7 @@ class QmyMainWindow(QMainWindow):
 
             # 潜力区编号
             listrow.append(self.qlqTable[i]["index"])
-            self.ui.comboBox_2.addItem(self.qlqTable[i]["index"])
+            self.ui.comboBox_2.addItem(str(self.qlqTable[i]["index"]))
             item = QTableWidgetItem(str(self.qlqTable[i]["index"]))
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -1369,7 +1374,6 @@ class QmyMainWindow(QMainWindow):
 
 
 
-
     @pyqtSlot()
     def on_pushButton_clicked(self):
 
@@ -1400,11 +1404,80 @@ class QmyMainWindow(QMainWindow):
         print("pushBotton")
 
     @pyqtSlot(str)  #层间联通性判断得下拉列表变化时运行得函数
-    def on_comboBox_2_currentIndexChanged(self, curText):
-        print(curText)
+    def on_comboBox_2_activated(self, curText):
 
+        comBoxzhi = int(self.ui.comboBox_2.currentText())
 
+        print(self.qlqTableList)
+        print(self.qlqTable[comBoxzhi]["well"])
 
+        CJLTX = []#层间连通性
+        CJLTXTJ = []#层间连通性统计
+
+        blt = 0  # 不连通
+        slt = 0  # 上连通
+        xlt = 0  # 下连通
+        jlt = 0  # 均连通
+
+        if len(self.qlqTable[comBoxzhi]["well"]) == 0:
+            print('潜力区内无注采井')
+        else:
+            for i in range(len(self.qlqTable[comBoxzhi]["well"])):
+                CJLTX1 = []
+                CJLTX1.append(self.qlqTable[comBoxzhi]["well"][i])
+                bj = 0
+                bj1 = 0
+                for j in range(1,len(CJDYZB)):
+                    if self.qlqTable[comBoxzhi]["well"][i] == (CJDYZB[str(j)][0][2]):
+                        ch = CJDYZB[str(j)][0][3] + "-" + CJDYZB[str(j)][0][4]#%合并层号
+                        if ch == self.qlqTableList[comBoxzhi][1]:
+                            bj = bj + 1
+                            if bj == 1:
+                                for k in range(j-1,j-50,-1):
+                                    if bj1 == 0:
+                                        if CJDYZB[str(k)][0][9] != 0:
+                                            bj1 = bj1 + 1
+                                            CJLTX1.append(float(CJDYZB[str(k)][0][8]) + float(CJDYZB[str(k)][0][9]))
+                                CJLTX1.append(float(CJDYZB[str(j)][0][8]))
+                                CJLTX1.append(float(CJDYZB[str(j)][0][8]) + float(CJDYZB[str(j)][0][9]))
+                                if CJDYZB[str(j+1)][0][8] != 0:
+                                    CJLTX1.append(float(CJDYZB[str(j+1)][0][8]))
+                            elif CJDYZB[str(j)][0][8] == '0':
+                                if CJDYZB[str(j+1)][0][8] != 0:
+                                    CJLTX1[4] = float(CJDYZB[str(j+1)][0][8])
+                            elif CJDYZB[str(j)][0][8] != '0':
+                                CJLTX1[3] = float(CJDYZB[str(j)][0][8]) + float(CJDYZB[str(j)][0][9])
+                                if CJDYZB[str(j+1)][0][8] != 0:
+                                    CJLTX1[4] = float(CJDYZB[str(j + 1)][0][8])
+
+                if CJLTX1[2] != []:
+                    if CJLTX1[2] - CJLTX1[1] > 0.5:
+                        if CJLTX1[4] - CJLTX1[3] > 0.5:
+                            CJLTX1.append(0)
+                            blt = blt + 1
+                        else:
+                            CJLTX1.append(2)
+                            xlt = xlt + 1
+                    else:
+                        if CJLTX1[4] - CJLTX1[3] > 0.5:
+                            CJLTX1.append(1)
+                            slt = slt + 1
+                        else:
+                            CJLTX1.append(3)
+                            jlt = jlt + 1
+                CJLTX.append(CJLTX1)
+            #print(CJLTX1)#单井层间连通性统计数据
+            CJLTXTJ.append('上下不连通')
+            CJLTXTJ.append(blt)
+            CJLTXTJ.append('上连通')
+            CJLTXTJ.append(slt)
+            CJLTXTJ.append('下连通')
+            CJLTXTJ.append(xlt)
+            CJLTXTJ.append('上下均连通')
+            CJLTXTJ.append(jlt)
+
+            print(CJLTX)#所选潜力区的所有井层间连通性表
+            print(CJLTXTJ)#所选潜力区的所有井层间连通性统计表
 
 if __name__ == "__main__":  # 用于当前窗体测试
     app = QApplication(sys.argv)  # 创建GUI应用程序
