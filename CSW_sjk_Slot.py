@@ -1408,8 +1408,8 @@ class QmyMainWindow(QMainWindow):
 
         comBoxzhi = int(self.ui.comboBox_2.currentText())
 
-        print(self.qlqTableList)
-        print(self.qlqTable[comBoxzhi]["well"])
+        # print(self.qlqTableList)
+        # print(self.qlqTable[comBoxzhi]["well"])
 
         CJLTX = []#层间连通性
         CJLTXTJ = []#层间连通性统计
@@ -1478,6 +1478,82 @@ class QmyMainWindow(QMainWindow):
 
             print(CJLTX)#所选潜力区的所有井层间连通性表
             print(CJLTXTJ)#所选潜力区的所有井层间连通性统计表
+
+            headerText = ["包含井号", "上层砂岩底深", "砂岩顶深", "砂岩底深", "下层砂岩顶深", "层间连通性"]
+            self.ui.tableWidget_3.setColumnCount(len(headerText))
+            self.ui.tableWidget_3.setHorizontalHeaderLabels(headerText)
+            self.ui.tableWidget_3.clearContents()
+
+            for i in range(0,len(CJLTX[0])):
+                for j in range(0,len(CJLTX[1])):
+
+                    item = QTableWidgetItem(str(CJLTX[i][j]))
+                    item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                    item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                                  | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+                    self.ui.tableWidget_3.setItem(i, j, item)
+
+
+            headerText = ["连通情况", "潜力区井数量"]
+            self.ui.tableWidget_2.setColumnCount(len(headerText))
+            self.ui.tableWidget_2.setHorizontalHeaderLabels(headerText)
+            self.ui.tableWidget_2.clearContents()
+
+            item = QTableWidgetItem(str(CJLTXTJ[0]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_2.setItem(0, 0, item)
+
+            item = QTableWidgetItem(str(CJLTXTJ[1]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_2.setItem(0, 1, item)
+
+            item = QTableWidgetItem(str(CJLTXTJ[2]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_2.setItem(1, 0, item)
+
+            item = QTableWidgetItem(str(CJLTXTJ[3]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_2.setItem(1, 1, item)
+
+            item = QTableWidgetItem(str(CJLTXTJ[4]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_2.setItem(2, 0, item)
+
+            item = QTableWidgetItem(str(CJLTXTJ[5]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_2.setItem(2, 1, item)
+
+            item = QTableWidgetItem(str(CJLTXTJ[6]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_2.setItem(3, 0, item)
+
+            item = QTableWidgetItem(str(CJLTXTJ[7]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_2.setItem(3, 1, item)
+
+
+
+
+
+
+
+
 
 if __name__ == "__main__":  # 用于当前窗体测试
     app = QApplication(sys.argv)  # 创建GUI应用程序

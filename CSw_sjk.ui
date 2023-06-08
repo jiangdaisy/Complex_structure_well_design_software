@@ -137,8 +137,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>488</width>
-         <height>1063</height>
+         <width>210</width>
+         <height>183</height>
         </rect>
        </property>
        <attribute name="label">
@@ -323,8 +323,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>488</width>
-         <height>1063</height>
+         <width>210</width>
+         <height>334</height>
         </rect>
        </property>
        <attribute name="label">
@@ -598,7 +598,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QTableView" name="tableView"/>
+         <widget class="QTableWidget" name="tableWidget_4"/>
         </item>
        </layout>
       </widget>
