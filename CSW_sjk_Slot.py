@@ -1554,6 +1554,135 @@ class QmyMainWindow(QMainWindow):
                           | Qt.ItemIsUserCheckable)  # 不允许编辑文字
             self.ui.tableWidget_2.setItem(3, 1, item)
 
+    # 厚层识别按钮
+    @pyqtSlot()
+    def on_pushButton_11_clicked(self):
+
+        HCSBB1 = [] #厚层识别表，删除无厚层的井号
+        CJDYJH = [] #沉积单元井号
+        pross = 1
+
+        for i in range(1,len(CJDYZB)):
+            if i == 1:
+                CJDYJH.append(CJDYZB[str(i)][0][2])
+            else:
+                if CJDYJH[len(CJDYJH)-1] != CJDYZB[str(i)][0][2]:
+                    CJDYJH.append(CJDYZB[str(i)][0][2])
+
+
+        labText = "正在厚层识别..."  # 文本信息
+        btnText = "取消"  # "取消"按钮的标
+        minV = 0
+        maxV = len(CJDYJH)
+
+        dlgProgress = QProgressDialog(labText, btnText, minV, maxV, self)
+        dlgProgress.setWindowTitle("厚层识别")
+        dlgProgress.setWindowModality(Qt.WindowModal)  # 模态对话框
+        dlgProgress.setAutoReset(True)  # value()达到最大值时自动调用reset()
+        dlgProgress.setAutoClose(True)  # 调用reset()时隐藏窗口
+
+
+        for i in range(len(CJDYJH)):
+
+            dlgProgress.setValue(pross)
+            dlgProgress.setLabelText("正在分析第 %d 口井" %pross)
+
+            ch = []
+            HCSBB = []
+            HCSBB.append(CJDYJH[i])
+            syhd = 0 #砂岩厚度，记录叠加厚层的砂岩厚度
+            yxhd = 0 #有效厚度，记录叠加厚层的有效厚度
+            bj = 0 #标记，用于标记单井是否有多段厚层
+            bj1 = 0 #标记，用于删除0数值行
+
+            for j in range(1,len(CJDYZB)):
+                if CJDYJH[i] == CJDYZB[str(j)][0][2]:
+                    a = float(CJDYZB[str(j)][0][8])#第一个砂岩顶深
+                    if a != 0: # 第一个砂岩顶深不能为零
+                        b = float(CJDYZB[str(j)][0][9]) #第一个砂岩层厚
+                        d = float(CJDYZB[str(j)][0][13]) #第一个有效厚度
+
+                        c = float(CJDYZB[str(j+1)][0][8]) #第二个砂岩顶深
+
+                        for m in range(j+2, j+20):
+                            if bj1 == 0:
+                                if c == 0: #第二个砂岩顶深不能为零
+                                    c = float(CJDYZB[str(m)][0][8])
+                                else:
+                                    bj1 = 1
+
+                        if c == a + b: #判断条件，第二个砂岩顶深=第一个砂岩顶深+第一个砂岩层厚
+                            ch.append(CJDYZB[str(j)][0][3] + "-" + CJDYZB[str(j)][0][4]) #合并层号，提取出第一个砂岩顶深所在的层号
+                            syhd = syhd + b
+                            yxhd = yxhd + d
+                        else:
+                            if syhd >= 5:
+                                if bj == 0:
+                                    ch.append(CJDYZB[str(j)][0][3] + "-" + CJDYZB[str(j)][0][4]) #合并层号，提取出第一个砂岩顶深所在的层号
+                                    HCSBB.append(syhd)
+                                    HCSBB.append(yxhd)
+                                    for n in range(len(ch)):
+                                        HCSBB.append(ch[n])
+                                    bj = 1
+                                    ch = []
+                                    syhd = 0
+                                    yxhd = 0
+                                    print(HCSBB)
+                                else:
+                                    HCSBB1.append(HCSBB)
+                                    HCSBB = []
+                                    HCSBB.append(CJDYJH[i])
+                                    ch.append(CJDYZB[str(j)][0][3] + "-" + CJDYZB[str(j)][0][4]) #合并层号，提取出第一个砂岩顶深所在的层号
+                                    HCSBB.append(syhd)
+                                    HCSBB.append(yxhd)
+                                    for n in range(len(ch)):
+                                        HCSBB.append(ch[n])
+                                    bj = 1
+                                    ch = []
+                                    syhd = 0
+                                    yxhd = 0
+                            else:
+                                ch = []
+                                syhd = 0
+                                yxhd = 0
+
+            if len(HCSBB) != 1:
+                HCSBB1.append(HCSBB)
+                print(HCSBB1)
+
+            pross = pross + 1
+
+        print(HCSBB1)
+
+        headerText = ["井号", "总砂岩厚度","总有效厚度","层位1","层位2","层位3","层位4","层位5","层位6"]
+        self.ui.tableWidget_5.setColumnCount(len(headerText))
+        self.ui.tableWidget_5.setHorizontalHeaderLabels(headerText)
+        self.ui.tableWidget_5.clearContents()
+        self.ui.tableWidget_5.setRowCount(len(HCSBB1))
+        self.ui.tableWidget_5.setAlternatingRowColors(True)
+
+        for i, row in  enumerate(HCSBB1):
+            for j, a in enumerate(row):
+                item = QTableWidgetItem(str(a))
+                item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                              | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+                self.ui.tableWidget_5.setItem(i, j, item)
+
+    # 随机森林模型按钮
+    @pyqtSlot()
+    def on_pushButton_4_clicked(self):
+        Y = []
+        for i, _ in enumerate(self.qlqTableList):
+            Y.append(random.randrange(0, 2, 1))
+
+        # 设置弱学习器数量为10
+        model = RandomForestClassifier(n_estimators=10, random_state=123)
+        X = [row[2:] for row in self.qlqTableList]
+        model.fit(X, Y)
+
+        print(model.predict(X))
+
 
 
 
