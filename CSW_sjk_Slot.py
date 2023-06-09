@@ -1041,7 +1041,7 @@ class QmyMainWindow(QMainWindow):
         maxV = len(self.qlqFloor)
 
         dlgProgress = QProgressDialog(labText, btnText, minV, maxV, self)
-        dlgProgress.setWindowTitle("导入文件")
+        dlgProgress.setWindowTitle("筛选数据")
         dlgProgress.setWindowModality(Qt.WindowModal)  # 模态对话框
         dlgProgress.setAutoReset(True)  # value()达到最大值时自动调用reset()
         dlgProgress.setAutoClose(True)  # 调用reset()时隐藏窗口
@@ -1155,7 +1155,8 @@ class QmyMainWindow(QMainWindow):
             # print(stlq.shape)
             # print(bhdq.shape)
 
-            qlq = yxhdq
+
+            qlq = yxhdq.copy()
 
             for i in range(bhdq.shape[0]):
                 for j in range(bhdq.shape[1]):
@@ -1483,9 +1484,12 @@ class QmyMainWindow(QMainWindow):
             self.ui.tableWidget_3.setColumnCount(len(headerText))
             self.ui.tableWidget_3.setHorizontalHeaderLabels(headerText)
             self.ui.tableWidget_3.clearContents()
+            self.ui.tableWidget_3.setRowCount(len(CJLTX))
+            self.ui.tableWidget_3.setAlternatingRowColors(True)
 
-            for i in range(0,len(CJLTX[0])):
-                for j in range(0,len(CJLTX[1])):
+
+            for i in range(0,len(CJLTX)):
+                for j in range(0,len(CJLTX[0])):
 
                     item = QTableWidgetItem(str(CJLTX[i][j]))
                     item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
@@ -1498,6 +1502,9 @@ class QmyMainWindow(QMainWindow):
             self.ui.tableWidget_2.setColumnCount(len(headerText))
             self.ui.tableWidget_2.setHorizontalHeaderLabels(headerText)
             self.ui.tableWidget_2.clearContents()
+            self.ui.tableWidget_2.setRowCount(4)
+            self.ui.tableWidget_2.setAlternatingRowColors(True)
+
 
             item = QTableWidgetItem(str(CJLTXTJ[0]))
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
