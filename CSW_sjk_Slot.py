@@ -16,7 +16,7 @@ from CSw_sjk import Ui_MainWindow
 
 from PyQt5.QtWidgets import (QApplication, QMainWindow,
                              QSplitter, QColorDialog, QLabel, QComboBox, QTreeWidgetItem, QProgressDialog,
-                             QTableWidgetItem)
+                             QTableWidgetItem, QMessageBox)
 from PyQt5.QtCore import pyqtSlot, QDir, QIODevice, QFile, QTextStream
 from PyQt5.QtWidgets import QFileDialog
 from myfigure import QmyFigure
@@ -1677,13 +1677,44 @@ class QmyMainWindow(QMainWindow):
             Y.append(random.randrange(0, 2, 1))
 
         # 设置弱学习器数量为10
-        model = RandomForestClassifier(n_estimators=10, random_state=123)
+        self.model = RandomForestClassifier(n_estimators=10, random_state=123)
         X = [row[2:] for row in self.qlqTableList]
-        model.fit(X, Y)
+        self.model.fit(X, Y)
 
-        print(model.predict(X))
+        dlgTitle = "提示"
+        strInfo = "模型已经被正确导入."
+        QMessageBox.information(self, dlgTitle, strInfo)
 
+        # print(model.predict(X))
 
+    @pyqtSlot()
+    def on_pushButton_5_clicked(self):
+        X = [row[2:] for row in self.qlqTableList]
+        Y = self.model.predict(X)
+        headerText = ["潜力区序号", "层号", "平面规模", "平均含油饱和度", "平均有效厚度", "平均渗透率","平均孔隙度","剩余油量","井数量","平均水淹程度","随机森林评价"]
+        self.ui.tableWidget_4.setColumnCount(len(headerText))
+        self.ui.tableWidget_4.setHorizontalHeaderLabels(headerText)
+        self.ui.tableWidget_4.clearContents()
+        self.ui.tableWidget_4.setRowCount(len(self.qlqTableList))
+        self.ui.tableWidget_4.setAlternatingRowColors(True)
+
+        for i, row in  enumerate(self.qlqTableList):
+
+            for j, a in enumerate(row):
+
+                item = QTableWidgetItem(str(a))
+                item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                              | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+                self.ui.tableWidget_4.setItem(i, j, item)
+
+            item = QTableWidgetItem(str(Y[i]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_4.setItem(i, 10, item)
+
+        print("评价完成")
 
 
 
