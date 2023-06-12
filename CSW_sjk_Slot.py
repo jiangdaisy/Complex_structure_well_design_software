@@ -16,7 +16,7 @@ from CSw_sjk import Ui_MainWindow
 
 from PyQt5.QtWidgets import (QApplication, QMainWindow,
                              QSplitter, QColorDialog, QLabel, QComboBox, QTreeWidgetItem, QProgressDialog,
-                             QTableWidgetItem)
+                             QTableWidgetItem, QMessageBox)
 from PyQt5.QtCore import pyqtSlot, QDir, QIODevice, QFile, QTextStream
 from PyQt5.QtWidgets import QFileDialog
 from myfigure import QmyFigure
@@ -38,7 +38,7 @@ ZSJS = []
 XSQX = []
 CYJS = []
 DS = []
-
+CJDYZB = {}
 
 
 
@@ -590,7 +590,7 @@ class QmyMainWindow(QMainWindow):
                 filePath = aDir + "/" + fileName[0]
 
                 self.ui.comboBox.addItem(fileName[0][0:-4])
-                self.ui.comboBox_2.addItem(fileName[0][0:-4])
+
                 self.qlqFloor.append(fileName[0][0:-4])
 
                 # print(filePath)
@@ -947,8 +947,13 @@ class QmyMainWindow(QMainWindow):
                     i = i + 1
                     lineStr = fileStream.readLine()  # 返回QByteArray类型
                     lineList = lineStr.split("\t")
+
                     if i == 1:
                         continue
+
+                    floor1 = lineList[0]
+                    CJDYZB[floor1] = []
+                    CJDYZB[floor1].append(lineList)
 
                     floor = lineList[3] + "-" + lineList[4]
                     if floor in CJDYSJ:
@@ -1036,7 +1041,7 @@ class QmyMainWindow(QMainWindow):
         maxV = len(self.qlqFloor)
 
         dlgProgress = QProgressDialog(labText, btnText, minV, maxV, self)
-        dlgProgress.setWindowTitle("导入文件")
+        dlgProgress.setWindowTitle("筛选数据")
         dlgProgress.setWindowModality(Qt.WindowModal)  # 模态对话框
         dlgProgress.setAutoReset(True)  # value()达到最大值时自动调用reset()
         dlgProgress.setAutoClose(True)  # 调用reset()时隐藏窗口
@@ -1150,7 +1155,8 @@ class QmyMainWindow(QMainWindow):
             # print(stlq.shape)
             # print(bhdq.shape)
 
-            qlq = yxhdq
+
+            qlq = yxhdq.copy()
 
             for i in range(bhdq.shape[0]):
                 for j in range(bhdq.shape[1]):
@@ -1274,6 +1280,7 @@ class QmyMainWindow(QMainWindow):
 
             # 潜力区编号
             listrow.append(self.qlqTable[i]["index"])
+            self.ui.comboBox_2.addItem(str(self.qlqTable[i]["index"]))
             item = QTableWidgetItem(str(self.qlqTable[i]["index"]))
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -1368,7 +1375,6 @@ class QmyMainWindow(QMainWindow):
 
 
 
-
     @pyqtSlot()
     def on_pushButton_clicked(self):
 
@@ -1399,8 +1405,319 @@ class QmyMainWindow(QMainWindow):
         print("pushBotton")
 
     @pyqtSlot(str)  #层间联通性判断得下拉列表变化时运行得函数
-    def on_comboBox_2_currentIndexChanged(self, curText):
-        print(curText)
+    def on_comboBox_2_activated(self, curText):
+
+        comBoxzhi = int(self.ui.comboBox_2.currentText())
+
+        # print(self.qlqTableList)
+        # print(self.qlqTable[comBoxzhi]["well"])
+
+        CJLTX = []#层间连通性
+        CJLTXTJ = []#层间连通性统计
+
+        blt = 0  # 不连通
+        slt = 0  # 上连通
+        xlt = 0  # 下连通
+        jlt = 0  # 均连通
+
+        if len(self.qlqTable[comBoxzhi]["well"]) == 0:
+            print('潜力区内无注采井')
+        else:
+            for i in range(len(self.qlqTable[comBoxzhi]["well"])):
+                CJLTX1 = []
+                CJLTX1.append(self.qlqTable[comBoxzhi]["well"][i])
+                bj = 0
+                bj1 = 0
+                for j in range(1,len(CJDYZB)):
+                    if self.qlqTable[comBoxzhi]["well"][i] == (CJDYZB[str(j)][0][2]):
+                        ch = CJDYZB[str(j)][0][3] + "-" + CJDYZB[str(j)][0][4]#%合并层号
+                        if ch == self.qlqTableList[comBoxzhi][1]:
+                            bj = bj + 1
+                            if bj == 1:
+                                for k in range(j-1,j-50,-1):
+                                    if bj1 == 0:
+                                        if CJDYZB[str(k)][0][9] != 0:
+                                            bj1 = bj1 + 1
+                                            CJLTX1.append(float(CJDYZB[str(k)][0][8]) + float(CJDYZB[str(k)][0][9]))
+                                CJLTX1.append(float(CJDYZB[str(j)][0][8]))
+                                CJLTX1.append(float(CJDYZB[str(j)][0][8]) + float(CJDYZB[str(j)][0][9]))
+                                if CJDYZB[str(j+1)][0][8] != 0:
+                                    CJLTX1.append(float(CJDYZB[str(j+1)][0][8]))
+                            elif CJDYZB[str(j)][0][8] == '0':
+                                if CJDYZB[str(j+1)][0][8] != 0:
+                                    CJLTX1[4] = float(CJDYZB[str(j+1)][0][8])
+                            elif CJDYZB[str(j)][0][8] != '0':
+                                CJLTX1[3] = float(CJDYZB[str(j)][0][8]) + float(CJDYZB[str(j)][0][9])
+                                if CJDYZB[str(j+1)][0][8] != 0:
+                                    CJLTX1[4] = float(CJDYZB[str(j + 1)][0][8])
+
+                if CJLTX1[2] != []:
+                    if CJLTX1[2] - CJLTX1[1] > 0.5:
+                        if CJLTX1[4] - CJLTX1[3] > 0.5:
+                            CJLTX1.append(0)
+                            blt = blt + 1
+                        else:
+                            CJLTX1.append(2)
+                            xlt = xlt + 1
+                    else:
+                        if CJLTX1[4] - CJLTX1[3] > 0.5:
+                            CJLTX1.append(1)
+                            slt = slt + 1
+                        else:
+                            CJLTX1.append(3)
+                            jlt = jlt + 1
+                CJLTX.append(CJLTX1)
+            #print(CJLTX1)#单井层间连通性统计数据
+            CJLTXTJ.append('上下不连通')
+            CJLTXTJ.append(blt)
+            CJLTXTJ.append('上连通')
+            CJLTXTJ.append(slt)
+            CJLTXTJ.append('下连通')
+            CJLTXTJ.append(xlt)
+            CJLTXTJ.append('上下均连通')
+            CJLTXTJ.append(jlt)
+
+            print(CJLTX)#所选潜力区的所有井层间连通性表
+            print(CJLTXTJ)#所选潜力区的所有井层间连通性统计表
+
+            headerText = ["包含井号", "上层砂岩底深", "砂岩顶深", "砂岩底深", "下层砂岩顶深", "层间连通性"]
+            self.ui.tableWidget_3.setColumnCount(len(headerText))
+            self.ui.tableWidget_3.setHorizontalHeaderLabels(headerText)
+            self.ui.tableWidget_3.clearContents()
+            self.ui.tableWidget_3.setRowCount(len(CJLTX))
+            self.ui.tableWidget_3.setAlternatingRowColors(True)
+
+
+            for i in range(0,len(CJLTX)):
+                for j in range(0,len(CJLTX[0])):
+
+                    item = QTableWidgetItem(str(CJLTX[i][j]))
+                    item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                    item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                                  | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+                    self.ui.tableWidget_3.setItem(i, j, item)
+
+
+            headerText = ["连通情况", "潜力区井数量"]
+            self.ui.tableWidget_2.setColumnCount(len(headerText))
+            self.ui.tableWidget_2.setHorizontalHeaderLabels(headerText)
+            self.ui.tableWidget_2.clearContents()
+            self.ui.tableWidget_2.setRowCount(4)
+            self.ui.tableWidget_2.setAlternatingRowColors(True)
+
+
+            item = QTableWidgetItem(str(CJLTXTJ[0]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_2.setItem(0, 0, item)
+
+            item = QTableWidgetItem(str(CJLTXTJ[1]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_2.setItem(0, 1, item)
+
+            item = QTableWidgetItem(str(CJLTXTJ[2]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_2.setItem(1, 0, item)
+
+            item = QTableWidgetItem(str(CJLTXTJ[3]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_2.setItem(1, 1, item)
+
+            item = QTableWidgetItem(str(CJLTXTJ[4]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_2.setItem(2, 0, item)
+
+            item = QTableWidgetItem(str(CJLTXTJ[5]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_2.setItem(2, 1, item)
+
+            item = QTableWidgetItem(str(CJLTXTJ[6]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_2.setItem(3, 0, item)
+
+            item = QTableWidgetItem(str(CJLTXTJ[7]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_2.setItem(3, 1, item)
+
+    # 厚层识别按钮
+    @pyqtSlot()
+    def on_pushButton_11_clicked(self):
+
+        HCSBB1 = [] #厚层识别表，删除无厚层的井号
+        CJDYJH = [] #沉积单元井号
+        pross = 1
+
+        for i in range(1,len(CJDYZB)):
+            if i == 1:
+                CJDYJH.append(CJDYZB[str(i)][0][2])
+            else:
+                if CJDYJH[len(CJDYJH)-1] != CJDYZB[str(i)][0][2]:
+                    CJDYJH.append(CJDYZB[str(i)][0][2])
+
+
+        labText = "正在厚层识别..."  # 文本信息
+        btnText = "取消"  # "取消"按钮的标
+        minV = 0
+        maxV = len(CJDYJH)
+
+        dlgProgress = QProgressDialog(labText, btnText, minV, maxV, self)
+        dlgProgress.setWindowTitle("厚层识别")
+        dlgProgress.setWindowModality(Qt.WindowModal)  # 模态对话框
+        dlgProgress.setAutoReset(True)  # value()达到最大值时自动调用reset()
+        dlgProgress.setAutoClose(True)  # 调用reset()时隐藏窗口
+
+
+        for i in range(len(CJDYJH)):
+
+            dlgProgress.setValue(pross)
+            dlgProgress.setLabelText("正在分析第 %d 口井" %pross)
+
+            ch = []
+            HCSBB = []
+            HCSBB.append(CJDYJH[i])
+            syhd = 0 #砂岩厚度，记录叠加厚层的砂岩厚度
+            yxhd = 0 #有效厚度，记录叠加厚层的有效厚度
+            bj = 0 #标记，用于标记单井是否有多段厚层
+            bj1 = 0 #标记，用于删除0数值行
+
+            for j in range(1,len(CJDYZB)):
+                if CJDYJH[i] == CJDYZB[str(j)][0][2]:
+                    a = float(CJDYZB[str(j)][0][8])#第一个砂岩顶深
+                    if a != 0: # 第一个砂岩顶深不能为零
+                        b = float(CJDYZB[str(j)][0][9]) #第一个砂岩层厚
+                        d = float(CJDYZB[str(j)][0][13]) #第一个有效厚度
+
+                        c = float(CJDYZB[str(j+1)][0][8]) #第二个砂岩顶深
+
+                        for m in range(j+2, j+20):
+                            if bj1 == 0:
+                                if c == 0: #第二个砂岩顶深不能为零
+                                    c = float(CJDYZB[str(m)][0][8])
+                                else:
+                                    bj1 = 1
+
+                        if c == a + b: #判断条件，第二个砂岩顶深=第一个砂岩顶深+第一个砂岩层厚
+                            ch.append(CJDYZB[str(j)][0][3] + "-" + CJDYZB[str(j)][0][4]) #合并层号，提取出第一个砂岩顶深所在的层号
+                            syhd = syhd + b
+                            yxhd = yxhd + d
+                        else:
+                            if syhd >= 5:
+                                if bj == 0:
+                                    ch.append(CJDYZB[str(j)][0][3] + "-" + CJDYZB[str(j)][0][4]) #合并层号，提取出第一个砂岩顶深所在的层号
+                                    HCSBB.append(syhd)
+                                    HCSBB.append(yxhd)
+                                    for n in range(len(ch)):
+                                        HCSBB.append(ch[n])
+                                    bj = 1
+                                    ch = []
+                                    syhd = 0
+                                    yxhd = 0
+                                    print(HCSBB)
+                                else:
+                                    HCSBB1.append(HCSBB)
+                                    HCSBB = []
+                                    HCSBB.append(CJDYJH[i])
+                                    ch.append(CJDYZB[str(j)][0][3] + "-" + CJDYZB[str(j)][0][4]) #合并层号，提取出第一个砂岩顶深所在的层号
+                                    HCSBB.append(syhd)
+                                    HCSBB.append(yxhd)
+                                    for n in range(len(ch)):
+                                        HCSBB.append(ch[n])
+                                    bj = 1
+                                    ch = []
+                                    syhd = 0
+                                    yxhd = 0
+                            else:
+                                ch = []
+                                syhd = 0
+                                yxhd = 0
+
+            if len(HCSBB) != 1:
+                HCSBB1.append(HCSBB)
+                print(HCSBB1)
+
+            pross = pross + 1
+
+        print(HCSBB1)
+
+        headerText = ["井号", "总砂岩厚度","总有效厚度","层位1","层位2","层位3","层位4","层位5","层位6"]
+        self.ui.tableWidget_5.setColumnCount(len(headerText))
+        self.ui.tableWidget_5.setHorizontalHeaderLabels(headerText)
+        self.ui.tableWidget_5.clearContents()
+        self.ui.tableWidget_5.setRowCount(len(HCSBB1))
+        self.ui.tableWidget_5.setAlternatingRowColors(True)
+
+        for i, row in  enumerate(HCSBB1):
+            for j, a in enumerate(row):
+                item = QTableWidgetItem(str(a))
+                item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                              | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+                self.ui.tableWidget_5.setItem(i, j, item)
+
+    # 随机森林模型按钮
+    @pyqtSlot()
+    def on_pushButton_4_clicked(self):
+        Y = []
+        for i, _ in enumerate(self.qlqTableList):
+            Y.append(random.randrange(0, 2, 1))
+
+        # 设置弱学习器数量为10
+        self.model = RandomForestClassifier(n_estimators=10, random_state=123)
+        X = [row[2:] for row in self.qlqTableList]
+        self.model.fit(X, Y)
+
+        dlgTitle = "提示"
+        strInfo = "模型已经被正确导入."
+        QMessageBox.information(self, dlgTitle, strInfo)
+
+        # print(model.predict(X))
+
+    @pyqtSlot()
+    def on_pushButton_5_clicked(self):
+        X = [row[2:] for row in self.qlqTableList]
+        Y = self.model.predict(X)
+        headerText = ["潜力区序号", "层号", "平面规模", "平均含油饱和度", "平均有效厚度", "平均渗透率","平均孔隙度","剩余油量","井数量","平均水淹程度","随机森林评价"]
+        self.ui.tableWidget_4.setColumnCount(len(headerText))
+        self.ui.tableWidget_4.setHorizontalHeaderLabels(headerText)
+        self.ui.tableWidget_4.clearContents()
+        self.ui.tableWidget_4.setRowCount(len(self.qlqTableList))
+        self.ui.tableWidget_4.setAlternatingRowColors(True)
+
+        for i, row in  enumerate(self.qlqTableList):
+
+            for j, a in enumerate(row):
+
+                item = QTableWidgetItem(str(a))
+                item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                              | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+                self.ui.tableWidget_4.setItem(i, j, item)
+
+            item = QTableWidgetItem(str(Y[i]))
+            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+            self.ui.tableWidget_4.setItem(i, 10, item)
+
+        print("评价完成")
+
+
+
 
 
 

@@ -127,7 +127,7 @@
     <item>
      <widget class="QToolBox" name="toolBox">
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <property name="tabSpacing">
        <number>10</number>
@@ -138,7 +138,7 @@
          <x>0</x>
          <y>0</y>
          <width>488</width>
-         <height>1063</height>
+         <height>1033</height>
         </rect>
        </property>
        <attribute name="label">
@@ -324,13 +324,100 @@
          <x>0</x>
          <y>0</y>
          <width>488</width>
-         <height>1063</height>
+         <height>1033</height>
         </rect>
        </property>
        <attribute name="label">
         <string>潜力区筛选</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout">
+        <item row="6" column="0">
+         <widget class="QTableWidget" name="tableWidget"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QPushButton" name="pushButton_3">
+          <property name="font">
+           <font>
+            <family>Adobe Arabic</family>
+            <pointsize>16</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>开始筛选</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QPushButton" name="pushButton">
+          <property name="font">
+           <font>
+            <family>Adobe Arabic</family>
+            <pointsize>16</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>潜力区查看</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_12">
+          <property name="font">
+           <font>
+            <family>Adobe Arabic</family>
+            <pointsize>24</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>筛选精度</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QLabel" name="label_10">
+            <property name="font">
+             <font>
+              <family>Adobe Arabic</family>
+              <pointsize>24</pointsize>
+             </font>
+            </property>
+            <property name="layoutDirection">
+             <enum>Qt::RightToLeft</enum>
+            </property>
+            <property name="text">
+             <string>X</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_11">
+            <property name="font">
+             <font>
+              <family>Adobe Arabic</family>
+              <pointsize>24</pointsize>
+             </font>
+            </property>
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="text">
+             <string>Y</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
         <item row="4" column="0">
          <widget class="QComboBox" name="comboBox">
           <property name="font">
@@ -422,93 +509,6 @@
           </item>
          </layout>
         </item>
-        <item row="6" column="0">
-         <widget class="QTableWidget" name="tableWidget"/>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_12">
-          <property name="font">
-           <font>
-            <family>Adobe Arabic</family>
-            <pointsize>24</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>筛选精度</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
-          <item>
-           <widget class="QLabel" name="label_10">
-            <property name="font">
-             <font>
-              <family>Adobe Arabic</family>
-              <pointsize>24</pointsize>
-             </font>
-            </property>
-            <property name="layoutDirection">
-             <enum>Qt::RightToLeft</enum>
-            </property>
-            <property name="text">
-             <string>X</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_11">
-            <property name="font">
-             <font>
-              <family>Adobe Arabic</family>
-              <pointsize>24</pointsize>
-             </font>
-            </property>
-            <property name="layoutDirection">
-             <enum>Qt::LeftToRight</enum>
-            </property>
-            <property name="text">
-             <string>Y</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="5" column="0">
-         <widget class="QPushButton" name="pushButton">
-          <property name="font">
-           <font>
-            <family>Adobe Arabic</family>
-            <pointsize>16</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>潜力区查看</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QPushButton" name="pushButton_3">
-          <property name="font">
-           <font>
-            <family>Adobe Arabic</family>
-            <pointsize>16</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>开始筛选</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="page_3">
@@ -517,7 +517,7 @@
          <x>0</x>
          <y>0</y>
          <width>488</width>
-         <height>1063</height>
+         <height>1033</height>
         </rect>
        </property>
        <attribute name="label">
@@ -564,7 +564,7 @@
          <x>0</x>
          <y>0</y>
          <width>488</width>
-         <height>1063</height>
+         <height>1033</height>
         </rect>
        </property>
        <attribute name="label">
@@ -598,7 +598,46 @@
          </widget>
         </item>
         <item>
-         <widget class="QTableView" name="tableView"/>
+         <widget class="QTableWidget" name="tableWidget_4"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_5">
+       <attribute name="label">
+        <string>厚层识别</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_7">
+        <item>
+         <widget class="QLabel" name="label_14">
+          <property name="font">
+           <font>
+            <family>Adobe Arabic</family>
+            <pointsize>24</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>厚层识别</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_11">
+          <property name="font">
+           <font>
+            <family>Adobe Arabic</family>
+            <pointsize>16</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>开始识别</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="tableWidget_5"/>
         </item>
        </layout>
       </widget>

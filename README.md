@@ -3,7 +3,7 @@
 安装conda
 创建一个新的虚拟环境
 ```
-conda create -n name python=3.8
+conda create -n pyqt5 python=3.8
 ```
 安装pyqt5，pyqt5-tools，pyqt5designer
 ```
