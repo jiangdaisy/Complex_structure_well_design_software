@@ -1720,12 +1720,13 @@ class QmyMainWindow(QMainWindow):
         if self.ui.checkBox.isChecked():
             maxAvYxhd = max([row[4:5] for row in self.qlqTableList])
             minAvYxhd = min([row[4:5] for row in self.qlqTableList])
-            self.ui.label_37.setText(str(minAvYxhd))
-            self.ui.label_51.setText(str(maxAvYxhd))
-            step = (maxAvYxhd - minAvYxhd) / 4
-            self.ui.lineEdit_15.setText(str(minAvYxhd + step))
-            self.ui.lineEdit_14.setText(str(minAvYxhd + 2 * step))
-            self.ui.lineEdit_5.setText(str(minAvYxhd + 3 * step))
+            self.ui.label_37.setText(str(minAvYxhd[0]))
+            self.ui.label_51.setText(str(maxAvYxhd[0]))
+            step = (maxAvYxhd[0] - minAvYxhd[0]) / 4
+            test = str(minAvYxhd[0] + step)
+            self.ui.lineEdit_15.setText(str(minAvYxhd[0] + step))
+            self.ui.lineEdit_14.setText(str(minAvYxhd[0] + 2 * step))
+            self.ui.lineEdit_5.setText(str(minAvYxhd[0] + 3 * step))
 
 
 
