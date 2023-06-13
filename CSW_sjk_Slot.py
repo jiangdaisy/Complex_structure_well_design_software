@@ -1083,12 +1083,18 @@ class QmyMainWindow(QMainWindow):
             floor = CJDYSJ[qlqFloorName]  # float 型
             sycd = {}
 
+
             floor = np.array(floor)
             floor = floor.T
             floor = floor.tolist()
             # wellNum = floor[2]
             x = []
             y = []
+
+            for i, sycdaction in enumerate(floor[16]):
+                if sycdaction != "":
+                    sycd[floor[2][i]] = sycdaction
+
 
             bj1 = 1
             bj2 = 1
@@ -1716,22 +1722,70 @@ class QmyMainWindow(QMainWindow):
 
         print("评价完成")
 
+    @pyqtSlot()
     def on_checkBox_stateChanged(self,change):
         if self.ui.checkBox.isChecked():
             maxAvYxhd = max([row[4:5] for row in self.qlqTableList])
             minAvYxhd = min([row[4:5] for row in self.qlqTableList])
-            self.ui.label_37.setText(str(minAvYxhd[0]))
-            self.ui.label_51.setText(str(maxAvYxhd[0]))
+            self.ui.label_37.setText(str(round(minAvYxhd[0], 2)))
+            self.ui.label_51.setText(str(round(maxAvYxhd[0], 2)))
             step = (maxAvYxhd[0] - minAvYxhd[0]) / 4
             test = str(minAvYxhd[0] + step)
-            self.ui.lineEdit_15.setText(str(minAvYxhd[0] + step))
-            self.ui.lineEdit_14.setText(str(minAvYxhd[0] + 2 * step))
-            self.ui.lineEdit_5.setText(str(minAvYxhd[0] + 3 * step))
+            self.ui.lineEdit_15.setText(str(round(minAvYxhd[0] + step, 2)))
+            self.ui.lineEdit_14.setText(str(round(minAvYxhd[0] + 2 * step, 2)))
+            self.ui.lineEdit_5.setText(str(round(minAvYxhd[0] + 3 * step, 2)))
 
+    @pyqtSlot()
+    def on_checkBox_2_stateChanged(self,change):
+        if self.ui.checkBox.isChecked():
+            maxAvYxhd = max([row[7:8] for row in self.qlqTableList])
+            minAvYxhd = min([row[7:8] for row in self.qlqTableList])
+            self.ui.label_37.setText(str(round(minAvYxhd[0], 2)))
+            self.ui.label_51.setText(str(round(maxAvYxhd[0], 2)))
+            step = (maxAvYxhd[0] - minAvYxhd[0]) / 4
+            test = str(minAvYxhd[0] + step)
+            self.ui.lineEdit_15.setText(str(round(minAvYxhd[0] + step, 2)))
+            self.ui.lineEdit_14.setText(str(round(minAvYxhd[0] + 2 * step, 2)))
+            self.ui.lineEdit_5.setText(str(round(minAvYxhd[0] + 3 * step, 2)))
 
+    @pyqtSlot()
+    def on_checkBox_3_stateChanged(self,change):
+        if self.ui.checkBox.isChecked():
+            maxAvYxhd = max([row[2:3] for row in self.qlqTableList])
+            minAvYxhd = min([row[2:3] for row in self.qlqTableList])
+            self.ui.label_37.setText(str(round(minAvYxhd[0], 2)))
+            self.ui.label_51.setText(str(round(maxAvYxhd[0], 2)))
+            step = (maxAvYxhd[0] - minAvYxhd[0]) / 4
+            test = str(minAvYxhd[0] + step)
+            self.ui.lineEdit_15.setText(str(round(minAvYxhd[0] + step, 2)))
+            self.ui.lineEdit_14.setText(str(round(minAvYxhd[0] + 2 * step, 2)))
+            self.ui.lineEdit_5.setText(str(round(minAvYxhd[0] + 3 * step, 2)))
 
-            print(self.ui.checkBox.text())
+    @pyqtSlot()
+    def on_checkBox_4_stateChanged(self,change):
+        if self.ui.checkBox.isChecked():
+            maxAvYxhd = max([row[9:10] for row in self.qlqTableList])
+            minAvYxhd = min([row[9:10] for row in self.qlqTableList])
+            self.ui.label_37.setText(str(round(minAvYxhd[0], 2)))
+            self.ui.label_51.setText(str(round(maxAvYxhd[0], 2)))
+            step = (maxAvYxhd[0] - minAvYxhd[0]) / 4
+            test = str(minAvYxhd[0] + step)
+            self.ui.lineEdit_15.setText(str(round(minAvYxhd[0] + step, 2)))
+            self.ui.lineEdit_14.setText(str(round(minAvYxhd[0] + 2 * step, 2)))
+            self.ui.lineEdit_5.setText(str(round(minAvYxhd[0] + 3 * step, 2)))
 
+    @pyqtSlot()
+    def on_checkBox_5_stateChanged(self,change):
+        if self.ui.checkBox.isChecked():
+            maxAvYxhd = max([row[4:5] for row in self.qlqTableList])
+            minAvYxhd = min([row[4:5] for row in self.qlqTableList])
+            self.ui.label_37.setText(str(round(minAvYxhd[0], 2)))
+            self.ui.label_51.setText(str(round(maxAvYxhd[0], 2)))
+            step = (maxAvYxhd[0] - minAvYxhd[0]) / 4
+            test = str(minAvYxhd[0] + step)
+            self.ui.lineEdit_15.setText(str(round(minAvYxhd[0] + step, 2)))
+            self.ui.lineEdit_14.setText(str(round(minAvYxhd[0] + 2 * step, 2)))
+            self.ui.lineEdit_5.setText(str(round(minAvYxhd[0] + 3 * step, 2)))
 
 
     # 潜力区评价响应按钮
