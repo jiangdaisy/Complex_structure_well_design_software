@@ -1716,7 +1716,10 @@ class QmyMainWindow(QMainWindow):
 
         print("评价完成")
 
-
+    # 潜力区评价响应按钮
+    @pyqtSlot()
+    def on_pushButton_6_clicked(self):
+        print()
 
 
 

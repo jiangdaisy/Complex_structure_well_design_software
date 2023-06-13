@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,4,2">
+   <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,6,2">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -127,7 +127,7 @@
     <item>
      <widget class="QToolBox" name="toolBox">
       <property name="currentIndex">
-       <number>0</number>
+       <number>5</number>
       </property>
       <property name="tabSpacing">
        <number>10</number>
@@ -137,8 +137,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>488</width>
-         <height>1033</height>
+         <width>210</width>
+         <height>183</height>
         </rect>
        </property>
        <attribute name="label">
@@ -323,8 +323,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>488</width>
-         <height>1033</height>
+         <width>210</width>
+         <height>334</height>
         </rect>
        </property>
        <attribute name="label">
@@ -516,8 +516,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>488</width>
-         <height>1033</height>
+         <width>242</width>
+         <height>250</height>
         </rect>
        </property>
        <attribute name="label">
@@ -563,8 +563,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>488</width>
-         <height>1033</height>
+         <width>152</width>
+         <height>159</height>
         </rect>
        </property>
        <attribute name="label">
@@ -603,6 +603,14 @@
        </layout>
       </widget>
       <widget class="QWidget" name="page_5">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>146</width>
+         <height>163</height>
+        </rect>
+       </property>
        <attribute name="label">
         <string>厚层识别</string>
        </attribute>
@@ -638,6 +646,359 @@
         </item>
         <item>
          <widget class="QTableWidget" name="tableWidget_5"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_6">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>566</width>
+         <height>986</height>
+        </rect>
+       </property>
+       <attribute name="label">
+        <string>潜力区评价</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_4" stretch="1,0,8">
+        <item>
+         <layout class="QGridLayout" name="gridLayout_2" columnminimumwidth="0,50,0,50,0,0,0,0,0,0">
+          <item row="5" column="8">
+           <widget class="QLabel" name="label_22">
+            <property name="text">
+             <string>中&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="label_38">
+            <property name="text">
+             <string>-</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="8">
+           <widget class="QLabel" name="label_19">
+            <property name="text">
+             <string>中&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="9">
+           <widget class="QTextEdit" name="textEdit_8"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="checkBox">
+            <property name="text">
+             <string>平均有效厚度</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="3">
+           <widget class="QLabel" name="label_49">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="6">
+           <widget class="QLabel" name="label_23">
+            <property name="text">
+             <string>良&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="5">
+           <widget class="QTextEdit" name="textEdit_10"/>
+          </item>
+          <item row="1" column="4">
+           <widget class="QLabel" name="label_18">
+            <property name="text">
+             <string>m 优&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="6">
+           <widget class="QLabel" name="label_29">
+            <property name="text">
+             <string>良&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QLabel" name="label_51">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="7">
+           <widget class="QTextEdit" name="textEdit_14"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="checkBox_2">
+            <property name="text">
+             <string>潜力区剩余油量</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="4">
+           <widget class="QLabel" name="label_24">
+            <property name="text">
+             <string>m 优&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QLabel" name="label_41">
+            <property name="text">
+             <string>-</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="4">
+           <widget class="QLabel" name="label_27">
+            <property name="text">
+             <string>m 优&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="7">
+           <widget class="QTextEdit" name="textEdit_6"/>
+          </item>
+          <item row="5" column="9">
+           <widget class="QTextEdit" name="textEdit_9"/>
+          </item>
+          <item row="3" column="9">
+           <widget class="QTextEdit" name="textEdit_13"/>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLabel" name="label_40">
+            <property name="text">
+             <string>-</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="8">
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>中&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QCheckBox" name="checkBox_4">
+            <property name="text">
+             <string>潜力区水淹程度</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="2">
+           <widget class="QLabel" name="label_43">
+            <property name="text">
+             <string>-</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="4">
+           <widget class="QLabel" name="label_20">
+            <property name="text">
+             <string>m 优&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <widget class="QLabel" name="label_50">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="8">
+           <widget class="QLabel" name="label_21">
+            <property name="text">
+             <string>中&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="5">
+           <widget class="QTextEdit" name="textEdit_4"/>
+          </item>
+          <item row="6" column="0">
+           <widget class="QCheckBox" name="checkBox_5">
+            <property name="text">
+             <string>距断层距离</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="5">
+           <widget class="QTextEdit" name="textEdit_11"/>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLabel" name="label_44">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="3">
+           <widget class="QLabel" name="label_48">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="6">
+           <widget class="QLabel" name="label_26">
+            <property name="text">
+             <string>良&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="5">
+           <widget class="QTextEdit" name="textEdit_2"/>
+          </item>
+          <item row="0" column="9" rowspan="2">
+           <widget class="QTextEdit" name="textEdit_7"/>
+          </item>
+          <item row="3" column="7">
+           <widget class="QTextEdit" name="textEdit_12"/>
+          </item>
+          <item row="5" column="6">
+           <widget class="QLabel" name="label_25">
+            <property name="text">
+             <string>良&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="8">
+           <widget class="QLabel" name="label_28">
+            <property name="text">
+             <string>中&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QLabel" name="label_46">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QLabel" name="label_45">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLabel" name="label_39">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="7" rowspan="2">
+           <widget class="QTextEdit" name="textEdit_5"/>
+          </item>
+          <item row="6" column="4">
+           <widget class="QLabel" name="label_30">
+            <property name="text">
+             <string>m 优&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLabel" name="label_37">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="2">
+           <widget class="QLabel" name="label_42">
+            <property name="text">
+             <string>-</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="checkBox_3">
+            <property name="text">
+             <string>潜力区平面规模</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="6">
+           <widget class="QLabel" name="label_15">
+            <property name="text">
+             <string>良&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="3">
+           <widget class="QLabel" name="label_47">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="5">
+           <widget class="QTextEdit" name="textEdit_15"/>
+          </item>
+          <item row="6" column="7">
+           <widget class="QTextEdit" name="textEdit_17"/>
+          </item>
+          <item row="6" column="9">
+           <widget class="QTextEdit" name="textEdit_16"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QPushButton" name="pushButton_6">
+            <property name="text">
+             <string>进行潜力区评价</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="tableWidget_6"/>
         </item>
        </layout>
       </widget>
