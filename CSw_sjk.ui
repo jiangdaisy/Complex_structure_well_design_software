@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1709</width>
-    <height>1206</height>
+    <width>1701</width>
+    <height>1193</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -127,7 +127,7 @@
     <item>
      <widget class="QToolBox" name="toolBox">
       <property name="currentIndex">
-       <number>5</number>
+       <number>6</number>
       </property>
       <property name="tabSpacing">
        <number>10</number>
@@ -137,8 +137,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>380</width>
-         <height>1003</height>
+         <width>378</width>
+         <height>911</height>
         </rect>
        </property>
        <attribute name="label">
@@ -323,8 +323,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>380</width>
-         <height>1003</height>
+         <width>378</width>
+         <height>911</height>
         </rect>
        </property>
        <attribute name="label">
@@ -516,8 +516,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>380</width>
-         <height>1003</height>
+         <width>378</width>
+         <height>911</height>
         </rect>
        </property>
        <attribute name="label">
@@ -563,8 +563,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>380</width>
-         <height>1003</height>
+         <width>378</width>
+         <height>911</height>
         </rect>
        </property>
        <attribute name="label">
@@ -607,8 +607,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>380</width>
-         <height>1003</height>
+         <width>378</width>
+         <height>911</height>
         </rect>
        </property>
        <attribute name="label">
@@ -654,8 +654,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>382</width>
-         <height>986</height>
+         <width>527</width>
+         <height>885</height>
         </rect>
        </property>
        <attribute name="label">
@@ -1002,6 +1002,92 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="page_7">
+       <attribute name="label">
+        <string>复杂结构井设计</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QComboBox" name="comboBox_3">
+            <property name="currentText">
+             <string>选择待分析的潜力区</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>选择待分析的潜力区</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="comboBox_4">
+            <item>
+             <property name="text">
+              <string>选择目标井井号</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="comboBox_5">
+            <item>
+             <property name="text">
+              <string>选择相关注水井</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <widget class="QPushButton" name="pushButton_7">
+            <property name="text">
+             <string>创建复杂结构井部署方案</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_17">
+            <property name="text">
+             <string>输入目标井井底流压</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_20"/>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_31">
+            <property name="text">
+             <string>MPa</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_8">
+            <property name="text">
+             <string>计算流动势/动量势</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="tableWidget_7"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_9">
+          <property name="text">
+           <string>导出子模型</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -1011,8 +1097,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1709</width>
-     <height>23</height>
+     <width>1701</width>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">

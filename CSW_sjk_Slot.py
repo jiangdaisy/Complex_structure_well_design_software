@@ -1989,6 +1989,81 @@ class QmyMainWindow(QMainWindow):
                             | Qt.ItemIsUserCheckable)  # 不允许编辑文字
                 self.ui.tableWidget_6.setItem(i, j, item)
 
+
+
+    @pyqtSlot(str)  #小模型画图
+    def on_comboBox_3_activated(self, curText):
+
+
+
+        bj = 0 #用于标记所选的潜力区是该层内的第几个潜力区，便于后面选择左边矩阵
+        for i in range(int(curText)):
+            if self.qlqTableList[i][1] == self.qlqTableList[curText][1]:
+                bj = bj + 1
+
+
+        xmax = max(list(self.qlqContours[self.qlqTableList[curText][1]])[bj-1][:, 1])
+        xmin = min(list(self.qlqContours[self.qlqTableList[curText][1]])[bj-1][:, 1])
+        ymax = max(list(self.qlqContours[self.qlqTableList[curText][1]])[bj-1][:, 0])
+        ymin = min(list(self.qlqContours[self.qlqTableList[curText][1]])[bj-1][:, 0])
+
+        print(xmax)
+        print(xmin)
+        print(ymax)
+        print(ymin)
+
+        x = BHD[self.qlqTableList[curText][1]][0]  # float 型
+        y = BHD[self.qlqTableList[curText][1]][1]
+        v = BHD[self.qlqTableList[curText][1]][2]
+
+
+        x = np.array(x)
+        y = np.array(y)
+        v = np.array(v)
+
+        x = x.T
+        y = y.T
+        v = v.T
+
+        xb = list(range(int(xmin), int(xmax), self.stepx))
+        yb = list(range(int(ymin), int(ymax), self.stepy))
+
+        xb = np.array(xb)
+        yb = np.array(yb)
+
+        xb, yb = np.meshgrid(xb, yb)
+
+        bhdq = griddata((x, y), v, (xb, yb), method="linear")
+
+        self.qlqBinary[curText] = bhdq
+        self.qlqXb[curText] = xb
+        self.qlqYb[curText] = yb
+
+        title = self.qlqTableList[curText][1] + "潜力区"
+        fig1 = QmyFigure(self)
+        fig1.setAttribute(Qt.WA_DeleteOnClose)
+        curIndex = self.ui.tabWidget.addTab(fig1, title)  # 添加到tabWidget
+
+        self.ui.tabWidget.setCurrentIndex(curIndex)
+        ax1 = fig1.fig.add_subplot(1, 1, 1)  # 子图1
+        ax1.set_xlabel('X 轴')  # X轴标题
+        ax1.set_ylabel('Y 轴')  # Y轴标题
+        ax1.set_title(title)
+
+        im1 = ax1.pcolormesh(self.qlqXb[curText], self.qlqYb[curText], self.qlqBinary[curText])
+        fig1.fig.colorbar(im1, ax=ax1)
+
+    @pyqtSlot()#创建复杂结构井部署方案
+    def on_pushButton_7_clicked(self):
+        print()
+
+
+
+    @pyqtSlot()#计算流动势/动量势
+    def on_pushButton_7_clicked(self):
+        print()
+
+
 if __name__ == "__main__":  # 用于当前窗体测试
     app = QApplication(sys.argv)  # 创建GUI应用程序
     form = QmyMainWindow()  # 创建窗体
