@@ -1364,6 +1364,9 @@ class QmyMainWindow(QMainWindow):
                 listrow.append(2)
             if self.qlqTable[i]["avsycd"] == "低":
                 listrow.append(1)
+            if self.qlqTable[i]["avsycd"] == '':
+                listrow.append(3)
+
             item = QTableWidgetItem(str(self.qlqTable[i]["avsycd"]))
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
@@ -1373,6 +1376,9 @@ class QmyMainWindow(QMainWindow):
             # a = random.randrange(0, 2, 1)
             # listrow.append(a)
             self.qlqTableList.append(listrow)
+        print(self.qlqTableList)
+
+
 
 
 
@@ -1560,6 +1566,8 @@ class QmyMainWindow(QMainWindow):
                           | Qt.ItemIsUserCheckable)  # 不允许编辑文字
             self.ui.tableWidget_2.setItem(3, 1, item)
 
+
+
     # 厚层识别按钮
     @pyqtSlot()
     def on_pushButton_11_clicked(self):
@@ -1704,7 +1712,7 @@ class QmyMainWindow(QMainWindow):
         self.ui.tableWidget_4.setRowCount(len(self.qlqTableList))
         self.ui.tableWidget_4.setAlternatingRowColors(True)
 
-        for i, row in  enumerate(self.qlqTableList):
+        for i, row in enumerate(self.qlqTableList):
 
             for j, a in enumerate(row):
 
@@ -1722,67 +1730,70 @@ class QmyMainWindow(QMainWindow):
 
         print("评价完成")
 
-    @pyqtSlot()
+    # @pyqtSlot()
     def on_checkBox_stateChanged(self,change):
         if self.ui.checkBox.isChecked():
+            #self.qlqTableList = []
+            #self.qlqTableList = [[1, 'P1-1', 135900.0, 0.5463186409756045, 3.331763909347671, 0.6167041928585176, 23.72703284642543, 5869257.006069839, 46, 3], [2, 'P1-1', 54100.0, 0.5435676466341387, 3.2836959760527265, 0.5825172347607966, 20.912654656515084, 2019402.8788914317, 35, 0], [3, 'P1-1', 77200.0, 0.5490339337027161, 2.9632035984659515, 0.5457517914319981, 21.261660848049047, 2670392.9108256376, 14, 2], [4, 'P1-1', 211000.0, 0.5157273015506264, 2.4653593829923026, 0.8710795493553711, 26.331819253334395, 7064211.2820962025, 39, 2], [5, 'P1-1', 226400.0, 0.5492644891036838, 2.848214659569362, 0.5960198025082648, 22.416545019439457, 7939613.091051854, 63, 1], [6, 'P1-2a', 58700.0, 0.46530984748989074, 2.4446109399873266, 0.7594612632244853, 27.8534665138216, 1859813.299838882, 7, 1], [7, 'P1-2a', 216200.0, 0.5074141856449218, 2.74634760419086, 0.6879830044639491, 25.216057027165405, 7597154.82247757, 33, 3], [8, 'P1-2a', 547900.0, 0.5156292791014632, 2.8942778523556663, 0.7191668044521173, 24.524745327704302, 20053195.971064445, 127, 3], [9, 'P1-2a', 121400.0, 0.48790392262329757, 3.0796782025125196, 0.8629924856589615, 26.3627029912871, 4808927.974054922, 22, 0], [10, 'P1-2a', 57500.0, 0.5213241251301534, 3.8494221300730174, 0.7414441244886666, 26.151625733642664, 3017657.168803431, 7, 3], [11, 'P1-2a', 112600.0, 0.49518871646715884, 3.417016600667946, 0.8241416480192796, 21.246108454900728, 4047954.417763402, 19, 3], [12, 'P1-2a', 123700.0, 0.5199578633702194, 2.8664282051714576, 0.8571867092037407, 25.641293604460657, 4727361.894989134, 37, 3], [13, 'P1-2a', 418200.0, 0.5189301088848818, 3.3900665353849777, 0.8803456866915319, 24.094104215761032, 17726047.332465958, 168, 3], [14, 'P1-2a', 72400.0, 0.49576142732133394, 2.7868350211556208, 0.8058088138239253, 26.807365838158354, 2681493.202536392, 17, 3], [15, 'P1-2a', 58600.0, 0.5360347242421771, 2.7671945811411702, 0.8288366271658606, 24.78959675022317, 2154763.949371733, 7, 0], [16, 'P1-2a', 156400.0, 0.5240925001916618, 2.93242221135978, 0.856140214683513, 22.342569826587855, 5370371.358027318, 32, 3], [17, 'P1-2a', 85000.0, 0.497369890908913, 3.94759394441759, 0.8901241812751328, 26.495110599816474, 4421774.874191785, 17, 3], [18, 'P1-2b', 121400.0, 0.4944304824790653, 2.3835870645772874, 0.5985249132724632, 23.775542032597972, 3401616.6708392133, 16, 0], [19, 'P1-2b', 179700.0, 0.4922065774174953, 2.7944218529087625, 0.8335348974620225, 24.339725954141034, 6015935.108769862, 30, 3], [20, 'P1-2b', 153800.0, 0.49658474908328953, 3.3051033461206947, 0.995354615149448, 27.528968550749745, 6949038.158689854, 35, 3], [21, 'P1-2b', 97700.0, 0.498998912969098, 3.204427942077245, 0.9066142408776536, 29.133272839735334, 4551284.137640957, 14, 3], [22, 'P1-2b', 97400.0, 0.5120909041648756, 3.2010095446459843, 1.0370070692241582, 22.966424933804422, 3666792.918413041, 17, 3], [23, 'P1-2b', 322700.0, 0.5167838378352709, 3.1254557829237033, 1.0182514841896326, 23.169683355933433, 12076507.238961536, 68, 3], [24, 'P1-2b', 175100.0, 0.49421821689498613, 3.2136642098808723, 0.9406474844725026, 25.26555867035706, 7026423.098759948, 33, 3], [25, 'P1-5', 58800.0, 0.48641610418173425, 2.4886671874313446, 0.8836534503580298, 28.552587808165573, 2032345.6331590195, 9, 3], [26, 'S2-1', 51100.0, 0.48277650362214997, 3.0695644240074342, 0.8184733878126015, 26.87621457037283, 2035222.417991665, 10, 1], [27, 'S2-2a', 70000.0, 0.5504280776049791, 3.1469546285599805, 0.6109178932465532, 24.052821717568005, 2916454.0150350896, 10, 2], [28, 'S2-2a', 43600.0, 0.5230405007758351, 2.6724209890401727, 0.5131498078839898, 20.907541503109105, 1274176.6727910086, 11, 1], [29, 'S2-2a', 124200.0, 0.5614270995199746, 2.741609728372802, 0.6324324308714729, 20.73721625498116, 3964341.4810974635, 25, 1], [30, 'S2-2b', 72500.0, 0.49169184681714473, 2.61702796221227, 0.4155986309862819, 22.95671406275698, 2141652.9777003108, 9, 0], [31, 'S2-2b', 88700.0, 0.48396408300149246, 2.7479045848667907, 0.7857776065353141, 26.292779606141575, 3101522.2536590463, 17, 3], [32, 'S2-2b', 36300.0, 0.5562095726456098, 3.1026007783145717, 0.7954834234282342, 24.86314319312172, 1557496.2595727118, 20, 0]]
+
             maxAvYxhd = max([row[4:5] for row in self.qlqTableList])
             minAvYxhd = min([row[4:5] for row in self.qlqTableList])
             self.ui.label_37.setText(str(round(minAvYxhd[0], 2)))
             self.ui.label_51.setText(str(round(maxAvYxhd[0], 2)))
             step = (maxAvYxhd[0] - minAvYxhd[0]) / 4
-            test = str(minAvYxhd[0] + step)
+            # test = str(minAvYxhd[0] + step)
             self.ui.lineEdit_15.setText(str(round(minAvYxhd[0] + step, 2)))
             self.ui.lineEdit_14.setText(str(round(minAvYxhd[0] + 2 * step, 2)))
             self.ui.lineEdit_5.setText(str(round(minAvYxhd[0] + 3 * step, 2)))
 
-    @pyqtSlot()
+    # @pyqtSlot()
     def on_checkBox_2_stateChanged(self,change):
-        if self.ui.checkBox.isChecked():
+        if self.ui.checkBox_2.isChecked():
             maxAvYxhd = max([row[7:8] for row in self.qlqTableList])
             minAvYxhd = min([row[7:8] for row in self.qlqTableList])
-            self.ui.label_37.setText(str(round(minAvYxhd[0], 2)))
-            self.ui.label_51.setText(str(round(maxAvYxhd[0], 2)))
+            self.ui.label_39.setText(str(round(minAvYxhd[0], 2)))
+            self.ui.label_50.setText(str(round(maxAvYxhd[0], 2)))
             step = (maxAvYxhd[0] - minAvYxhd[0]) / 4
-            test = str(minAvYxhd[0] + step)
-            self.ui.lineEdit_15.setText(str(round(minAvYxhd[0] + step, 2)))
-            self.ui.lineEdit_14.setText(str(round(minAvYxhd[0] + 2 * step, 2)))
-            self.ui.lineEdit_5.setText(str(round(minAvYxhd[0] + 3 * step, 2)))
+            # test = str(minAvYxhd[0] + step)
+            self.ui.lineEdit_16.setText(str(round(minAvYxhd[0] + step, 2)))
+            self.ui.lineEdit_13.setText(str(round(minAvYxhd[0] + 2 * step, 2)))
+            self.ui.lineEdit_6.setText(str(round(minAvYxhd[0] + 3 * step, 2)))
 
-    @pyqtSlot()
+    # @pyqtSlot()
     def on_checkBox_3_stateChanged(self,change):
-        if self.ui.checkBox.isChecked():
+        if self.ui.checkBox_3.isChecked():
             maxAvYxhd = max([row[2:3] for row in self.qlqTableList])
             minAvYxhd = min([row[2:3] for row in self.qlqTableList])
-            self.ui.label_37.setText(str(round(minAvYxhd[0], 2)))
-            self.ui.label_51.setText(str(round(maxAvYxhd[0], 2)))
+            self.ui.label_44.setText(str(round(minAvYxhd[0], 2)))
+            self.ui.label_49.setText(str(round(maxAvYxhd[0], 2)))
             step = (maxAvYxhd[0] - minAvYxhd[0]) / 4
-            test = str(minAvYxhd[0] + step)
-            self.ui.lineEdit_15.setText(str(round(minAvYxhd[0] + step, 2)))
-            self.ui.lineEdit_14.setText(str(round(minAvYxhd[0] + 2 * step, 2)))
-            self.ui.lineEdit_5.setText(str(round(minAvYxhd[0] + 3 * step, 2)))
+            # test = str(minAvYxhd[0] + step)
+            self.ui.lineEdit_17.setText(str(round(minAvYxhd[0] + step, 2)))
+            self.ui.lineEdit_12.setText(str(round(minAvYxhd[0] + 2 * step, 2)))
+            self.ui.lineEdit_7.setText(str(round(minAvYxhd[0] + 3 * step, 2)))
 
-    @pyqtSlot()
+    # @pyqtSlot()
     def on_checkBox_4_stateChanged(self,change):
-        if self.ui.checkBox.isChecked():
+        if self.ui.checkBox_4.isChecked():
             maxAvYxhd = max([row[9:10] for row in self.qlqTableList])
             minAvYxhd = min([row[9:10] for row in self.qlqTableList])
-            self.ui.label_37.setText(str(round(minAvYxhd[0], 2)))
-            self.ui.label_51.setText(str(round(maxAvYxhd[0], 2)))
+            self.ui.label_45.setText(str(round(minAvYxhd[0], 2)))
+            self.ui.label_48.setText(str(round(maxAvYxhd[0], 2)))
             step = (maxAvYxhd[0] - minAvYxhd[0]) / 4
-            test = str(minAvYxhd[0] + step)
-            self.ui.lineEdit_15.setText(str(round(minAvYxhd[0] + step, 2)))
-            self.ui.lineEdit_14.setText(str(round(minAvYxhd[0] + 2 * step, 2)))
-            self.ui.lineEdit_5.setText(str(round(minAvYxhd[0] + 3 * step, 2)))
+            # test = str(minAvYxhd[0] + step)
+            self.ui.lineEdit_8.setText(str(round(minAvYxhd[0] + step, 2)))
+            self.ui.lineEdit_11.setText(str(round(minAvYxhd[0] + 2 * step, 2)))
+            self.ui.lineEdit_18.setText(str(round(minAvYxhd[0] + 3 * step, 2)))
 
-    @pyqtSlot()
+    #@pyqtSlot()
     def on_checkBox_5_stateChanged(self,change):
-        if self.ui.checkBox.isChecked():
+        if self.ui.checkBox_5.isChecked():
             maxAvYxhd = max([row[4:5] for row in self.qlqTableList])
             minAvYxhd = min([row[4:5] for row in self.qlqTableList])
             self.ui.label_37.setText(str(round(minAvYxhd[0], 2)))
             self.ui.label_51.setText(str(round(maxAvYxhd[0], 2)))
             step = (maxAvYxhd[0] - minAvYxhd[0]) / 4
-            test = str(minAvYxhd[0] + step)
+            # test = str(minAvYxhd[0] + step)
             self.ui.lineEdit_15.setText(str(round(minAvYxhd[0] + step, 2)))
             self.ui.lineEdit_14.setText(str(round(minAvYxhd[0] + 2 * step, 2)))
             self.ui.lineEdit_5.setText(str(round(minAvYxhd[0] + 3 * step, 2)))
@@ -1791,11 +1802,192 @@ class QmyMainWindow(QMainWindow):
     # 潜力区评价响应按钮
     @pyqtSlot()
     def on_pushButton_6_clicked(self):
-        print()
+
+        # 如果是需要分析的因素，则获得该因素的分级区间点
+        # 因为区间点是可以手动修改的，所以需要重新读取一下界面数据
+
+        if self.ui.checkBox.isChecked():
+            print(float(self.ui.lineEdit_5.text()))
+            hd1 = float(self.ui.lineEdit_5.text()) # 厚度
+            hd2 = float(self.ui.lineEdit_14.text())
+            hd3 = float(self.ui.lineEdit_15.text())
 
 
+        if self.ui.checkBox_2.isChecked():
+            print(float(self.ui.lineEdit_6.text()))
+            yl1 = float(self.ui.lineEdit_6.text()) # 油量
+            yl2 = float(self.ui.lineEdit_13.text())
+            yl3 = float(self.ui.lineEdit_16.text())
 
 
+        if self.ui.checkBox_3.isChecked():
+            print(float(self.ui.lineEdit_7.text()))
+            gm1 = float(self.ui.lineEdit_7.text()) # 规模
+            gm2 = float(self.ui.lineEdit_12.text())
+            gm3 = float(self.ui.lineEdit_17.text())
+
+
+        if self.ui.checkBox_4.isChecked():
+            print(float(self.ui.lineEdit_8.text()))
+            sy1 = float(self.ui.lineEdit_8.text()) #水淹
+            sy2 = float(self.ui.lineEdit_11.text())
+            sy3 = float(self.ui.lineEdit_18.text())
+
+
+        if self.ui.checkBox_5.isChecked():
+            xs1 = float(self.ui.lineEdit_9.text()) # 吸水
+            xs2 = float(self.ui.lineEdit_10.text())
+            xs3 = float(self.ui.lineEdit_19.text())
+
+
+        QLQPJB2 = []#潜力区评价表总表
+        for m in range(len(self.qlqTableList)):
+            QLQPJB = []  # 潜力区评价表
+            QLQPJB1 = []
+
+            if self.ui.checkBox.isChecked():
+                if self.qlqTableList[m][4] > hd1:
+                    QLQPJB.append(4)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+                elif self.qlqTableList[m][4] > hd2:
+                    QLQPJB.append(3)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+                elif self.qlqTableList[m][4] > hd3:
+                    QLQPJB.append(2)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+                else:
+                    QLQPJB.append(1)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+
+            if self.ui.checkBox_2.isChecked():
+                if self.qlqTableList[m][7] > yl1:
+                    QLQPJB.append(4)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+                elif self.qlqTableList[m][7] > yl2:
+                    QLQPJB.append(3)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+                elif self.qlqTableList[m][7] > yl3:
+                    QLQPJB.append(2)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+                else:
+                    QLQPJB.append(1)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+
+            if self.ui.checkBox_3.isChecked():
+                if self.qlqTableList[m][2] > gm1:
+                    QLQPJB.append(4)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+                elif self.qlqTableList[m][2] > gm2:
+                    QLQPJB.append(4)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+                elif self.qlqTableList[m][2] > gm3:
+                    QLQPJB.append(4)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+                else:
+                    QLQPJB.append(1)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+
+            if self.ui.checkBox_4.isChecked():
+                if self.qlqTableList[m][9] <= sy1:
+                    QLQPJB.append(4)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+                elif self.qlqTableList[m][9] <= sy2:
+                    QLQPJB.append(3)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+                elif self.qlqTableList[m][9] <= sy3:
+                    QLQPJB.append(2)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+                else:
+                    QLQPJB.append(1)
+                    QLQPJB1.append(QLQPJB)
+                QLQPJB = []
+
+            if self.ui.checkBox_5.isChecked():
+                n = 5
+                if self.qlqTableList[m][9] > xs1:
+                    QLQPJB.append(4)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+                elif self.qlqTableList[m][9] > xs2:
+                    QLQPJB.append(4)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+                elif self.qlqTableList[m][9] > xs3:
+                    QLQPJB.append(4)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+                else:
+                    QLQPJB.append(4)
+                    QLQPJB1.append(QLQPJB)
+                    QLQPJB = []
+            #else:
+            #    QLQPJB.append(0)
+            #    QLQPJB1.append(QLQPJB)
+            #    QLQPJB = []
+
+            QLQPJB2.append(QLQPJB1)
+
+            pjb = []
+            for i in range(4):
+                pjb.append(0) # 评价表
+
+            for i in range(len(QLQPJB1)):
+                for j in range(len(QLQPJB1[i])):
+                    if QLQPJB1[i][j] == 4:
+                        pjb[0] = pjb[0] + 1
+                    elif QLQPJB1[i][j] == 3:
+                        pjb[1] = pjb[1] + 1
+                    elif QLQPJB1[i][j] == 2:
+                        pjb[2] = pjb[2] + 1
+                    elif QLQPJB1[i][j] == 1:
+                        pjb[3] = pjb[3] + 1
+
+
+            qz = []
+            jg = 0
+            for i in range(3):
+                qz.append(1 / len(QLQPJB1))  # 权重
+                jg = jg + qz[i] * float(pjb[i]) # 结果
+            if len(self.qlqTableList[m]) ==11:
+                self.qlqTableList[m][10] = 100*jg
+            else:
+                self.qlqTableList[m].append(100*jg)
+
+        print(self.qlqTableList)
+
+        headerText = ["潜力区序号", "层号", "平面规模", "平均含油饱和度", "平均有效厚度", "平均渗透率", "平均孔隙度",
+                      "剩余油量", "井数量", "平均水淹程度","评分"]
+
+        self.ui.tableWidget_6.setColumnCount(len(headerText))
+        self.ui.tableWidget_6.setHorizontalHeaderLabels(headerText)
+        self.ui.tableWidget_6.clearContents()
+        self.ui.tableWidget_6.setRowCount(len(self.qlqTableList))
+        self.ui.tableWidget_6.setAlternatingRowColors(True)
+
+
+        for i in range(0,len(self.qlqTableList)):
+            for j in range(0,len(self.qlqTableList[i])):
+
+                item = QTableWidgetItem(str(self.qlqTableList[i][j]))
+                item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                            | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+                self.ui.tableWidget_6.setItem(i, j, item)
 
 if __name__ == "__main__":  # 用于当前窗体测试
     app = QApplication(sys.argv)  # 创建GUI应用程序
