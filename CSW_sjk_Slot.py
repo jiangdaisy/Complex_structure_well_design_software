@@ -39,7 +39,10 @@ XSQX = []
 CYJS = []
 DS = []
 CJDYZB = {}
-
+jgjpj = []
+jgjpj1 = []
+jgjpj2 = []
+pd = []
 
 
 class QmyMainWindow(QMainWindow):
@@ -58,6 +61,7 @@ class QmyMainWindow(QMainWindow):
         self.qlqContours = {}
         self.qlqTable = {}
         self.qlqTableList = []
+        self.mbj = []
 
         # 展开节点
         self.ui.treeWidget.topLevelItem(0).setExpanded(True)
@@ -930,6 +934,8 @@ class QmyMainWindow(QMainWindow):
 
     @pyqtSlot()
     def on_actioncjdysj_triggered(self):
+
+
         curPath = QDir.currentPath()  # 获取系统当前目录
         title = "打开一个文件"
         filt = "文本文件(*.txt);;所有文件(*.*)"
@@ -980,6 +986,7 @@ class QmyMainWindow(QMainWindow):
 
     @pyqtSlot()
     def on_actionzsjs_triggered(self):
+
         curPath = QDir.currentPath()  # 获取系统当前目录
         title = "打开一个文件"
         filt = "文本文件(*.txt);;所有文件(*.*)"
@@ -1280,18 +1287,20 @@ class QmyMainWindow(QMainWindow):
         self.ui.tableWidget.setRowCount(index)
         self.ui.tableWidget.setAlternatingRowColors(True)
 
-
+        self.ui.comboBox_2.addItem("请选择潜力区编号")
         for i in range(1,index):
             listrow = []
 
             # 潜力区编号
             listrow.append(self.qlqTable[i]["index"])
             self.ui.comboBox_2.addItem(str(self.qlqTable[i]["index"]))
+            self.ui.comboBox_3.addItem(str(self.qlqTable[i]["index"]))
             item = QTableWidgetItem(str(self.qlqTable[i]["index"]))
             item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
                           | Qt.ItemIsUserCheckable)  # 不允许编辑文字
             self.ui.tableWidget.setItem(i-1, 0,item)
+
 
             # 层号
             listrow.append(self.qlqTable[i]["floor"])
@@ -1379,14 +1388,6 @@ class QmyMainWindow(QMainWindow):
         print(self.qlqTableList)
 
 
-
-
-
-
-
-
-
-
     @pyqtSlot()
     def on_pushButton_clicked(self):
 
@@ -1416,157 +1417,157 @@ class QmyMainWindow(QMainWindow):
 
         print("pushBotton")
 
-    @pyqtSlot(str)  #层间联通性判断得下拉列表变化时运行得函数
+    @pyqtSlot(str)  #层间连通性判断得下拉列表变化时运行得函数
     def on_comboBox_2_activated(self, curText):
 
-        comBoxzhi = int(self.ui.comboBox_2.currentText())
+        comBoxin = self.ui.comboBox_2.currentIndex()
+        if comBoxin > 0:
+            comBoxzhi = int(self.ui.comboBox_2.currentText())
 
-        # print(self.qlqTableList)
-        # print(self.qlqTable[comBoxzhi]["well"])
+            # print(self.qlqTableList)
+            # print(self.qlqTable[comBoxzhi]["well"])
 
-        CJLTX = []#层间连通性
-        CJLTXTJ = []#层间连通性统计
+            CJLTX = []#层间连通性
+            CJLTXTJ = []#层间连通性统计
 
-        blt = 0  # 不连通
-        slt = 0  # 上连通
-        xlt = 0  # 下连通
-        jlt = 0  # 均连通
+            blt = 0  # 不连通
+            slt = 0  # 上连通
+            xlt = 0  # 下连通
+            jlt = 0  # 均连通
 
-        if len(self.qlqTable[comBoxzhi]["well"]) == 0:
-            print('潜力区内无注采井')
-        else:
-            for i in range(len(self.qlqTable[comBoxzhi]["well"])):
-                CJLTX1 = []
-                CJLTX1.append(self.qlqTable[comBoxzhi]["well"][i])
-                bj = 0
-                bj1 = 0
-                for j in range(1,len(CJDYZB)):
-                    if self.qlqTable[comBoxzhi]["well"][i] == (CJDYZB[str(j)][0][2]):
-                        ch = CJDYZB[str(j)][0][3] + "-" + CJDYZB[str(j)][0][4]#%合并层号
-                        if ch == self.qlqTableList[comBoxzhi][1]:
-                            bj = bj + 1
-                            if bj == 1:
-                                for k in range(j-1,j-50,-1):
-                                    if bj1 == 0:
-                                        if CJDYZB[str(k)][0][9] != 0:
-                                            bj1 = bj1 + 1
-                                            CJLTX1.append(float(CJDYZB[str(k)][0][8]) + float(CJDYZB[str(k)][0][9]))
-                                CJLTX1.append(float(CJDYZB[str(j)][0][8]))
-                                CJLTX1.append(float(CJDYZB[str(j)][0][8]) + float(CJDYZB[str(j)][0][9]))
-                                if CJDYZB[str(j+1)][0][8] != 0:
-                                    CJLTX1.append(float(CJDYZB[str(j+1)][0][8]))
-                            elif CJDYZB[str(j)][0][8] == '0':
-                                if CJDYZB[str(j+1)][0][8] != 0:
-                                    CJLTX1[4] = float(CJDYZB[str(j+1)][0][8])
-                            elif CJDYZB[str(j)][0][8] != '0':
-                                CJLTX1[3] = float(CJDYZB[str(j)][0][8]) + float(CJDYZB[str(j)][0][9])
-                                if CJDYZB[str(j+1)][0][8] != 0:
-                                    CJLTX1[4] = float(CJDYZB[str(j + 1)][0][8])
+            if len(self.qlqTable[comBoxzhi]["well"]) == 0:
+                print('潜力区内无注采井')
+            else:
+                for i in range(len(self.qlqTable[comBoxzhi]["well"])):
+                    CJLTX1 = []
+                    CJLTX1.append(self.qlqTable[comBoxzhi]["well"][i])
+                    bj = 0
+                    bj1 = 0
+                    for j in range(1,len(CJDYZB)):
+                        if self.qlqTable[comBoxzhi]["well"][i] == (CJDYZB[str(j)][0][2]):
+                            ch = CJDYZB[str(j)][0][3] + "-" + CJDYZB[str(j)][0][4]#%合并层号
+                            if ch == self.qlqTableList[comBoxzhi][1]:
+                                bj = bj + 1
+                                if bj == 1:
+                                    for k in range(j-1,j-50,-1):
+                                        if bj1 == 0:
+                                            if CJDYZB[str(k)][0][9] != 0:
+                                                bj1 = bj1 + 1
+                                                CJLTX1.append(float(CJDYZB[str(k)][0][8]) + float(CJDYZB[str(k)][0][9]))
+                                    CJLTX1.append(float(CJDYZB[str(j)][0][8]))
+                                    CJLTX1.append(float(CJDYZB[str(j)][0][8]) + float(CJDYZB[str(j)][0][9]))
+                                    if CJDYZB[str(j+1)][0][8] != 0:
+                                        CJLTX1.append(float(CJDYZB[str(j+1)][0][8]))
+                                elif CJDYZB[str(j)][0][8] == '0':
+                                    if CJDYZB[str(j+1)][0][8] != 0:
+                                        CJLTX1[4] = float(CJDYZB[str(j+1)][0][8])
+                                elif CJDYZB[str(j)][0][8] != '0':
+                                    CJLTX1[3] = float(CJDYZB[str(j)][0][8]) + float(CJDYZB[str(j)][0][9])
+                                    if CJDYZB[str(j+1)][0][8] != 0:
+                                        CJLTX1[4] = float(CJDYZB[str(j + 1)][0][8])
 
-                if CJLTX1[2] != []:
-                    if CJLTX1[2] - CJLTX1[1] > 0.5:
-                        if CJLTX1[4] - CJLTX1[3] > 0.5:
-                            CJLTX1.append(0)
-                            blt = blt + 1
+                    if CJLTX1[2] != []:
+                        if CJLTX1[2] - CJLTX1[1] > 0.5:
+                            if CJLTX1[4] - CJLTX1[3] > 0.5:
+                                CJLTX1.append(0)
+                                blt = blt + 1
+                            else:
+                                CJLTX1.append(2)
+                                xlt = xlt + 1
                         else:
-                            CJLTX1.append(2)
-                            xlt = xlt + 1
-                    else:
-                        if CJLTX1[4] - CJLTX1[3] > 0.5:
-                            CJLTX1.append(1)
-                            slt = slt + 1
-                        else:
-                            CJLTX1.append(3)
-                            jlt = jlt + 1
-                CJLTX.append(CJLTX1)
-            #print(CJLTX1)#单井层间连通性统计数据
-            CJLTXTJ.append('上下不连通')
-            CJLTXTJ.append(blt)
-            CJLTXTJ.append('上连通')
-            CJLTXTJ.append(slt)
-            CJLTXTJ.append('下连通')
-            CJLTXTJ.append(xlt)
-            CJLTXTJ.append('上下均连通')
-            CJLTXTJ.append(jlt)
+                            if CJLTX1[4] - CJLTX1[3] > 0.5:
+                                CJLTX1.append(1)
+                                slt = slt + 1
+                            else:
+                                CJLTX1.append(3)
+                                jlt = jlt + 1
+                    CJLTX.append(CJLTX1)
+                #print(CJLTX1)#单井层间连通性统计数据
+                CJLTXTJ.append('上下不连通')
+                CJLTXTJ.append(blt)
+                CJLTXTJ.append('上连通')
+                CJLTXTJ.append(slt)
+                CJLTXTJ.append('下连通')
+                CJLTXTJ.append(xlt)
+                CJLTXTJ.append('上下均连通')
+                CJLTXTJ.append(jlt)
 
-            print(CJLTX)#所选潜力区的所有井层间连通性表
-            print(CJLTXTJ)#所选潜力区的所有井层间连通性统计表
+                print(CJLTX)#所选潜力区的所有井层间连通性表
+                print(CJLTXTJ)#所选潜力区的所有井层间连通性统计表
 
-            headerText = ["包含井号", "上层砂岩底深", "砂岩顶深", "砂岩底深", "下层砂岩顶深", "层间连通性"]
-            self.ui.tableWidget_3.setColumnCount(len(headerText))
-            self.ui.tableWidget_3.setHorizontalHeaderLabels(headerText)
-            self.ui.tableWidget_3.clearContents()
-            self.ui.tableWidget_3.setRowCount(len(CJLTX))
-            self.ui.tableWidget_3.setAlternatingRowColors(True)
+                headerText = ["包含井号", "上层砂岩底深", "砂岩顶深", "砂岩底深", "下层砂岩顶深", "层间连通性"]
+                self.ui.tableWidget_3.setColumnCount(len(headerText))
+                self.ui.tableWidget_3.setHorizontalHeaderLabels(headerText)
+                self.ui.tableWidget_3.clearContents()
+                self.ui.tableWidget_3.setRowCount(len(CJLTX))
+                self.ui.tableWidget_3.setAlternatingRowColors(True)
 
 
-            for i in range(0,len(CJLTX)):
-                for j in range(0,len(CJLTX[0])):
+                for i in range(0,len(CJLTX)):
+                    for j in range(0,len(CJLTX[0])):
 
-                    item = QTableWidgetItem(str(CJLTX[i][j]))
-                    item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-                    item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
-                                  | Qt.ItemIsUserCheckable)  # 不允许编辑文字
-                    self.ui.tableWidget_3.setItem(i, j, item)
-
-
-            headerText = ["连通情况", "潜力区井数量"]
-            self.ui.tableWidget_2.setColumnCount(len(headerText))
-            self.ui.tableWidget_2.setHorizontalHeaderLabels(headerText)
-            self.ui.tableWidget_2.clearContents()
-            self.ui.tableWidget_2.setRowCount(4)
-            self.ui.tableWidget_2.setAlternatingRowColors(True)
+                        item = QTableWidgetItem(str(CJLTX[i][j]))
+                        item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                        item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                                      | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+                        self.ui.tableWidget_3.setItem(i, j, item)
 
 
-            item = QTableWidgetItem(str(CJLTXTJ[0]))
-            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
-                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
-            self.ui.tableWidget_2.setItem(0, 0, item)
-
-            item = QTableWidgetItem(str(CJLTXTJ[1]))
-            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
-                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
-            self.ui.tableWidget_2.setItem(0, 1, item)
-
-            item = QTableWidgetItem(str(CJLTXTJ[2]))
-            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
-                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
-            self.ui.tableWidget_2.setItem(1, 0, item)
-
-            item = QTableWidgetItem(str(CJLTXTJ[3]))
-            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
-                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
-            self.ui.tableWidget_2.setItem(1, 1, item)
-
-            item = QTableWidgetItem(str(CJLTXTJ[4]))
-            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
-                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
-            self.ui.tableWidget_2.setItem(2, 0, item)
-
-            item = QTableWidgetItem(str(CJLTXTJ[5]))
-            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
-                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
-            self.ui.tableWidget_2.setItem(2, 1, item)
-
-            item = QTableWidgetItem(str(CJLTXTJ[6]))
-            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
-                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
-            self.ui.tableWidget_2.setItem(3, 0, item)
-
-            item = QTableWidgetItem(str(CJLTXTJ[7]))
-            item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
-                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
-            self.ui.tableWidget_2.setItem(3, 1, item)
+                headerText = ["连通情况", "潜力区井数量"]
+                self.ui.tableWidget_2.setColumnCount(len(headerText))
+                self.ui.tableWidget_2.setHorizontalHeaderLabels(headerText)
+                self.ui.tableWidget_2.clearContents()
+                self.ui.tableWidget_2.setRowCount(4)
+                self.ui.tableWidget_2.setAlternatingRowColors(True)
 
 
+                item = QTableWidgetItem(str(CJLTXTJ[0]))
+                item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                              | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+                self.ui.tableWidget_2.setItem(0, 0, item)
+
+                item = QTableWidgetItem(str(CJLTXTJ[1]))
+                item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                              | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+                self.ui.tableWidget_2.setItem(0, 1, item)
+
+                item = QTableWidgetItem(str(CJLTXTJ[2]))
+                item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                              | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+                self.ui.tableWidget_2.setItem(1, 0, item)
+
+                item = QTableWidgetItem(str(CJLTXTJ[3]))
+                item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                              | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+                self.ui.tableWidget_2.setItem(1, 1, item)
+
+                item = QTableWidgetItem(str(CJLTXTJ[4]))
+                item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                              | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+                self.ui.tableWidget_2.setItem(2, 0, item)
+
+                item = QTableWidgetItem(str(CJLTXTJ[5]))
+                item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                              | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+                self.ui.tableWidget_2.setItem(2, 1, item)
+
+                item = QTableWidgetItem(str(CJLTXTJ[6]))
+                item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                              | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+                self.ui.tableWidget_2.setItem(3, 0, item)
+
+                item = QTableWidgetItem(str(CJLTXTJ[7]))
+                item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                              | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+                self.ui.tableWidget_2.setItem(3, 1, item)
 
     # 厚层识别按钮
     @pyqtSlot()
@@ -1733,9 +1734,6 @@ class QmyMainWindow(QMainWindow):
     # @pyqtSlot()
     def on_checkBox_stateChanged(self,change):
         if self.ui.checkBox.isChecked():
-            #self.qlqTableList = []
-            #self.qlqTableList = [[1, 'P1-1', 135900.0, 0.5463186409756045, 3.331763909347671, 0.6167041928585176, 23.72703284642543, 5869257.006069839, 46, 3], [2, 'P1-1', 54100.0, 0.5435676466341387, 3.2836959760527265, 0.5825172347607966, 20.912654656515084, 2019402.8788914317, 35, 0], [3, 'P1-1', 77200.0, 0.5490339337027161, 2.9632035984659515, 0.5457517914319981, 21.261660848049047, 2670392.9108256376, 14, 2], [4, 'P1-1', 211000.0, 0.5157273015506264, 2.4653593829923026, 0.8710795493553711, 26.331819253334395, 7064211.2820962025, 39, 2], [5, 'P1-1', 226400.0, 0.5492644891036838, 2.848214659569362, 0.5960198025082648, 22.416545019439457, 7939613.091051854, 63, 1], [6, 'P1-2a', 58700.0, 0.46530984748989074, 2.4446109399873266, 0.7594612632244853, 27.8534665138216, 1859813.299838882, 7, 1], [7, 'P1-2a', 216200.0, 0.5074141856449218, 2.74634760419086, 0.6879830044639491, 25.216057027165405, 7597154.82247757, 33, 3], [8, 'P1-2a', 547900.0, 0.5156292791014632, 2.8942778523556663, 0.7191668044521173, 24.524745327704302, 20053195.971064445, 127, 3], [9, 'P1-2a', 121400.0, 0.48790392262329757, 3.0796782025125196, 0.8629924856589615, 26.3627029912871, 4808927.974054922, 22, 0], [10, 'P1-2a', 57500.0, 0.5213241251301534, 3.8494221300730174, 0.7414441244886666, 26.151625733642664, 3017657.168803431, 7, 3], [11, 'P1-2a', 112600.0, 0.49518871646715884, 3.417016600667946, 0.8241416480192796, 21.246108454900728, 4047954.417763402, 19, 3], [12, 'P1-2a', 123700.0, 0.5199578633702194, 2.8664282051714576, 0.8571867092037407, 25.641293604460657, 4727361.894989134, 37, 3], [13, 'P1-2a', 418200.0, 0.5189301088848818, 3.3900665353849777, 0.8803456866915319, 24.094104215761032, 17726047.332465958, 168, 3], [14, 'P1-2a', 72400.0, 0.49576142732133394, 2.7868350211556208, 0.8058088138239253, 26.807365838158354, 2681493.202536392, 17, 3], [15, 'P1-2a', 58600.0, 0.5360347242421771, 2.7671945811411702, 0.8288366271658606, 24.78959675022317, 2154763.949371733, 7, 0], [16, 'P1-2a', 156400.0, 0.5240925001916618, 2.93242221135978, 0.856140214683513, 22.342569826587855, 5370371.358027318, 32, 3], [17, 'P1-2a', 85000.0, 0.497369890908913, 3.94759394441759, 0.8901241812751328, 26.495110599816474, 4421774.874191785, 17, 3], [18, 'P1-2b', 121400.0, 0.4944304824790653, 2.3835870645772874, 0.5985249132724632, 23.775542032597972, 3401616.6708392133, 16, 0], [19, 'P1-2b', 179700.0, 0.4922065774174953, 2.7944218529087625, 0.8335348974620225, 24.339725954141034, 6015935.108769862, 30, 3], [20, 'P1-2b', 153800.0, 0.49658474908328953, 3.3051033461206947, 0.995354615149448, 27.528968550749745, 6949038.158689854, 35, 3], [21, 'P1-2b', 97700.0, 0.498998912969098, 3.204427942077245, 0.9066142408776536, 29.133272839735334, 4551284.137640957, 14, 3], [22, 'P1-2b', 97400.0, 0.5120909041648756, 3.2010095446459843, 1.0370070692241582, 22.966424933804422, 3666792.918413041, 17, 3], [23, 'P1-2b', 322700.0, 0.5167838378352709, 3.1254557829237033, 1.0182514841896326, 23.169683355933433, 12076507.238961536, 68, 3], [24, 'P1-2b', 175100.0, 0.49421821689498613, 3.2136642098808723, 0.9406474844725026, 25.26555867035706, 7026423.098759948, 33, 3], [25, 'P1-5', 58800.0, 0.48641610418173425, 2.4886671874313446, 0.8836534503580298, 28.552587808165573, 2032345.6331590195, 9, 3], [26, 'S2-1', 51100.0, 0.48277650362214997, 3.0695644240074342, 0.8184733878126015, 26.87621457037283, 2035222.417991665, 10, 1], [27, 'S2-2a', 70000.0, 0.5504280776049791, 3.1469546285599805, 0.6109178932465532, 24.052821717568005, 2916454.0150350896, 10, 2], [28, 'S2-2a', 43600.0, 0.5230405007758351, 2.6724209890401727, 0.5131498078839898, 20.907541503109105, 1274176.6727910086, 11, 1], [29, 'S2-2a', 124200.0, 0.5614270995199746, 2.741609728372802, 0.6324324308714729, 20.73721625498116, 3964341.4810974635, 25, 1], [30, 'S2-2b', 72500.0, 0.49169184681714473, 2.61702796221227, 0.4155986309862819, 22.95671406275698, 2141652.9777003108, 9, 0], [31, 'S2-2b', 88700.0, 0.48396408300149246, 2.7479045848667907, 0.7857776065353141, 26.292779606141575, 3101522.2536590463, 17, 3], [32, 'S2-2b', 36300.0, 0.5562095726456098, 3.1026007783145717, 0.7954834234282342, 24.86314319312172, 1557496.2595727118, 20, 0]]
-
             maxAvYxhd = max([row[4:5] for row in self.qlqTableList])
             minAvYxhd = min([row[4:5] for row in self.qlqTableList])
             self.ui.label_37.setText(str(round(minAvYxhd[0], 2)))
@@ -1935,10 +1933,6 @@ class QmyMainWindow(QMainWindow):
                     QLQPJB.append(4)
                     QLQPJB1.append(QLQPJB)
                     QLQPJB = []
-            #else:
-            #    QLQPJB.append(0)
-            #    QLQPJB1.append(QLQPJB)
-            #    QLQPJB = []
 
             QLQPJB2.append(QLQPJB1)
 
@@ -1989,79 +1983,260 @@ class QmyMainWindow(QMainWindow):
                             | Qt.ItemIsUserCheckable)  # 不允许编辑文字
                 self.ui.tableWidget_6.setItem(i, j, item)
 
-
-
     @pyqtSlot(str)  #小模型画图
     def on_comboBox_3_activated(self, curText):
 
+        comBoxin = self.ui.comboBox_3.currentIndex()
+        if comBoxin > 0:
+            comBoxzhi = int(self.ui.comboBox_3.currentText())
+
+            self.ui.comboBox_4.clear()
+            self.ui.comboBox_5.clear()
+
+            self.ui.comboBox_4.addItem("选择目标井井号")
+            self.ui.comboBox_5.addItem("选择相关注水井")
+
+            for i in range(len(self.qlqTable[comBoxzhi]["well"])):
+                self.ui.comboBox_4.addItem(str(self.qlqTable[comBoxzhi]["well"][i]))
+                self.ui.comboBox_5.addItem(str(self.qlqTable[comBoxzhi]["well"][i]))
 
 
-        bj = 0 #用于标记所选的潜力区是该层内的第几个潜力区，便于后面选择左边矩阵
-        for i in range(int(curText)):
-            if self.qlqTableList[i][1] == self.qlqTableList[curText][1]:
-                bj = bj + 1
+            bj = 0 #用于标记所选的潜力区是该层内的第几个潜力区，便于后面选择左边矩阵
+            for i in range(int(comBoxzhi)):
+                if self.qlqTableList[i][1] == self.qlqTableList[comBoxzhi][1]:
+                    bj = bj + 1
 
 
-        xmax = max(list(self.qlqContours[self.qlqTableList[curText][1]])[bj-1][:, 1])
-        xmin = min(list(self.qlqContours[self.qlqTableList[curText][1]])[bj-1][:, 1])
-        ymax = max(list(self.qlqContours[self.qlqTableList[curText][1]])[bj-1][:, 0])
-        ymin = min(list(self.qlqContours[self.qlqTableList[curText][1]])[bj-1][:, 0])
+            xmax = max(list(self.qlqContours[self.qlqTableList[comBoxzhi][1]])[bj-1][:, 1])
+            xmin = min(list(self.qlqContours[self.qlqTableList[comBoxzhi][1]])[bj-1][:, 1])
+            ymax = max(list(self.qlqContours[self.qlqTableList[comBoxzhi][1]])[bj-1][:, 0])
+            ymin = min(list(self.qlqContours[self.qlqTableList[comBoxzhi][1]])[bj-1][:, 0])
 
-        print(xmax)
-        print(xmin)
-        print(ymax)
-        print(ymin)
+            print(xmax)
+            print(xmin)
+            print(ymax)
+            print(ymin)
 
-        x = BHD[self.qlqTableList[curText][1]][0]  # float 型
-        y = BHD[self.qlqTableList[curText][1]][1]
-        v = BHD[self.qlqTableList[curText][1]][2]
+            x = BHD[self.qlqTableList[comBoxzhi][1]][0]  # float 型
+            y = BHD[self.qlqTableList[comBoxzhi][1]][1]
+            v = BHD[self.qlqTableList[comBoxzhi][1]][2]
 
+            x = np.array(x)
+            y = np.array(y)
+            v = np.array(v)
 
-        x = np.array(x)
-        y = np.array(y)
-        v = np.array(v)
+            x = x.T
+            y = y.T
+            v = v.T
 
-        x = x.T
-        y = y.T
-        v = v.T
+            xb = list(range(int(xmin), int(xmax), self.stepx))
+            yb = list(range(int(ymin), int(ymax), self.stepy))
 
-        xb = list(range(int(xmin), int(xmax), self.stepx))
-        yb = list(range(int(ymin), int(ymax), self.stepy))
+            xb = np.array(xb)
+            yb = np.array(yb)
 
-        xb = np.array(xb)
-        yb = np.array(yb)
+            xb, yb = np.meshgrid(xb, yb)
 
-        xb, yb = np.meshgrid(xb, yb)
+            bhdq = griddata((x, y), v, (xb, yb), method="linear")
 
-        bhdq = griddata((x, y), v, (xb, yb), method="linear")
+            self.qlqBinary[comBoxzhi] = bhdq
+            self.qlqXb[comBoxzhi] = xb
+            self.qlqYb[comBoxzhi] = yb
 
-        self.qlqBinary[curText] = bhdq
-        self.qlqXb[curText] = xb
-        self.qlqYb[curText] = yb
+            title ="潜力区" + str(comBoxzhi)
+            self.fig1 = QmyFigure(self)
+            self.fig1.setAttribute(Qt.WA_DeleteOnClose)
+            curIndex = self.ui.tabWidget.addTab(self.fig1, title)  # 添加到tabWidget
 
-        title = self.qlqTableList[curText][1] + "潜力区"
-        fig1 = QmyFigure(self)
-        fig1.setAttribute(Qt.WA_DeleteOnClose)
-        curIndex = self.ui.tabWidget.addTab(fig1, title)  # 添加到tabWidget
+            self.ui.tabWidget.setCurrentIndex(curIndex)
+            self.ax1 = self.fig1.fig.add_subplot(1, 1, 1)  # 子图1
+            self.ax1.set_xlabel('X 轴')  # X轴标题
+            self.ax1.set_ylabel('Y 轴')  # Y轴标题
+            self.ax1.set_title(title)
 
-        self.ui.tabWidget.setCurrentIndex(curIndex)
-        ax1 = fig1.fig.add_subplot(1, 1, 1)  # 子图1
-        ax1.set_xlabel('X 轴')  # X轴标题
-        ax1.set_ylabel('Y 轴')  # Y轴标题
-        ax1.set_title(title)
+            im1 = self.ax1.pcolormesh(self.qlqXb[comBoxzhi], self.qlqYb[comBoxzhi], self.qlqBinary[comBoxzhi])
+            self.fig1.fig.colorbar(im1, ax=self.ax1)
 
-        im1 = ax1.pcolormesh(self.qlqXb[curText], self.qlqYb[curText], self.qlqBinary[curText])
-        fig1.fig.colorbar(im1, ax=ax1)
+    @pyqtSlot(str)  # 选择目标井
+    def on_comboBox_4_activated(self, curText):
+
+        comBoxin = self.ui.comboBox_4.currentIndex()
+        if comBoxin > 0:
+
+            comBoxzhi = self.ui.comboBox_4.currentText() #所选的目标井
+
+            jgjpj = []
+            jgjpj2 = []
+            #结构井评价，用于统计目标井周围的注水井的信息
+            for i in range(len(DJDZSJ)):
+                if comBoxzhi == list(DJDZSJ.keys())[i]:
+                    if DJDZSJ[list(DJDZSJ.keys())[i]][2] == '0':
+                        mbjy = float(DJDZSJ[list(DJDZSJ.keys())[i]][0]) #目标井y轴坐标
+                        mbjx = float(DJDZSJ[list(DJDZSJ.keys())[i]][1]) #目标井x轴坐标
+                    else:
+                        mbjy = float(DJDZSJ[list(DJDZSJ.keys())[i]][2])
+                        mbjx = float(DJDZSJ[list(DJDZSJ.keys())[i]][3])
+            jgjpj.append("目标井")
+            jgjpj.append(mbjx)
+            jgjpj.append(mbjy)
+            jgjpj2.append(jgjpj)
+            jgjpj = []
+
+            if self.mbj == ["填充"]:
+                self.im2.remove()
+                self.im2 = self.ax1.scatter(mbjx,mbjy,c='red',s=100) #画目标井
+            else:
+                self.im2 = self.ax1.scatter(mbjx, mbjy, c='red', s=100)  # 画目标井
+            self.fig1.fig.canvas.draw()  ##刷新
+            self.mbj = ["填充"]
+
+    @pyqtSlot(str)  # 选择相关注水井
+    def on_comboBox_5_activated(self, curText):
+
+        comBoxin = self.ui.comboBox_5.currentIndex()
+        if comBoxin > 0:
+            comBoxzhi = self.ui.comboBox_5.currentText() #所选的注水井
+
+            jgjpj = []
+            for i in range(len(DJDZSJ)):
+                if comBoxzhi == list(DJDZSJ.keys())[i]:
+                    if DJDZSJ[list(DJDZSJ.keys())[i]][2] == '0':
+                        mbjy1 = float(DJDZSJ[list(DJDZSJ.keys())[i]][0]) #目标井y轴坐标
+                        mbjx1 = float(DJDZSJ[list(DJDZSJ.keys())[i]][1]) #目标井x轴坐标
+                    else:
+                        mbjy1 = float(DJDZSJ[list(DJDZSJ.keys())[i]][2])
+                        mbjx1 = float(DJDZSJ[list(DJDZSJ.keys())[i]][3])
+            jgjpj.append(comBoxzhi)#选择目标井周围的注水井
+            jgjpj.append(mbjx1)
+            jgjpj.append(mbjy1)
+            jgjpj1.append(jgjpj)
+            jgjpj = []
+
+            im3 = self.ax1.scatter(mbjx1, mbjy1, c='blue', s=100) #画注水井
+            print(jgjpj1)
+            self.fig1.fig.canvas.draw()  ##刷新
 
     @pyqtSlot()#创建复杂结构井部署方案
     def on_pushButton_7_clicked(self):
-        print()
+        comBoxin = self.ui.comboBox_4.currentIndex()
+        if comBoxin > 0:
+            comBoxzhi = self.ui.comboBox_4.currentText() # 所选的目标井
 
+            jgjpj = []
+            # 结构井评价，用于统计目标井周围的注水井的信息
+            for i in range(len(DJDZSJ)):
+                if comBoxzhi == list(DJDZSJ.keys())[i]:
+                    if DJDZSJ[list(DJDZSJ.keys())[i]][2] == '0':
+                        mbjy = float(DJDZSJ[list(DJDZSJ.keys())[i]][0])  # 目标井y轴坐标
+                        mbjx = float(DJDZSJ[list(DJDZSJ.keys())[i]][1])  # 目标井x轴坐标
+                    else:
+                        mbjy = float(DJDZSJ[list(DJDZSJ.keys())[i]][2])
+                        mbjx = float(DJDZSJ[list(DJDZSJ.keys())[i]][3])
 
+            im4 = self.ax1.plot([mbjx, mbjx], [mbjy, mbjy + 150],c='red')
+            jgjpj.append("方案一")
+            jgjpj.append(mbjx)
+            jgjpj.append(mbjy + 150)
+            jgjpj2.append(jgjpj)
+            jgjpj = []
+            im5 = self.ax1.plot([mbjx, mbjx + 106], [mbjy, mbjy + 106], c='red')
+            jgjpj.append("方案二")
+            jgjpj.append(mbjx + 106)
+            jgjpj.append(mbjy + 106)
+            jgjpj2.append(jgjpj)
+            jgjpj = []
+            im6 = self.ax1.plot([mbjx, mbjx + 150], [mbjy, mbjy], c='red')
+            jgjpj.append("方案三")
+            jgjpj.append(mbjx + 150)
+            jgjpj.append(mbjy)
+            jgjpj2.append(jgjpj)
+            jgjpj = []
+            im7 = self.ax1.plot([mbjx, mbjx + 106], [mbjy, mbjy - 106], c='red')
+            jgjpj.append("方案四")
+            jgjpj.append(mbjx + 106)
+            jgjpj.append(mbjy - 106)
+            jgjpj2.append(jgjpj)
+            jgjpj = []
+            im8 = self.ax1.plot([mbjx, mbjx], [mbjy, mbjy - 150], c='red')
+            jgjpj.append("方案五")
+            jgjpj.append(mbjx)
+            jgjpj.append(mbjy - 150)
+            jgjpj2.append(jgjpj)
+            jgjpj = []
+            im9 = self.ax1.plot([mbjx, mbjx - 106], [mbjy, mbjy - 106], c='red')
+            jgjpj.append("方案六")
+            jgjpj.append(mbjx - 106)
+            jgjpj.append(mbjy - 106)
+            jgjpj2.append(jgjpj)
+            jgjpj = []
+            im10 = self.ax1.plot([mbjx, mbjx - 150], [mbjy, mbjy], c='red')
+            jgjpj.append("方案七")
+            jgjpj.append(mbjx - 150)
+            jgjpj.append(mbjy)
+            jgjpj2.append(jgjpj)
+            jgjpj = []
+            im11 = self.ax1.plot([mbjx, mbjx - 106], [mbjy, mbjy + 106], c='red')
+            jgjpj.append("方案八")
+            jgjpj.append(mbjx - 106)
+            jgjpj.append(mbjy + 106)
+            jgjpj2.append(jgjpj)
+            jgjpj = []
 
+            print(jgjpj2)
+
+            self.fig1.fig.canvas.draw()  ##刷新
     @pyqtSlot()#计算流动势/动量势
-    def on_pushButton_7_clicked(self):
-        print()
+    def on_pushButton_8_clicked(self):
+
+        for i in range(1,len(jgjpj2)): #侧钻井
+            for j in range(len(jgjpj1)): #注水井
+                Shi = 0
+                d11 = 0
+                d1 = round(((jgjpj1[j][2] - jgjpj2[0][2]) ** 2 + (jgjpj1[j][1] - jgjpj2[0][1]) ** 2) ** 0.5)
+                d2 = round(((jgjpj1[j][2] - jgjpj2[i][2]) ** 2 + (jgjpj1[j][1] - jgjpj2[i][1]) ** 2) ** 0.5)
+
+                for k in range(min(list([d1,d2])),max(list([d1,d2]))):
+                    Shi = Shi + 3.14 * 0.3 * self.stepx / np.log(k * 100 / 10)
+                    d11 = Shi * np.cos(np.arctan(((jgjpj2[0][1] + jgjpj2[i][1]) / 2 - jgjpj1[j][1]) / ((jgjpj2[0][2] + jgjpj2[i][2]) / 2 - jgjpj1[j][2])))
+
+                    if jgjpj1[j][2] > (jgjpj2[0][2] + jgjpj2[i][2]) / 2:
+                        d11 = d11 * -1
+
+                jgjpj1[j].append(Shi)
+                jgjpj1[j].append(d11)
+
+            lShi = 0
+            dShi = 0
+
+            for j in range(len(jgjpj1)):
+                for k in range(3,len(jgjpj1[j])):
+                    lShi = lShi + jgjpj1[j][3]
+                    dShi = dShi + jgjpj1[j][4]
+
+            jgjpj2[i].append(lShi)
+            jgjpj2[i].append(abs(dShi))
+
+        jgjpj2[0].append("流量势")
+        jgjpj2[0].append("动量势")
+
+        print(jgjpj2)
+
+        headerText = ["方案号", "X坐标", "Y坐标", "流量势", "能量势"]
+
+        self.ui.tableWidget_7.setColumnCount(len(headerText))
+        self.ui.tableWidget_7.setHorizontalHeaderLabels(headerText)
+        self.ui.tableWidget_7.clearContents()
+        self.ui.tableWidget_7.setRowCount(len(jgjpj2))
+        self.ui.tableWidget_7.setAlternatingRowColors(True)
+
+        for i in range(0, len(jgjpj2)):
+            for j in range(0, len(jgjpj2[i])):
+                item = QTableWidgetItem(str(jgjpj2[i][j]))
+                item.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
+                          | Qt.ItemIsUserCheckable)  # 不允许编辑文字
+                self.ui.tableWidget_7.setItem(i, j, item)
+
 
 
 if __name__ == "__main__":  # 用于当前窗体测试
