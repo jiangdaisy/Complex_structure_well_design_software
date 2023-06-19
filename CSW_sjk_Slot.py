@@ -63,6 +63,11 @@ class QmyMainWindow(QMainWindow):
         self.qlqTableList = []
         self.mbj = []
 
+        self.XMXYXHD = []
+        self.XMXSTLQ = []
+        self.XMXKXD = []
+        self.XMXBHD = []
+
         # 展开节点
         self.ui.treeWidget.topLevelItem(0).setExpanded(True)
         self.ui.treeWidget.topLevelItem(1).setExpanded(True)
@@ -2037,7 +2042,11 @@ class QmyMainWindow(QMainWindow):
 
             xb, yb = np.meshgrid(xb, yb)
 
+            self.XMXxb = xb
+            self.XMXyb = yb
+
             bhdq = griddata((x, y), v, (xb, yb), method="linear")
+
 
             self.qlqBinary[comBoxzhi] = bhdq
             self.qlqXb[comBoxzhi] = xb
@@ -2236,6 +2245,216 @@ class QmyMainWindow(QMainWindow):
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled
                           | Qt.ItemIsUserCheckable)  # 不允许编辑文字
                 self.ui.tableWidget_7.setItem(i, j, item)
+
+
+
+    @pyqtSlot()#导出小模型
+    def on_pushButton_9_clicked(self):
+
+        labText = "正在导出小模型..."  # 文本信息
+        btnText = "取消"  # "取消"按钮的标
+        minV = 0
+        maxV = len(self.qlqFloor)
+
+        dlgProgress = QProgressDialog(labText, btnText, minV, maxV, self)
+        dlgProgress.setWindowTitle("导出中")
+        dlgProgress.setWindowModality(Qt.WindowModal)  # 模态对话框
+        dlgProgress.setAutoReset(True)  # value()达到最大值时自动调用reset()
+        dlgProgress.setAutoClose(True)  # 调用reset()时隐藏窗口
+
+        pross = 0
+
+        for qlqFloorName in self.qlqFloor:
+            pross = pross + 1
+
+            dlgProgress.setValue(pross)
+            dlgProgress.setLabelText("正在计算数据,第 %d 个" % pross)
+
+            x = BHD[qlqFloorName][0]  # float 型
+            y = BHD[qlqFloorName][1]
+            v = BHD[qlqFloorName][2]
+
+            for i in range(len(v)):
+                if v[i] == -999:
+                    v[i] = 0
+
+            x = np.array(x)
+            y = np.array(y)
+            v = np.array(v)
+
+            x = x.T
+            y = y.T
+            v = v.T
+
+
+            xb = self.XMXxb
+            yb = self.XMXyb
+
+
+
+            bhdq = griddata((x, y), v, (xb, yb), method="linear")
+            self.XMXBHD.append(bhdq)
+
+
+
+            floor = CJDYSJ[qlqFloorName]  # float 型
+            sycd = {}
+
+            floor = np.array(floor)
+            floor = floor.T
+            floor = floor.tolist()
+            # wellNum = floor[2]
+            x = []
+            y = []
+
+            for i, sycdaction in enumerate(floor[16]):
+                if sycdaction != "":
+                    sycd[floor[2][i]] = sycdaction
+
+            bj1 = 1
+            bj2 = 1
+            yxhd = []
+            yxhd1 = float(floor[13][0])
+            kxd = []
+            kxd1 = float(floor[14][0])
+            stl = []
+            stl1 = float(floor[15][0])
+            wellNum = []
+
+            for i in range(1, len(floor[0]) - 1):
+                if floor[2][i] == floor[2][i - 1]:
+
+                    yxhd1 = yxhd1 + float(floor[13][i])
+                    if float(floor[14][i]) == 0:
+                        kxd1 = kxd1 + float(floor[14][i])
+                    else:
+                        bj1 = bj1 + 1
+                        kxd1 = kxd1 + float(floor[14][i])
+
+                    if float(floor[15][i]) == 0:
+                        stl1 = stl1 + float(floor[15][i])
+                    else:
+                        bj2 = bj2 + 1
+                        stl1 = stl1 + float(floor[15][i])
+                else:
+                    for j in range(len(DJDZSJ)):
+                        if floor[2][i - 1] == list(DJDZSJ.keys())[j]:
+                            if DJDZSJ[list(DJDZSJ.keys())[j]][2] == '0':
+                                y.append(DJDZSJ[list(DJDZSJ.keys())[j]][0])
+                                x.append(DJDZSJ[list(DJDZSJ.keys())[j]][1])
+                            else:
+                                y.append(DJDZSJ[list(DJDZSJ.keys())[j]][2])
+                                x.append(DJDZSJ[list(DJDZSJ.keys())[j]][3])
+                            wellNum.append(floor[2][i - 1])
+                            yxhd.append(str(yxhd1))
+                            kxd.append(str(kxd1 / bj1))
+                            stl.append(str(stl1 / bj2))
+
+                    bj1 = 1
+                    bj2 = 1
+                    yxhd1 = float(floor[13][i])
+                    kxd1 = float(floor[14][i])
+                    stl1 = float(floor[15][i])
+
+            x = np.array(x)
+            y = np.array(y)
+            yxhd = np.array(yxhd)
+            stl = np.array(stl)
+            kxd = np.array(kxd)
+
+            x = x.T
+            y = y.T
+            yxhd = yxhd.T
+            stl = stl.T
+            kxd = kxd.T
+
+            xb = self.XMXxb
+            yb = self.XMXyb
+
+            yxhdq = griddata((x, y), yxhd, (xb, yb), method="linear")
+            stlq = griddata((x, y), stl, (xb, yb), method="linear")
+            kxdq = griddata((x, y), kxd, (xb, yb), method="linear")
+
+            self.XMXKXD.append(kxdq)
+            self.XMXSTLQ.append(stlq)
+            self.XMXYXHD.append(yxhdq)
+
+
+
+        # #####################################################################################################
+
+        curPath = QDir.currentPath()  # 获取系统当前目录
+        title = "另存为一个文件"
+        filt = "(*.txt);;所有文件(*.*)"
+        fileName, flt = QFileDialog.getSaveFileName(self, title, curPath, filt)
+        if (fileName == ""):
+            return
+        if self.__saveByStream(fileName):
+            print(fileName)
+        else:
+            QMessageBox.critical(self, "错误", "保存文件失败")
+
+    def __saveByStream(self, fileName):  ##用 QTextStream 保存文件
+        fileDevice = QFile(fileName)
+        if not fileDevice.open(QIODevice.WriteOnly | QIODevice.Text):
+            return False
+        try:
+            fileStream = QTextStream(fileDevice)  # 用文本流读取文件
+            fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
+            fileStream.setCodec("utf-8")  # 必须设置编码,否则不能正常显示汉字
+
+            fileStream << "RESULTS SIMULATOR STARS 201410\n" \
+                          "INUNIT SI\n" \
+                          "OUTUNIT SI \n" \
+                          "OUTPRN GRID PRES TEMP SG SO SW VISO VISW \n" \
+                          "OUTSRF GRID ADSORP CMPVISO CMPVISW FLUXRC PERMEFFI PERMEFFJ PERMEFFK PERMI PERMINTI PERMINTJ PERMINTK \n" \
+                          "            PERMJ PERMK PRES SG SO MOLE SOLCONC STRMLN SW TEMP VISO VISW \n" \
+                          "            VPOROS VPOROSGEO VPOROSTGEO W X Y \n" \
+                          "REWIND 10\n" \
+                          "OUTPRN ITER NEWTON\n" \
+                          "WSRF WELL TIME \n" \
+                          "WSRF GRID TNEXT\n" \
+                          "WSRF SECTOR TIME\n" \
+                          "OUTPRN WELL WELLCOMP\n" \
+                          "WPRN GRID TNEXT\n" \
+                          "RESULTS SUBMODEL_REFSS 428800\n" \
+                          "RESULTS SUBMODEL_REFSS 5\n" \
+                          "RESULTS SUBMODEL_REFSS 0\n" \
+                          "RESULTS SUBMODEL_REFSS 0\n" \
+                          "RESULTS SUBMODEL_REFSS 20\n" \
+                          "RESULTS SUBMODEL_REFSS 428800\n" \
+                          "RESULTS SUBMODEL_REFSS 0\n" \
+                          "RESULTS SUBMODEL_REFSS 428800\n" \
+                          "**  Distance units: m\n" \
+                          "RESULTS XOFFSET           0.0000\n" \
+                          "RESULTS YOFFSET           0.0000\n" \
+                          "**  (DEGREES)\n" \
+                          "RESULTS ROTATION           0.0000  **  (DEGREES)\n" \
+                          "RESULTS AXES-DIRECTIONS 1.0 1.0 1.0\n" \
+                          "RESULTS SUBMODEL_REFSS 686\n" \
+                          "** ***************************************************************************\n" \
+                          "** Definition of fundamental corner point grid\n" \
+                          "** ***************************************************************************\n" \
+                          "GRID VARI" # 使用流操作符写入
+            fileStream << str(len(self.XMXxb[0])) + "\t"
+            fileStream << str(len(self.XMXyb[0])) + "\t"
+            fileStream << str(len(self.qlqFloor)) + "\t\n"
+            for f in self.XMXYXHD:
+                for row in f:
+                    for xmxyxhd in row:
+                        fileStream << str(round(xmxyxhd, 2)) + "\t"
+                    fileStream << "\n"
+
+
+
+
+
+
+
+
+        finally:
+            fileDevice.close()
+        return True
 
 
 
