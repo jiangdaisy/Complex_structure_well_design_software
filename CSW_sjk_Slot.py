@@ -64,7 +64,7 @@ class QmyMainWindow(QMainWindow):
         self.mbj = []
 
         self.XMXYXHD = []
-        self.XMXSTLQ = []
+        self.XMXSTL = []
         self.XMXKXD = []
         self.XMXBHD = []
 
@@ -2376,7 +2376,7 @@ class QmyMainWindow(QMainWindow):
             kxdq = griddata((x, y), kxd, (xb, yb), method="linear")
 
             self.XMXKXD.append(kxdq)
-            self.XMXSTLQ.append(stlq)
+            self.XMXSTL.append(stlq)
             self.XMXYXHD.append(yxhdq)
 
 
@@ -2435,16 +2435,151 @@ class QmyMainWindow(QMainWindow):
                           "** ***************************************************************************\n" \
                           "** Definition of fundamental corner point grid\n" \
                           "** ***************************************************************************\n" \
-                          "GRID VARI" # 使用流操作符写入
+                          "GRID VARI\t" # 使用流操作符写入
             fileStream << str(len(self.XMXxb[0])) + "\t"
             fileStream << str(len(self.XMXyb[0])) + "\t"
             fileStream << str(len(self.qlqFloor)) + "\t\n"
+            fileStream << "KDIR DOWN\n" + str(len(self.XMXxb[0])) + "*" + str(self.stepx)
+            fileStream << "DJ JVAR \n" + str(len(self.XMXyb[0])) + "*" + str(self.stepy)
+            fileStream << "DK ALL\n"
             for f in self.XMXYXHD:
                 for row in f:
-                    for xmxyxhd in row:
-                        fileStream << str(round(xmxyxhd, 2)) + "\t"
+                    for point in row:
+                        if np.isnan(point) == True:
+                            fileStream << "0" + "\t"
+                        else:
+                            fileStream << str(round(point, 2)) + "\t"
                     fileStream << "\n"
 
+            fileStream << "NULL ALL\n"
+            for f in self.XMXYXHD:
+                for row in f:
+                    for _ in row:
+                            fileStream << "1" + "\t"
+                    fileStream << "\n"
+
+            fileStream << "POR ALL\n"
+            for f in self.XMXKXD:
+                for row in f:
+                    for point in row:
+                        if np.isnan(point) == True:
+                            fileStream << "0" + "\t"
+                        else:
+                            fileStream << str(round(point, 2)) + "\t"
+                    fileStream << "\n"
+
+            fileStream << "PERMI ALL\n"
+            for f in self.XMXSTL:
+                for row in f:
+                    for point in row:
+                        if np.isnan(point) == True:
+                            fileStream << "0" + "\t"
+                        else:
+                            fileStream << str(round(point, 2)) + "\t"
+                    fileStream << "\n"
+
+            fileStream << "PERMJ EQUALSI\n" \
+                          "PERMK EQUALSI * 0.8\n" \
+                          "END-GRID\n" \
+                          "*ROCKTYPE 1\n" \
+                          "*PRPOR 9376.6\n" \
+                          "*CPOR 8.6E-06\n" \
+                          "**  ==============  FLUID DEFINITIONS  ======================\n" \
+                          "** Model and number of components\n" \
+                          "MODEL 5 5 5 4\n" \
+                          "COMPNAME 'WATER' 'Polymer' 'Alkaline' 'Surfact' 'OIL' \n" \
+                          "CMM\n" \
+                          "0.018 8 0.04 0.4 0.456\n" \
+                          "PCRIT\n" \
+                          "0 0 0 0 0 \n" \
+                          "TCRIT\n" \
+                          "0 0 0 0 0 \n" \
+                          "PRSR 8000\n" \
+                          "TEMR 50\n" \
+                          "PSURF 101.325\n" \
+                          "TSURF 25\n" \
+                          "MASSDEN\n" \
+                          "1000 0 0 0 866.5 \n" \
+                          "CP\n" \
+                          "3.75E-07 0 0 0 4.5E-06 \n" \
+                          "AVISC\n" \
+                          "1.2 50 1.2 1.2 7.09 \n" \
+                          "BVISC\n" \
+                          "0 0 0 0 0 \n" \
+                          "VSMIXCOMP 'Polymer'\n" \
+                          "VSMIXENDP 0 6.75E-06 \n" \
+                          "VSMIXFUNC 0 0.2922029 0.3949899 0.4902958 0.5569731 0.6186517 0.6643415 0.7104549 0.7667288 0.8387194 0.8995727 \n" \
+                          "**  ==============  ROCK-FLUID PROPERTIES  ======================\n" \
+                          "*ROCKFLUID\n" \
+                          "RPT 1 WATWET\n" \
+                          "**        Sw       krw      krow      Pcow\n" \
+                          "SWT\n" \
+                          "        0.260              0              1      53.3\n" \
+                          "        0.281           0.01   0.9321074965      36.3\n" \
+                          "        0.320  0.02587519026   0.7963224894      28.3\n" \
+                          "        0.359  0.04414003044   0.6506364922      22.8\n" \
+                          "        0.389  0.05936073059   0.5417256011      20.0\n" \
+                          "        0.418   0.0700152207   0.4526166902      17.5\n" \
+                          "        0.447  0.08219178082   0.3776520509      14.8\n" \
+                          "        0.477  0.09893455099   0.2927864215      12.0\n" \
+                          "        0.505   0.1141552511   0.2206506365      10.3\n" \
+                          "        0.535   0.1301272984   0.1640735502       9.3\n" \
+                          "        0.564     0.14427157   0.1244695898       7.5\n" \
+                          "        0.593   0.1555869873   0.1004243281       5.8\n" \
+                          "        0.623   0.1739745403  0.08203677511       3.3\n" \
+                          "        0.652   0.1937765205  0.06506364922       2.0\n" \
+                          "        0.682   0.2121640736  0.04667609618       0.5\n" \
+                          "         0.77   0.2531824611              0       0.2\n" \
+                          "        1.000   0.3515981735              0       0.0\n" \
+                          "**        Sl       krg      krog      Pcog\n" \
+                          "SLT NOSWC\n" \
+                          "            0         1         0         0\n" \
+                          "         0.05    0.7905    0.0002         0\n" \
+                          "       0.0805    0.5988    0.0064         0\n" \
+                          "       0.0957    0.5162    0.0102         0\n" \
+                          "       0.1262    0.3752    0.0184         0\n" \
+                          "       0.1415    0.3159    0.0229         0\n" \
+                          "        0.172    0.2176     0.034         0\n" \
+                          "       0.1872    0.1777    0.0412         0\n" \
+                          "       0.2177    0.1143    0.0613         0\n" \
+                          "        0.233    0.0898    0.0755         0\n" \
+                          "       0.2635    0.0531    0.1157         0\n" \
+                          "       0.2635    0.0531    0.1157         0\n" \
+                          "       0.2635    0.0531    0.1157         0\n" \
+                          "       0.3702    0.0079    0.4913         0\n" \
+                          "       0.4007    0.0042    0.7092         0\n" \
+                          "       0.7589         0         1         0\n" \
+                          "ADSCOMP 'Polymer' WATER\n" \
+                          "*ADSPHBLK *W\n" \
+                          "ADSTABLE\n" \
+                          "**  Mole Fraction  Adsorbed moles per unit pore volume\n" \
+                          "        0.00000000                              0.00000\n" \
+                          "        0.00018000                              0.00030\n" \
+                          "        0.00036000                              0.00040\n" \
+                          "        0.00054000                              0.00041\n" \
+                          "        0.00072000                              0.00043\n" \
+                          "        0.00090000                              0.00045\n" \
+                          "        0.00108000                              0.00047\n" \
+                          "ADMAXT 4.450e-5\n" \
+                          "ADRT 4.450e-5\n" \
+                          "PORFT 0.9\n" \
+                          "RRFT 2.5\n" \
+                          "INITIAL\n" \
+                          "VERTICAL DEPTH_AVE\n" \
+                          "INITREGION 1\n" \
+                          "REFPRES 7500\n" \
+                          "REFDEPTH 750\n" \
+                          "TEMP CON  50\n" \
+                          "SW ALL\n"
+
+            for f in self.XMXBHD:
+                for row in f:
+                    for point in row:
+                        if np.isnan(point) == True:
+                            fileStream << "0" + "\t"
+                        else:
+                            fileStream << str(round(1 - point, 2)) + "\t"
+                    fileStream << "\n"
 
 
 
