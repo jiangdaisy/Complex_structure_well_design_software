@@ -79,7 +79,7 @@
        </property>
        <item>
         <property name="text">
-         <string>油水井史</string>
+         <string>注水井史</string>
         </property>
        </item>
        <item>
@@ -105,6 +105,11 @@
        <item>
         <property name="text">
          <string>措施数据</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>采油井史</string>
         </property>
        </item>
       </item>
@@ -137,8 +142,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>378</width>
-         <height>911</height>
+         <width>380</width>
+         <height>978</height>
         </rect>
        </property>
        <attribute name="label">
@@ -323,8 +328,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>378</width>
-         <height>911</height>
+         <width>380</width>
+         <height>978</height>
         </rect>
        </property>
        <attribute name="label">
@@ -516,8 +521,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>378</width>
-         <height>911</height>
+         <width>380</width>
+         <height>978</height>
         </rect>
        </property>
        <attribute name="label">
@@ -563,8 +568,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>378</width>
-         <height>911</height>
+         <width>380</width>
+         <height>978</height>
         </rect>
        </property>
        <attribute name="label">
@@ -607,8 +612,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>378</width>
-         <height>911</height>
+         <width>380</width>
+         <height>978</height>
         </rect>
        </property>
        <attribute name="label">
@@ -654,8 +659,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>527</width>
-         <height>885</height>
+         <width>382</width>
+         <height>961</height>
         </rect>
        </property>
        <attribute name="label">
@@ -1003,6 +1008,14 @@
        </layout>
       </widget>
       <widget class="QWidget" name="page_7">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>459</width>
+         <height>961</height>
+        </rect>
+       </property>
        <attribute name="label">
         <string>复杂结构井设计</string>
        </attribute>

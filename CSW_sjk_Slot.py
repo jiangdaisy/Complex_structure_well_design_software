@@ -34,7 +34,7 @@ XSPMSJ = []
 SKSJ = []
 CSSJ = []
 CJDYSJ = {}
-ZSJS = []
+ZSJS = {}
 XSQX = []
 CYJS = []
 DS = []
@@ -86,6 +86,7 @@ class QmyMainWindow(QMainWindow):
         self.ui.treeWidget.topLevelItem(1).child(3).setIcon(0, QtGui.QIcon('images/122.bmp'))
         self.ui.treeWidget.topLevelItem(1).child(4).setIcon(0, QtGui.QIcon('images/122.bmp'))
         self.ui.treeWidget.topLevelItem(1).child(5).setIcon(0, QtGui.QIcon('images/122.bmp'))
+        self.ui.treeWidget.topLevelItem(1).child(6).setIcon(0, QtGui.QIcon('images/122.bmp'))
 
         self.setWindowState(Qt.WindowMaximized)  # 窗口最大化显示
         # self.ui.tabWidget.setVisible(False)  # 隐藏
@@ -487,6 +488,18 @@ class QmyMainWindow(QMainWindow):
 
                 fig3.fig.canvas.draw()  ##刷新
                 print(item.text(0))
+
+            elif itemParent.text(0) == "注水井史":
+
+                title = itemParent.text(0) + ":" + item.text(0)
+                fig1 = QmyFigure(self)
+                fig1.splitter.addWidget(fig1.comboBox)
+
+                fig1.setAttribute(Qt.WA_DeleteOnClose)
+                curIndex = self.ui.tabWidget.addTab(fig1, title)  # 添加到tabWidget
+                self.ui.tabWidget.setCurrentIndex(curIndex)
+
+
 
         except AttributeError:
             print("AttributeError")
@@ -1004,11 +1017,27 @@ class QmyMainWindow(QMainWindow):
                 fileStream = QTextStream(fileDevice)
                 fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
                 fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
+                i = 0
                 while not fileStream.atEnd():
+                    i = i + 1
                     lineStr = fileStream.readLine()  # 返回QByteArray类型
-
                     lineList = lineStr.split("\t")
-                    ZSJS.append(lineList)
+
+                    if i == 1:
+                        continue
+
+                    if lineList[1] in ZSJS:
+                        ZSJS[lineList[1]].append(lineList)
+                    else:
+                        ZSJS[lineList[1]] = []
+                        ZSJS[lineList[1]].append(lineList)
+                        item = QTreeWidgetItem()
+                        item.setText(0, lineList[1])
+                        item.setIcon(0, QtGui.QIcon('images/29.ico'))
+                        self.ui.treeWidget.topLevelItem(1).child(0).addChild(item)
+
+
+
 
             except UnicodeDecodeError:
                 print(fileName[0] + "文件编码格式有误！")
@@ -1016,12 +1045,7 @@ class QmyMainWindow(QMainWindow):
             finally:
                 fileDevice.close()
 
-            # print(self.XSPMSJ[-1])
 
-            item = QTreeWidgetItem()
-            item.setText(0, "注水井史")
-            item.setIcon(0, QtGui.QIcon('images/29.ico'))
-            self.ui.treeWidget.topLevelItem(1).child(0).addChild(item)
         self.ui.treeWidget.topLevelItem(1).child(0).setExpanded(True)
 
     @pyqtSlot()

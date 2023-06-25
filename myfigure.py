@@ -32,39 +32,29 @@ class QmyFigure(QMainWindow):
         super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.comboBox = QtWidgets.QComboBox()
 
         self.createFigure()  # 创建Figure和FigureCanvas对象，初始化界面
 
 
 
     def createFigure(self):
-        ##      self.__fig=mpl.figure.Figure(figsize=(8, 5),constrained_layout=True, tight_layout=None)  #单位英寸
-        ##      self.__fig=mpl.figure.Figure(figsize=(8, 5))  #单位英寸
+
         self.fig = Figure()
-        # self.fig.tight_layout()
+
         figCanvas = FigureCanvas(self.fig)  # 创建FigureCanvas对象，必须传递一个Figure对象
-
-        # self.__fig.suptitle("数据展示区", fontsize=16, fontweight='bold')  # 总的图标题
-
         naviToolbar = NavigationToolbar(figCanvas, self)  # 创建NavigationToolbar工具栏
 
         # actList = naviToolbar.actions()  # 关联的Action列表
         # count = len(actList)  # Action的个数
         # lastAction = actList[count - 1]  # 最后一个Action
 
-        # self.progressLable = QLabel("当前子图")
-        # self.progressLable.setVisible(False)
-        # naviToolbar.insertWidget(lastAction, self.progressLable)
-        #
-        # self.progressBar = QtWidgets.QProgressBar()
-        # self.progressBar.setVisible(False)
-        # naviToolbar.insertWidget(lastAction, self.progressBar)
 
         self.addToolBar(naviToolbar)
-        splitter = QSplitter(self)
-        splitter.setOrientation(Qt.Horizontal)
-        splitter.addWidget(figCanvas)  # 右侧FigureCanvas对象
-        self.setCentralWidget(splitter)
+        self.splitter = QSplitter(self)
+        self.splitter.setOrientation(Qt.Vertical)
+        self.splitter.addWidget(figCanvas)  # 右侧FigureCanvas对象
+        self.setCentralWidget(self.splitter)
 
 
 import sys
