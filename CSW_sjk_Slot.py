@@ -9,7 +9,7 @@ from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSlot, Qt, QThread, pyqtSignal
 import matplotlib as mpl
 import matplotlib.style as mplStyle
-
+from matplotlib import pyplot as plt
 from scipy.interpolate import griddata
 
 from CSw_sjk import Ui_MainWindow
@@ -492,17 +492,49 @@ class QmyMainWindow(QMainWindow):
             elif itemParent.text(0) == "注水井史":
 
                 title = itemParent.text(0) + ":" + item.text(0)
-                fig1 = QmyFigure(self)
-                fig1.splitter.addWidget(fig1.comboBox)
+                self.zsjsfig1 = QmyFigure(self)
 
-                fig1.setAttribute(Qt.WA_DeleteOnClose)
-                curIndex = self.ui.tabWidget.addTab(fig1, title)  # 添加到tabWidget
+                self.zsjsfig1.splitter.addWidget(self.zsjsfig1.comboBox)
+                self.zsjsfig1.comboBox.activated.connect(self.on_zsjscomBox)
+                self.zsjsfig1.comboBox.addItem("绘制曲线")
+                self.zsjsfig1.comboBox.addItem("油压")
+                self.zsjsfig1.comboBox.addItem("日注水量")
+                self.zsjsfig1.comboBox.addItem("累产水量")
+                self.zsjsfig1.comboBox.addItem("删除曲线")
+                self.zsjswellnum = item.text(0)
+                self.zsjsfig1.setAttribute(Qt.WA_DeleteOnClose)
+                curIndex = self.ui.tabWidget.addTab(self.zsjsfig1, title)  # 添加到tabWidget
                 self.ui.tabWidget.setCurrentIndex(curIndex)
 
 
 
         except AttributeError:
             print("AttributeError")
+
+
+    def on_zsjscomBox(self):
+        curText = self.zsjsfig1.comboBox.currentText()
+        if curText == "油压":
+            x = ZSJS[self.zsjswellnum][0]
+            y = ZSJS[self.zsjswellnum][6]
+            ax = self.zsjsfig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+            ax.set_xlabel('X 轴')  # X轴标题
+            ax.set_ylabel('Y 轴')  # Y轴标题
+            ax.set_title(self.zsjswellnum + "油压")
+            ax.plot(x, y)
+
+            plt.plot(x, y)
+            plt.show()
+
+        elif curText == "日注水量":
+            print("日注水量")
+        elif curText == "累产水量":
+            print("")
+
+
+
+
+
 
     ##导入沉积相数据
     @pyqtSlot()
