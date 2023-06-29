@@ -23,6 +23,7 @@ from myfigure import QmyFigure
 
 import numpy as np
 import CSw_dcfbx_Slot
+import datetime
 
 CJX = {}
 BHD = {}
@@ -491,46 +492,99 @@ class QmyMainWindow(QMainWindow):
 
             elif itemParent.text(0) == "注水井史":
 
-                # title = itemParent.text(0) + ":" + item.text(0)
-                # self.zsjsfig1 = QmyFigure(self)
-                #
-                # self.zsjsfig1.splitter.addWidget(self.zsjsfig1.comboBox)
-                # self.zsjsfig1.comboBox.activated.connect(self.on_zsjscomBox)
-                # self.zsjsfig1.comboBox.addItem("绘制曲线")
-                # self.zsjsfig1.comboBox.addItem("油压")
-                # self.zsjsfig1.comboBox.addItem("日注水量")
-                # self.zsjsfig1.comboBox.addItem("累产水量")
-                # self.zsjsfig1.comboBox.addItem("删除曲线")
-                # self.zsjswellnum = item.text(0)
-                # self.zsjsfig1.setAttribute(Qt.WA_DeleteOnClose)
-                # curIndex = self.ui.tabWidget.addTab(self.zsjsfig1, title)  # 添加到tabWidget
-                # self.ui.tabWidget.setCurrentIndex(curIndex)
+                self.zsjstitle = itemParent.text(0) + ":" + item.text(0)
+
+
+
+                self.zsjswellnum = item.text(0)
+                x = ZSJS[self.zsjswellnum][0]
+                y = ZSJS[self.zsjswellnum][6]
+                ax = self.zsjsfig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+                ax.set_xlabel('X 轴')  # X轴标题
+                ax.set_ylabel('Y 轴')  # Y轴标题
+                ax.set_title(self.zsjswellnum + "油压")
+                ax.plot(x, y)
 
 
 
         except AttributeError:
             print("AttributeError")
 
-    @pyqtSlot(str)  #层间连通性判断得下拉列表变化时运行得函数
+    @pyqtSlot(str)  #注水井史展示下拉列表变化时运行得函数
     def on_comboBox_6_activated(self, curText):
 
 
 
 
         if curText == "油压":
-            x = ZSJS[self.zsjswellnum][0]
-            y = ZSJS[self.zsjswellnum][6]
-            # ax = self.zsjsfig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
-            # ax.set_xlabel('X 轴')  # X轴标题
-            # ax.set_ylabel('Y 轴')  # Y轴标题
-            # ax.set_title(self.zsjswellnum + "油压")
-            # ax.plot(x, y)
+
+            fig1 = QmyFigure(self)
+            fig1.setAttribute(Qt.WA_DeleteOnClose)
+            curIndex = self.ui.tabWidget.addTab(fig1, self.zsjstitle)  # 添加到tabWidget
+            self.ui.tabWidget.setCurrentIndex(curIndex)
+
+            data = [list(i) for i in zip(*ZSJS[self.zsjswellnum])]
+            # data = data.T
+
+            x = data[2]
+            y = data[8]
+
+            for i, time in enumerate(x):
+                year = time[0:4]
+                mounth = time[4:]
+                x[i] = year + "-" + mounth
+
+            ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+            ax.set_xlabel('X 轴')  # X轴标题
+            ax.set_ylabel('Y 轴')  # Y轴标题
+            ax.set_title(self.zsjswellnum + "油压")
+            ax.plot(x, y)
 
 
         elif curText == "日注水量":
-            print("日注水量")
+
+            fig1 = QmyFigure(self)
+            fig1.setAttribute(Qt.WA_DeleteOnClose)
+            curIndex = self.ui.tabWidget.addTab(fig1, self.zsjstitle)  # 添加到tabWidget
+            self.ui.tabWidget.setCurrentIndex(curIndex)
+
+            data = [list(i) for i in zip(*ZSJS[self.zsjswellnum])]
+
+            x = data[2]
+            y = data[6]
+
+            for i, time in enumerate(x):
+                year = time[0:4]
+                mounth = time[4:]
+                x[i] = year + "-" + mounth
+
+            ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+            ax.set_xlabel('X 轴')  # X轴标题
+            ax.set_ylabel('Y 轴')  # Y轴标题
+            ax.set_title(self.zsjswellnum + "日产水量")
+            ax.plot(x, y)
         elif curText == "累产水量":
-            print("")
+
+            fig1 = QmyFigure(self)
+            fig1.setAttribute(Qt.WA_DeleteOnClose)
+            curIndex = self.ui.tabWidget.addTab(fig1, self.zsjstitle)  # 添加到tabWidget
+            self.ui.tabWidget.setCurrentIndex(curIndex)
+
+            data = [list(i) for i in zip(*ZSJS[self.zsjswellnum])]
+
+            x = data[2]
+            y = data[14]
+
+            for i, time in enumerate(x):
+                year = time[0:4]
+                mounth = time[4:]
+                x[i] = year + "-" + mounth
+
+            ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+            ax.set_xlabel('X 轴')  # X轴标题
+            ax.set_ylabel('Y 轴')  # Y轴标题
+            ax.set_title(self.zsjswellnum + "累产水量")
+            ax.plot(x, y)
 
 
 
@@ -1042,6 +1096,12 @@ class QmyMainWindow(QMainWindow):
         title = "打开一个文件"
         filt = "文本文件(*.txt);;所有文件(*.*)"
         fileName, flt = QFileDialog.getOpenFileName(self, title, curPath, filt)
+
+        self.ui.comboBox_6.addItem("绘制曲线")
+        self.ui.comboBox_6.addItem("油压")
+        self.ui.comboBox_6.addItem("日注水量")
+        self.ui.comboBox_6.addItem("累产水量")
+        self.ui.comboBox_6.addItem("删除曲线")
 
         if fileName != "":
             fileDevice = QFile(fileName)
