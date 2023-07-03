@@ -505,6 +505,73 @@ class QmyMainWindow(QMainWindow):
                 ax.set_title(self.zsjswellnum + "油压")
                 ax.plot(x, y)
 
+            elif itemParent.text(0) == "吸水剖面数据":
+                title = itemParent.text(0) + ":" + item.text(0)
+                fig = QmyFigure(self)
+                fig.setAttribute(Qt.WA_DeleteOnClose)
+                curIndex = self.ui.tabWidget.addTab(fig, title)  # 添加到tabWidget
+                self.ui.tabWidget.setCurrentIndex(curIndex)
+
+                data = XSPMSJ[item.text(0)]
+
+                dates = data.keys()
+
+                for i ,date in enumerate(dates):
+
+                    oneDayXSPMSJ = [list(i) for i in zip(*data[date])]
+
+
+
+                    ax1 = fig.fig.add_subplot(len(dates), 1, i, label=date)  # 子图1
+                    ax1.set_xlabel('X 轴')  # X轴标题
+                    ax1.set_ylabel('Y 轴')  # Y轴标题
+                    ax1.set_title(date)
+                    ax1.bar()
+
+
+                # data = [list(i) for i in zip(*XSPMSJ[item.text(0)])]
+
+
+
+                # x = STL[item.text(0)][0]  # float 型
+                # y = STL[item.text(0)][1]
+                # v = STL[item.text(0)][2]
+                #
+                # for i in range(len(v)):
+                #     if v[i] == -999:
+                #         v[i] = 0
+                #
+                # x = np.array(x)
+                # y = np.array(y)
+                # v = np.array(v)
+                #
+                # x = x.T
+                # y = y.T
+                # v = v.T
+                #
+                # xq = list(range(int(min(x)), int(max(x)), self.stepx))
+                # yq = list(range(int(min(y)), int(max(y)), self.stepy))
+                #
+                # xq = np.array(xq)
+                # yq = np.array(yq)
+                #
+                # xq, yq = np.meshgrid(xq, yq)
+                #
+                # vq = griddata((x, y), v, (xq, yq), method="linear")
+                #
+                # for i in range(vq.shape[0]):
+                #     for j in range(vq.shape[1]):
+                #         if np.isnan(vq[i][j]) == False:
+                #             vq[i][j] = vq[i][j].astype(int)
+
+
+
+                # im = ax1.pcolormesh(xq, yq, vq, )
+                # fig.fig.colorbar(im)
+
+                # fig.fig.canvas.draw()  ##刷新
+                # print(item.text(0))
+
 
 
         except AttributeError:
@@ -512,8 +579,6 @@ class QmyMainWindow(QMainWindow):
 
     @pyqtSlot(str)  #注水井史展示下拉列表变化时运行得函数
     def on_comboBox_6_activated(self, curText):
-
-
 
 
         if curText == "油压":
@@ -958,15 +1023,22 @@ class QmyMainWindow(QMainWindow):
                     if i == 1:
                         continue
 
-                    if lineList[1] in ZSJS:
-                        XSPMSJ[lineList[1]].append(lineList)
+                    if lineList[1] in XSPMSJ:
+                        if lineList[2] in XSPMSJ[lineList[1]]:
+                            XSPMSJ[lineList[1]][lineList[2]].append(lineList)
+                        else:
+                            XSPMSJ[lineList[1]][lineList[2]] = []
+                            XSPMSJ[lineList[1]][lineList[2]].append(lineList)
+
                     else:
-                        XSPMSJ[lineList[1]] = []
-                        XSPMSJ[lineList[1]].append(lineList)
+                        XSPMSJ[lineList[1]] = {}
+                        XSPMSJ[lineList[1]][lineList[2]] = []
+                        XSPMSJ[lineList[1]][lineList[2]].append(lineList)
+
                         item = QTreeWidgetItem()
                         item.setText(0, lineList[1])
                         item.setIcon(0, QtGui.QIcon('images/29.ico'))
-                        self.ui.treeWidget.topLevelItem(1).child(2).addChild(item)
+                        self.ui.treeWidget.topLevelItem(1).child(3).addChild(item)
 
             except UnicodeDecodeError:
                 print(fileName[0] + "文件编码格式有误！")
@@ -980,7 +1052,7 @@ class QmyMainWindow(QMainWindow):
             # item.setText(0, "射孔数据")
             # item.setIcon(0, QtGui.QIcon('images/29.ico'))
             # self.ui.treeWidget.topLevelItem(1).child(2).addChild(item)
-        self.ui.treeWidget.topLevelItem(1).child(2).setExpanded(True)
+        self.ui.treeWidget.topLevelItem(1).child(3).setExpanded(True)
 
     @pyqtSlot()
     def on_actionsksj_triggered(self):
