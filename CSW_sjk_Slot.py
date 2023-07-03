@@ -519,14 +519,14 @@ class QmyMainWindow(QMainWindow):
                 for i ,date in enumerate(dates):
 
                     oneDayXSPMSJ = [list(i) for i in zip(*data[date])]
+                    x = oneDayXSPMSJ[9]
+                    y = oneDayXSPMSJ[20]
 
-
-
-                    ax1 = fig.fig.add_subplot(len(dates), 1, i, label=date)  # 子图1
+                    ax1 = fig.fig.add_subplot(len(dates), 1, i + 1, label=date)  # 子图1
                     ax1.set_xlabel('X 轴')  # X轴标题
                     ax1.set_ylabel('Y 轴')  # Y轴标题
                     ax1.set_title(date)
-                    ax1.bar()
+                    ax1.bar(x, y)
 
 
                 # data = [list(i) for i in zip(*XSPMSJ[item.text(0)])]
