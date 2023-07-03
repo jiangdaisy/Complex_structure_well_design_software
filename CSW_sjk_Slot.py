@@ -31,7 +31,7 @@ KXD = {}
 STL = {}
 
 DJDZSJ = {}
-XSPMSJ = []
+XSPMSJ = {}
 SKSJ = []
 CSSJ = []
 CJDYSJ = {}
@@ -948,12 +948,25 @@ class QmyMainWindow(QMainWindow):
                 fileStream = QTextStream(fileDevice)
                 fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
                 fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
-                while not fileStream.atEnd():
-                    lineStr = fileStream.readLine()  # 返回QByteArray类型
 
+                i = 0
+                while not fileStream.atEnd():
+                    i = i + 1
+                    lineStr = fileStream.readLine()  # 返回QByteArray类型
                     lineList = lineStr.split("\t")
 
-                    XSPMSJ.append(lineList)
+                    if i == 1:
+                        continue
+
+                    if lineList[1] in ZSJS:
+                        XSPMSJ[lineList[1]].append(lineList)
+                    else:
+                        XSPMSJ[lineList[1]] = []
+                        XSPMSJ[lineList[1]].append(lineList)
+                        item = QTreeWidgetItem()
+                        item.setText(0, lineList[1])
+                        item.setIcon(0, QtGui.QIcon('images/29.ico'))
+                        self.ui.treeWidget.topLevelItem(1).child(2).addChild(item)
 
             except UnicodeDecodeError:
                 print(fileName[0] + "文件编码格式有误！")
@@ -963,11 +976,11 @@ class QmyMainWindow(QMainWindow):
 
             # print(self.XSPMSJ[-1])
 
-            item = QTreeWidgetItem()
-            item.setText(0, "吸水剖面数据")
-            item.setIcon(0, QtGui.QIcon('images/29.ico'))
-            self.ui.treeWidget.topLevelItem(1).child(3).addChild(item)
-        self.ui.treeWidget.topLevelItem(1).child(3).setExpanded(True)
+            # item = QTreeWidgetItem()
+            # item.setText(0, "射孔数据")
+            # item.setIcon(0, QtGui.QIcon('images/29.ico'))
+            # self.ui.treeWidget.topLevelItem(1).child(2).addChild(item)
+        self.ui.treeWidget.topLevelItem(1).child(2).setExpanded(True)
 
     @pyqtSlot()
     def on_actionsksj_triggered(self):
@@ -983,11 +996,30 @@ class QmyMainWindow(QMainWindow):
                 fileStream = QTextStream(fileDevice)
                 fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
                 fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
-                while not fileStream.atEnd():
-                    lineStr = fileStream.readLine()  # 返回QByteArray类型
+                # while not fileStream.atEnd():
+                #     lineStr = fileStream.readLine()  # 返回QByteArray类型
+                #
+                #     lineList = lineStr.split("\t")
+                #     XSPMSJ.append(lineList)
 
+                i = 0
+                while not fileStream.atEnd():
+                    i = i + 1
+                    lineStr = fileStream.readLine()  # 返回QByteArray类型
                     lineList = lineStr.split("\t")
-                    XSPMSJ.append(lineList)
+
+                    if i == 1:
+                        continue
+
+                    if lineList[1] in ZSJS:
+                        XSPMSJ[lineList[1]].append(lineList)
+                    else:
+                        XSPMSJ[lineList[1]] = []
+                        XSPMSJ[lineList[1]].append(lineList)
+                        item = QTreeWidgetItem()
+                        item.setText(0, lineList[1])
+                        item.setIcon(0, QtGui.QIcon('images/29.ico'))
+                        self.ui.treeWidget.topLevelItem(1).child(2).addChild(item)
 
             except UnicodeDecodeError:
                 print(fileName[0] + "文件编码格式有误！")
@@ -997,10 +1029,10 @@ class QmyMainWindow(QMainWindow):
 
             # print(self.XSPMSJ[-1])
 
-            item = QTreeWidgetItem()
-            item.setText(0, "射孔数据")
-            item.setIcon(0, QtGui.QIcon('images/29.ico'))
-            self.ui.treeWidget.topLevelItem(1).child(2).addChild(item)
+            # item = QTreeWidgetItem()
+            # item.setText(0, "射孔数据")
+            # item.setIcon(0, QtGui.QIcon('images/29.ico'))
+            # self.ui.treeWidget.topLevelItem(1).child(2).addChild(item)
         self.ui.treeWidget.topLevelItem(1).child(2).setExpanded(True)
 
     @pyqtSlot()
