@@ -132,7 +132,7 @@
     <item>
      <widget class="QToolBox" name="toolBox">
       <property name="currentIndex">
-       <number>6</number>
+       <number>0</number>
       </property>
       <property name="tabSpacing">
        <number>10</number>
@@ -154,8 +154,8 @@
          <widget class="QLabel" name="label_6">
           <property name="font">
            <font>
-            <family>Adobe Arabic</family>
-            <pointsize>24</pointsize>
+            <family>Arial</family>
+            <pointsize>14</pointsize>
            </font>
           </property>
           <property name="text">
@@ -309,6 +309,16 @@
          </widget>
         </item>
         <item>
+         <widget class="QComboBox" name="comboBox_6">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>24</pointsize>
+           </font>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -369,8 +379,8 @@
          <widget class="QLabel" name="label_12">
           <property name="font">
            <font>
-            <family>Adobe Arabic</family>
-            <pointsize>24</pointsize>
+            <family>Arial</family>
+            <pointsize>14</pointsize>
            </font>
           </property>
           <property name="text">

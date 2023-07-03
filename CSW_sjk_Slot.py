@@ -9,7 +9,7 @@ from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSlot, Qt, QThread, pyqtSignal
 import matplotlib as mpl
 import matplotlib.style as mplStyle
-
+from matplotlib import pyplot as plt
 from scipy.interpolate import griddata
 
 from CSw_sjk import Ui_MainWindow
@@ -23,6 +23,7 @@ from myfigure import QmyFigure
 
 import numpy as np
 import CSw_dcfbx_Slot
+import datetime
 
 CJX = {}
 BHD = {}
@@ -30,7 +31,7 @@ KXD = {}
 STL = {}
 
 DJDZSJ = {}
-XSPMSJ = []
+XSPMSJ = {}
 SKSJ = []
 CSSJ = []
 CJDYSJ = {}
@@ -491,18 +492,104 @@ class QmyMainWindow(QMainWindow):
 
             elif itemParent.text(0) == "注水井史":
 
-                title = itemParent.text(0) + ":" + item.text(0)
-                fig1 = QmyFigure(self)
-                fig1.splitter.addWidget(fig1.comboBox)
+                self.zsjstitle = itemParent.text(0) + ":" + item.text(0)
 
-                fig1.setAttribute(Qt.WA_DeleteOnClose)
-                curIndex = self.ui.tabWidget.addTab(fig1, title)  # 添加到tabWidget
-                self.ui.tabWidget.setCurrentIndex(curIndex)
+
+
+                self.zsjswellnum = item.text(0)
+                x = ZSJS[self.zsjswellnum][0]
+                y = ZSJS[self.zsjswellnum][6]
+                ax = self.zsjsfig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+                ax.set_xlabel('X 轴')  # X轴标题
+                ax.set_ylabel('Y 轴')  # Y轴标题
+                ax.set_title(self.zsjswellnum + "油压")
+                ax.plot(x, y)
 
 
 
         except AttributeError:
             print("AttributeError")
+
+    @pyqtSlot(str)  #注水井史展示下拉列表变化时运行得函数
+    def on_comboBox_6_activated(self, curText):
+
+
+
+
+        if curText == "油压":
+
+            fig1 = QmyFigure(self)
+            fig1.setAttribute(Qt.WA_DeleteOnClose)
+            curIndex = self.ui.tabWidget.addTab(fig1, self.zsjstitle)  # 添加到tabWidget
+            self.ui.tabWidget.setCurrentIndex(curIndex)
+
+            data = [list(i) for i in zip(*ZSJS[self.zsjswellnum])]
+            # data = data.T
+
+            x = data[2]
+            y = data[8]
+
+            for i, time in enumerate(x):
+                year = time[0:4]
+                mounth = time[4:]
+                x[i] = year + "-" + mounth
+
+            ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+            ax.set_xlabel('X 轴')  # X轴标题
+            ax.set_ylabel('Y 轴')  # Y轴标题
+            ax.set_title(self.zsjswellnum + "油压")
+            ax.plot(x, y)
+
+
+        elif curText == "日注水量":
+
+            fig1 = QmyFigure(self)
+            fig1.setAttribute(Qt.WA_DeleteOnClose)
+            curIndex = self.ui.tabWidget.addTab(fig1, self.zsjstitle)  # 添加到tabWidget
+            self.ui.tabWidget.setCurrentIndex(curIndex)
+
+            data = [list(i) for i in zip(*ZSJS[self.zsjswellnum])]
+
+            x = data[2]
+            y = data[6]
+
+            for i, time in enumerate(x):
+                year = time[0:4]
+                mounth = time[4:]
+                x[i] = year + "-" + mounth
+
+            ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+            ax.set_xlabel('X 轴')  # X轴标题
+            ax.set_ylabel('Y 轴')  # Y轴标题
+            ax.set_title(self.zsjswellnum + "日产水量")
+            ax.plot(x, y)
+        elif curText == "累产水量":
+
+            fig1 = QmyFigure(self)
+            fig1.setAttribute(Qt.WA_DeleteOnClose)
+            curIndex = self.ui.tabWidget.addTab(fig1, self.zsjstitle)  # 添加到tabWidget
+            self.ui.tabWidget.setCurrentIndex(curIndex)
+
+            data = [list(i) for i in zip(*ZSJS[self.zsjswellnum])]
+
+            x = data[2]
+            y = data[14]
+
+            for i, time in enumerate(x):
+                year = time[0:4]
+                mounth = time[4:]
+                x[i] = year + "-" + mounth
+
+            ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+            ax.set_xlabel('X 轴')  # X轴标题
+            ax.set_ylabel('Y 轴')  # Y轴标题
+            ax.set_title(self.zsjswellnum + "累产水量")
+            ax.plot(x, y)
+
+
+
+
+
 
     ##导入沉积相数据
     @pyqtSlot()
@@ -861,12 +948,25 @@ class QmyMainWindow(QMainWindow):
                 fileStream = QTextStream(fileDevice)
                 fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
                 fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
-                while not fileStream.atEnd():
-                    lineStr = fileStream.readLine()  # 返回QByteArray类型
 
+                i = 0
+                while not fileStream.atEnd():
+                    i = i + 1
+                    lineStr = fileStream.readLine()  # 返回QByteArray类型
                     lineList = lineStr.split("\t")
 
-                    XSPMSJ.append(lineList)
+                    if i == 1:
+                        continue
+
+                    if lineList[1] in ZSJS:
+                        XSPMSJ[lineList[1]].append(lineList)
+                    else:
+                        XSPMSJ[lineList[1]] = []
+                        XSPMSJ[lineList[1]].append(lineList)
+                        item = QTreeWidgetItem()
+                        item.setText(0, lineList[1])
+                        item.setIcon(0, QtGui.QIcon('images/29.ico'))
+                        self.ui.treeWidget.topLevelItem(1).child(2).addChild(item)
 
             except UnicodeDecodeError:
                 print(fileName[0] + "文件编码格式有误！")
@@ -876,11 +976,11 @@ class QmyMainWindow(QMainWindow):
 
             # print(self.XSPMSJ[-1])
 
-            item = QTreeWidgetItem()
-            item.setText(0, "吸水剖面数据")
-            item.setIcon(0, QtGui.QIcon('images/29.ico'))
-            self.ui.treeWidget.topLevelItem(1).child(3).addChild(item)
-        self.ui.treeWidget.topLevelItem(1).child(3).setExpanded(True)
+            # item = QTreeWidgetItem()
+            # item.setText(0, "射孔数据")
+            # item.setIcon(0, QtGui.QIcon('images/29.ico'))
+            # self.ui.treeWidget.topLevelItem(1).child(2).addChild(item)
+        self.ui.treeWidget.topLevelItem(1).child(2).setExpanded(True)
 
     @pyqtSlot()
     def on_actionsksj_triggered(self):
@@ -896,11 +996,30 @@ class QmyMainWindow(QMainWindow):
                 fileStream = QTextStream(fileDevice)
                 fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
                 fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
-                while not fileStream.atEnd():
-                    lineStr = fileStream.readLine()  # 返回QByteArray类型
+                # while not fileStream.atEnd():
+                #     lineStr = fileStream.readLine()  # 返回QByteArray类型
+                #
+                #     lineList = lineStr.split("\t")
+                #     XSPMSJ.append(lineList)
 
+                i = 0
+                while not fileStream.atEnd():
+                    i = i + 1
+                    lineStr = fileStream.readLine()  # 返回QByteArray类型
                     lineList = lineStr.split("\t")
-                    XSPMSJ.append(lineList)
+
+                    if i == 1:
+                        continue
+
+                    if lineList[1] in ZSJS:
+                        XSPMSJ[lineList[1]].append(lineList)
+                    else:
+                        XSPMSJ[lineList[1]] = []
+                        XSPMSJ[lineList[1]].append(lineList)
+                        item = QTreeWidgetItem()
+                        item.setText(0, lineList[1])
+                        item.setIcon(0, QtGui.QIcon('images/29.ico'))
+                        self.ui.treeWidget.topLevelItem(1).child(2).addChild(item)
 
             except UnicodeDecodeError:
                 print(fileName[0] + "文件编码格式有误！")
@@ -910,10 +1029,10 @@ class QmyMainWindow(QMainWindow):
 
             # print(self.XSPMSJ[-1])
 
-            item = QTreeWidgetItem()
-            item.setText(0, "射孔数据")
-            item.setIcon(0, QtGui.QIcon('images/29.ico'))
-            self.ui.treeWidget.topLevelItem(1).child(2).addChild(item)
+            # item = QTreeWidgetItem()
+            # item.setText(0, "射孔数据")
+            # item.setIcon(0, QtGui.QIcon('images/29.ico'))
+            # self.ui.treeWidget.topLevelItem(1).child(2).addChild(item)
         self.ui.treeWidget.topLevelItem(1).child(2).setExpanded(True)
 
     @pyqtSlot()
@@ -1009,6 +1128,12 @@ class QmyMainWindow(QMainWindow):
         title = "打开一个文件"
         filt = "文本文件(*.txt);;所有文件(*.*)"
         fileName, flt = QFileDialog.getOpenFileName(self, title, curPath, filt)
+
+        self.ui.comboBox_6.addItem("绘制曲线")
+        self.ui.comboBox_6.addItem("油压")
+        self.ui.comboBox_6.addItem("日注水量")
+        self.ui.comboBox_6.addItem("累产水量")
+        self.ui.comboBox_6.addItem("删除曲线")
 
         if fileName != "":
             fileDevice = QFile(fileName)
