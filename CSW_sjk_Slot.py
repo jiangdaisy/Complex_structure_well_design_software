@@ -8,6 +8,7 @@ import cv2
 from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import pyqtSlot, Qt, QThread, pyqtSignal
 import matplotlib as mpl
+import matplotlib.dates as mdates
 import matplotlib.style as mplStyle
 from matplotlib import pyplot as plt
 from scipy.interpolate import griddata
@@ -24,6 +25,7 @@ from myfigure import QmyFigure
 import numpy as np
 import CSw_dcfbx_Slot
 import datetime
+import pandas as pd
 
 CJX = {}
 BHD = {}
@@ -32,18 +34,17 @@ STL = {}
 
 DJDZSJ = {}
 XSPMSJ = {}
-SKSJ = []
-CSSJ = []
+SKSJ = {}
+CSSJ = {}
 CJDYSJ = {}
 ZSJS = {}
 XSQX = []
-CYJS = []
+CYJS = {}
 DS = []
 CJDYZB = {}
 jgjpj = []
 jgjpj1 = []
 jgjpj2 = []
-pd = []
 
 
 class QmyMainWindow(QMainWindow):
@@ -177,7 +178,13 @@ class QmyMainWindow(QMainWindow):
                 ax1.set_ylabel('Y 轴')  # Y轴标题
                 ax1.set_title(title)
 
-                im = ax1.pcolormesh(xq, yq, vq, )
+
+
+                colors = ["white", "red", "orange","yellow", "green"]
+                clrmap = mpl.colors.LinearSegmentedColormap.from_list("mycmap", colors)
+
+                im = ax1.pcolormesh(xq, yq, vq, cmap=clrmap)
+
                 fig.fig.colorbar(im)
 
                 # ax1.plot(t, y1, 'r-o', label="sin", linewidth=2, markersize=5)  # 绘制一条曲线
@@ -494,16 +501,156 @@ class QmyMainWindow(QMainWindow):
 
                 self.zsjstitle = itemParent.text(0) + ":" + item.text(0)
 
-
-
                 self.zsjswellnum = item.text(0)
-                x = ZSJS[self.zsjswellnum][0]
-                y = ZSJS[self.zsjswellnum][6]
-                ax = self.zsjsfig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
-                ax.set_xlabel('X 轴')  # X轴标题
-                ax.set_ylabel('Y 轴')  # Y轴标题
+
+                fig1 = QmyFigure(self)
+                fig1.setAttribute(Qt.WA_DeleteOnClose)
+                curIndex = self.ui.tabWidget.addTab(fig1, self.zsjstitle)  # 添加到tabWidget
+                self.ui.tabWidget.setCurrentIndex(curIndex)
+
+                data = [list(i) for i in zip(*ZSJS[self.zsjswellnum])]
+
+                x = []
+                for i in range(len(data[2])):
+                    xT1 = datetime.datetime.strptime(data[2][i], "%Y%m").strftime("%Y-%m-%d")
+                    xT = mdates.datestr2num(xT1)
+                    x.append(xT)
+
+                y = []
+                for i in range(len(data[8])):
+                    if data[8][i] != '':
+                        y.append(float(data[8][i]))
+                    else:
+                        y.append(0)
+
+                ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+                ax.set_xlabel('日期')  # X轴标题
+                ax.set_ylabel('油压，MPa')  # Y轴标题
                 ax.set_title(self.zsjswellnum + "油压")
                 ax.plot(x, y)
+                ax.xaxis_date()
+
+                self.ui.comboBox_6.clear()
+                self.ui.comboBox_6.addItem("绘制曲线")
+                self.ui.comboBox_6.addItem("油压")
+                self.ui.comboBox_6.addItem("日注水量")
+                self.ui.comboBox_6.addItem("累注水量")
+
+
+            elif itemParent.text(0) == "采油井史":
+
+                self.cyjstitle = itemParent.text(0) + ":" + item.text(0)
+
+                self.cyjswellnum = item.text(0)
+
+                fig1 = QmyFigure(self)
+                fig1.setAttribute(Qt.WA_DeleteOnClose)
+                curIndex = self.ui.tabWidget.addTab(fig1, self.cyjstitle)  # 添加到tabWidget
+                self.ui.tabWidget.setCurrentIndex(curIndex)
+
+                data = [list(i) for i in zip(*CYJS[self.cyjswellnum])]
+
+                x = []
+                for i in range(len(data[2])):
+                    xT1 = datetime.datetime.strptime(data[2][i], "%Y%m").strftime("%Y-%m-%d")
+                    xT = mdates.datestr2num(xT1)
+                    x.append(xT)
+
+                y = []
+                for i in range(len(data[13])):
+                    if data[13][i] != '':
+                        y.append(float(data[13][i]))
+                    else:
+                        y.append(0)
+
+
+                ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+                ax.set_xlabel('日期')  # X轴标题
+                ax.set_ylabel('流压，MPa')  # Y轴标题
+                ax.set_title(self.cyjswellnum + "流压")
+                ax.plot(x, y)
+                ax.xaxis_date()
+
+                self.ui.comboBox_6.clear()
+                self.ui.comboBox_6.addItem("绘制曲线")
+                self.ui.comboBox_6.addItem("流压")
+                self.ui.comboBox_6.addItem("日产油量")
+                self.ui.comboBox_6.addItem("日产水量")
+                self.ui.comboBox_6.addItem("日产液量")
+                self.ui.comboBox_6.addItem("含水")
+                self.ui.comboBox_6.addItem("累产油量")
+                self.ui.comboBox_6.addItem("累产水量")
+                self.ui.comboBox_6.addItem("累产液量")
+
+            elif itemParent.text(0) == "相渗曲线":
+
+                if item.text(0) == "油水相渗":
+                    self.xsqxtitle = item.text(0)
+
+                    fig1 = QmyFigure(self)
+                    fig1.setAttribute(Qt.WA_DeleteOnClose)
+                    curIndex = self.ui.tabWidget.addTab(fig1, self.xsqxtitle)  # 添加到tabWidget
+                    self.ui.tabWidget.setCurrentIndex(curIndex)
+
+                    data = [list(i) for i in zip(*XSQX)]
+
+                    x = []
+                    y1 = []
+                    y2 = []
+
+                    for i in range(1,len(data[0])):
+                        if data[0][i] != '':
+                            x.append(float(data[0][i]))
+
+                        if data[1][i] != '':
+                            y1.append(float(data[1][i]))
+
+                        if data[2][i] != '':
+                            y2.append(float(data[2][i]))
+
+                    print(x)
+                    print(y1)
+                    print(y2)
+
+                    ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+                    ax.set_xlabel('含水饱和度')  # X轴标题
+                    ax.set_ylabel('相对渗透率')  # Y轴标题
+                    ax.plot(x, y1)
+                    ax.plot(x, y2)
+
+                elif item.text(0) == "油气相渗":
+                    self.xsqxtitle = item.text(0)
+
+                    fig1 = QmyFigure(self)
+                    fig1.setAttribute(Qt.WA_DeleteOnClose)
+                    curIndex = self.ui.tabWidget.addTab(fig1, self.xsqxtitle)  # 添加到tabWidget
+                    self.ui.tabWidget.setCurrentIndex(curIndex)
+
+                    data = [list(i) for i in zip(*XSQX)]
+                    print(data)
+
+                    x = []
+                    y1 = []
+                    y2 = []
+                    for i in range(1,len(data[4])):
+                        if data[4][i] != '':
+                            x.append(float(data[4][i]))
+
+                        if data[5][i] != '':
+                            y1.append(float(data[5][i]))
+
+                        if data[6][i] != '':
+                            y2.append(float(data[6][i]))
+
+                    print(x)
+                    print(y1)
+                    print(y2)
+
+                    ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+                    ax.set_xlabel('含油饱和度')  # X轴标题
+                    ax.set_ylabel('相对渗透率')  # Y轴标题
+                    ax.plot(x, y1)
+                    ax.plot(x, y2)
 
             elif itemParent.text(0) == "吸水剖面数据":
                 title = itemParent.text(0) + ":" + item.text(0)
@@ -516,17 +663,54 @@ class QmyMainWindow(QMainWindow):
 
                 dates = data.keys()
 
+
                 for i ,date in enumerate(dates):
 
                     oneDayXSPMSJ = [list(i) for i in zip(*data[date])]
-                    x = oneDayXSPMSJ[9]
-                    y = oneDayXSPMSJ[20]
+                    if i == 0:
+                        xsmin = float(min(oneDayXSPMSJ[9]))
+                        xsmax = float(max(oneDayXSPMSJ[9]))
+                        if float(min(oneDayXSPMSJ[10])) < xsmin:
+                            xsmin = float(min(oneDayXSPMSJ[10]))
+                        if float(max(oneDayXSPMSJ[10])) > xsmax:
+                            xsmax = float(max(oneDayXSPMSJ[10]))
+                    else:
+                        if float(min(oneDayXSPMSJ[9])) < xsmin:
+                            xsmin = float(min(oneDayXSPMSJ[9]))
+                        if float(max(oneDayXSPMSJ[9])) > xsmax:
+                            xsmax = float(max(oneDayXSPMSJ[9]))
+                        if float(min(oneDayXSPMSJ[10])) < xsmin:
+                            xsmin = float(min(oneDayXSPMSJ[10]))
+                        if float(max(oneDayXSPMSJ[10])) > xsmax:
+                            xsmax = float(max(oneDayXSPMSJ[10]))
+
+                for i, date in enumerate(dates):
+
+                    oneDayXSPMSJ = [list(i) for i in zip(*data[date])]
+
+                    x = []
+                    x1 = []
+                    d = []
+                    y = []
+                    for j in range(len(oneDayXSPMSJ[9])):
+                        x.append(float(oneDayXSPMSJ[9][j]))
+                        x1.append(float(oneDayXSPMSJ[10][j]))
+                        y.append(float(oneDayXSPMSJ[20][j]))
+                        d.append(float(oneDayXSPMSJ[10][j]) - float(oneDayXSPMSJ[9][j]))
+                    print(x)
+                    print(y)
+                    print(d)
 
                     ax1 = fig.fig.add_subplot(len(dates), 1, i + 1, label=date)  # 子图1
-                    ax1.set_xlabel('X 轴')  # X轴标题
-                    ax1.set_ylabel('Y 轴')  # Y轴标题
+                    ax1.set_ylabel('吸水比例')  # Y轴标题
                     ax1.set_title(date)
-                    ax1.bar(x, y)
+                    ax1.bar(x, y, d, align='edge')
+                    ax1.set_xlim(xsmin-3,xsmax+3)
+
+                    if i != len(dates) - 1:
+                        ax1.get_xaxis().set_visible(False)
+
+
 
 
                 # data = [list(i) for i in zip(*XSPMSJ[item.text(0)])]
@@ -589,22 +773,26 @@ class QmyMainWindow(QMainWindow):
             self.ui.tabWidget.setCurrentIndex(curIndex)
 
             data = [list(i) for i in zip(*ZSJS[self.zsjswellnum])]
-            # data = data.T
 
-            x = data[2]
-            y = data[8]
+            x = []
+            for i in range(len(data[2])):
+                xT1 = datetime.datetime.strptime(data[2][i],"%Y%m").strftime("%Y-%m-%d")
+                xT = mdates.datestr2num(xT1)
+                x.append(xT)
 
-            for i, time in enumerate(x):
-                year = time[0:4]
-                mounth = time[4:]
-                x[i] = year + "-" + mounth
+            y = []
+            for i in range(len(data[8])):
+                if data[8][i] != '':
+                    y.append(float(data[8][i]))
+                else:
+                    y.append(0)
 
             ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
-            ax.set_xlabel('X 轴')  # X轴标题
-            ax.set_ylabel('Y 轴')  # Y轴标题
+            ax.set_xlabel('日期')  # X轴标题
+            ax.set_ylabel('油压，MPa')  # Y轴标题
             ax.set_title(self.zsjswellnum + "油压")
             ax.plot(x, y)
-
+            ax.xaxis_date()
 
         elif curText == "日注水量":
 
@@ -615,20 +803,27 @@ class QmyMainWindow(QMainWindow):
 
             data = [list(i) for i in zip(*ZSJS[self.zsjswellnum])]
 
-            x = data[2]
-            y = data[6]
+            x = []
+            for i in range(len(data[2])):
+                xT1 = datetime.datetime.strptime(data[2][i],"%Y%m").strftime("%Y-%m-%d")
+                xT = mdates.datestr2num(xT1)
+                x.append(xT)
 
-            for i, time in enumerate(x):
-                year = time[0:4]
-                mounth = time[4:]
-                x[i] = year + "-" + mounth
+            y = []
+            for i in range(len(data[6])):
+                if data[6][i] != '':
+                    y.append(float(data[6][i]))
+                else:
+                    y.append(0)
 
             ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
-            ax.set_xlabel('X 轴')  # X轴标题
-            ax.set_ylabel('Y 轴')  # Y轴标题
-            ax.set_title(self.zsjswellnum + "日产水量")
+            ax.set_xlabel('日期')  # X轴标题
+            ax.set_ylabel('日注水量，m3/d')  # Y轴标题
+            ax.set_title(self.zsjswellnum + "日注水量")
             ax.plot(x, y)
-        elif curText == "累产水量":
+            ax.xaxis_date()
+
+        elif curText == "累注水量":
 
             fig1 = QmyFigure(self)
             fig1.setAttribute(Qt.WA_DeleteOnClose)
@@ -637,23 +832,265 @@ class QmyMainWindow(QMainWindow):
 
             data = [list(i) for i in zip(*ZSJS[self.zsjswellnum])]
 
-            x = data[2]
-            y = data[14]
+            x = []
+            for i in range(len(data[2])):
+                xT1 = datetime.datetime.strptime(data[2][i], "%Y%m").strftime("%Y-%m-%d")
+                xT = mdates.datestr2num(xT1)
+                x.append(xT)
 
-            for i, time in enumerate(x):
-                year = time[0:4]
-                mounth = time[4:]
-                x[i] = year + "-" + mounth
+            y = []
+            for i in range(len(data[14])):
+                if data[14][i] != '':
+                    y.append(float(data[14][i])*10000)
+                else:
+                    y.append(0)
 
             ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
-            ax.set_xlabel('X 轴')  # X轴标题
-            ax.set_ylabel('Y 轴')  # Y轴标题
-            ax.set_title(self.zsjswellnum + "累产水量")
+            ax.set_xlabel('日期')  # X轴标题
+            ax.set_ylabel('累注水量，m3/d')  # Y轴标题
+            ax.set_title(self.zsjswellnum + "累注水量")
             ax.plot(x, y)
+            ax.xaxis_date()
 
+        elif curText == "流压":
 
+            fig1 = QmyFigure(self)
+            fig1.setAttribute(Qt.WA_DeleteOnClose)
+            curIndex = self.ui.tabWidget.addTab(fig1, self.cyjstitle)  # 添加到tabWidget
+            self.ui.tabWidget.setCurrentIndex(curIndex)
 
+            data = [list(i) for i in zip(*CYJS[self.cyjswellnum])]
 
+            x = []
+            for i in range(len(data[2])):
+                xT1 = datetime.datetime.strptime(data[2][i], "%Y%m").strftime("%Y-%m-%d")
+                xT = mdates.datestr2num(xT1)
+                x.append(xT)
+
+            y = []
+            for i in range(len(data[13])):
+                if data[13][i] != '':
+                    y.append(float(data[13][i]))
+                else:
+                    y.append(0)
+
+            ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+            ax.set_xlabel('日期')  # X轴标题
+            ax.set_ylabel('流压，MPa')  # Y轴标题
+            ax.set_title(self.cyjswellnum + "流压")
+            ax.plot(x, y)
+            ax.xaxis_date()
+
+        elif curText == "日产油量":
+
+            fig1 = QmyFigure(self)
+            fig1.setAttribute(Qt.WA_DeleteOnClose)
+            curIndex = self.ui.tabWidget.addTab(fig1, self.cyjstitle)  # 添加到tabWidget
+            self.ui.tabWidget.setCurrentIndex(curIndex)
+
+            data = [list(i) for i in zip(*CYJS[self.cyjswellnum])]
+
+            x = []
+            for i in range(len(data[2])):
+                xT1 = datetime.datetime.strptime(data[2][i], "%Y%m").strftime("%Y-%m-%d")
+                xT = mdates.datestr2num(xT1)
+                x.append(xT)
+
+            y = []
+            for i in range(len(data[17])):
+                if data[17][i] != '':
+                    y.append(float(data[17][i]))
+                else:
+                    y.append(0)
+
+            ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+            ax.set_xlabel('日期')  # X轴标题
+            ax.set_ylabel('日产油量，m3/d')  # Y轴标题
+            ax.set_title(self.cyjswellnum + "日产油量")
+            ax.plot(x, y)
+            ax.xaxis_date()
+
+        elif curText == "日产水量":
+
+            fig1 = QmyFigure(self)
+            fig1.setAttribute(Qt.WA_DeleteOnClose)
+            curIndex = self.ui.tabWidget.addTab(fig1, self.cyjstitle)  # 添加到tabWidget
+            self.ui.tabWidget.setCurrentIndex(curIndex)
+
+            data = [list(i) for i in zip(*CYJS[self.cyjswellnum])]
+
+            x = []
+            for i in range(len(data[2])):
+                xT1 = datetime.datetime.strptime(data[2][i], "%Y%m").strftime("%Y-%m-%d")
+                xT = mdates.datestr2num(xT1)
+                x.append(xT)
+
+            y = []
+            for i in range(len(data[18])):
+                if data[18][i] != '':
+                    y.append(float(data[18][i]))
+                else:
+                    y.append(0)
+
+            ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+            ax.set_xlabel('日期')  # X轴标题
+            ax.set_ylabel('日产水量，m3/d')  # Y轴标题
+            ax.set_title(self.cyjswellnum + "日产水量")
+            ax.plot(x, y)
+            ax.xaxis_date()
+
+        elif curText == "日产液量":
+
+            fig1 = QmyFigure(self)
+            fig1.setAttribute(Qt.WA_DeleteOnClose)
+            curIndex = self.ui.tabWidget.addTab(fig1, self.cyjstitle)  # 添加到tabWidget
+            self.ui.tabWidget.setCurrentIndex(curIndex)
+
+            data = [list(i) for i in zip(*CYJS[self.cyjswellnum])]
+
+            x = []
+            for i in range(len(data[2])):
+                xT1 = datetime.datetime.strptime(data[2][i], "%Y%m").strftime("%Y-%m-%d")
+                xT = mdates.datestr2num(xT1)
+                x.append(xT)
+
+            y = []
+            for i in range(len(data[17])):
+                if data[17][i] != '' and data[18][i] != '':
+                    y.append(float(data[17][i]) + float(data[18][i]))
+                elif data[17][i] == '' and data[18][i] != '':
+                    y.append(float(data[18][i]))
+                elif data[17][i] != '' and data[18][i] == '':
+                    y.append(float(data[17][i]))
+                elif data[17][i] == '' and data[18][i] == '':
+                    y.append(0)
+
+            ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+            ax.set_xlabel('日期')  # X轴标题
+            ax.set_ylabel('日产液量，m3/d')  # Y轴标题
+            ax.set_title(self.cyjswellnum + "日产液量")
+            ax.plot(x, y)
+            ax.xaxis_date()
+
+        elif curText == "含水":
+
+            fig1 = QmyFigure(self)
+            fig1.setAttribute(Qt.WA_DeleteOnClose)
+            curIndex = self.ui.tabWidget.addTab(fig1, self.cyjstitle)  # 添加到tabWidget
+            self.ui.tabWidget.setCurrentIndex(curIndex)
+
+            data = [list(i) for i in zip(*CYJS[self.cyjswellnum])]
+
+            x = []
+            for i in range(len(data[2])):
+                xT1 = datetime.datetime.strptime(data[2][i], "%Y%m").strftime("%Y-%m-%d")
+                xT = mdates.datestr2num(xT1)
+                x.append(xT)
+
+            y = []
+            for i in range(len(data[19])):
+                if data[19][i] != '':
+                    y.append(float(data[19][i]))
+                else:
+                    y.append(0)
+
+            ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+            ax.set_xlabel('日期')  # X轴标题
+            ax.set_ylabel('含水')  # Y轴标题
+            ax.set_title(self.cyjswellnum + "含水")
+            ax.plot(x, y)
+            ax.xaxis_date()
+
+        elif curText == "累产油量":
+
+            fig1 = QmyFigure(self)
+            fig1.setAttribute(Qt.WA_DeleteOnClose)
+            curIndex = self.ui.tabWidget.addTab(fig1, self.cyjstitle)  # 添加到tabWidget
+            self.ui.tabWidget.setCurrentIndex(curIndex)
+
+            data = [list(i) for i in zip(*CYJS[self.cyjswellnum])]
+
+            x = []
+            for i in range(len(data[2])):
+                xT1 = datetime.datetime.strptime(data[2][i], "%Y%m").strftime("%Y-%m-%d")
+                xT = mdates.datestr2num(xT1)
+                x.append(xT)
+
+            y = []
+            for i in range(len(data[26])):
+                if data[26][i] != '':
+                    y.append(float(data[26][i])*10000)
+                else:
+                    y.append(0)
+
+            ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+            ax.set_xlabel('日期')  # X轴标题
+            ax.set_ylabel('累产油量，m3/d')  # Y轴标题
+            ax.set_title(self.cyjswellnum + "累产油量")
+            ax.plot(x, y)
+            ax.xaxis_date()
+
+        elif curText == "累产水量":
+
+            fig1 = QmyFigure(self)
+            fig1.setAttribute(Qt.WA_DeleteOnClose)
+            curIndex = self.ui.tabWidget.addTab(fig1, self.cyjstitle)  # 添加到tabWidget
+            self.ui.tabWidget.setCurrentIndex(curIndex)
+
+            data = [list(i) for i in zip(*CYJS[self.cyjswellnum])]
+
+            x = []
+            for i in range(len(data[2])):
+                xT1 = datetime.datetime.strptime(data[2][i], "%Y%m").strftime("%Y-%m-%d")
+                xT = mdates.datestr2num(xT1)
+                x.append(xT)
+
+            y = []
+            for i in range(len(data[27])):
+                if data[27][i] != '':
+                    y.append(float(data[27][i])*10000)
+                else:
+                    y.append(0)
+
+            ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+            ax.set_xlabel('日期')  # X轴标题
+            ax.set_ylabel('累产水量，m3/d')  # Y轴标题
+            ax.set_title(self.cyjswellnum + "累产水量")
+            ax.plot(x, y)
+            ax.xaxis_date()
+
+        elif curText == "累产液量":
+
+            fig1 = QmyFigure(self)
+            fig1.setAttribute(Qt.WA_DeleteOnClose)
+            curIndex = self.ui.tabWidget.addTab(fig1, self.cyjstitle)  # 添加到tabWidget
+            self.ui.tabWidget.setCurrentIndex(curIndex)
+
+            data = [list(i) for i in zip(*CYJS[self.cyjswellnum])]
+
+            x = []
+            for i in range(len(data[2])):
+                xT1 = datetime.datetime.strptime(data[2][i], "%Y%m").strftime("%Y-%m-%d")
+                xT = mdates.datestr2num(xT1)
+                x.append(xT)
+
+            y = []
+            for i in range(len(data[26])):
+                if data[26][i] != '' and data[27][i] != '':
+                    y.append((float(data[26][i]) + float(data[27][i]))*10000)
+                elif data[26][i] == '' and data[27][i] != '':
+                    y.append(float(data[27][i])*10000)
+                elif data[26][i] != '' and data[27][i] == '':
+                    y.append(float(data[26][i])*10000)
+                elif data[26][i] == '' and data[27][i] == '':
+                    y.append(0)
+
+            ax = fig1.fig.add_subplot(1, 1, 1, label="sin-cos plot")
+            ax.set_xlabel('日期')  # X轴标题
+            ax.set_ylabel('累产液量，m3/d')  # Y轴标题
+            ax.set_title(self.cyjswellnum + "累产液量")
+            ax.plot(x, y)
+            ax.xaxis_date()
 
 
     ##导入沉积相数据
@@ -1068,11 +1505,6 @@ class QmyMainWindow(QMainWindow):
                 fileStream = QTextStream(fileDevice)
                 fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
                 fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
-                # while not fileStream.atEnd():
-                #     lineStr = fileStream.readLine()  # 返回QByteArray类型
-                #
-                #     lineList = lineStr.split("\t")
-                #     XSPMSJ.append(lineList)
 
                 i = 0
                 while not fileStream.atEnd():
@@ -1083,11 +1515,11 @@ class QmyMainWindow(QMainWindow):
                     if i == 1:
                         continue
 
-                    if lineList[1] in ZSJS:
-                        XSPMSJ[lineList[1]].append(lineList)
+                    if lineList[1] in SKSJ:
+                        SKSJ[lineList[1]].append(lineList)
                     else:
-                        XSPMSJ[lineList[1]] = []
-                        XSPMSJ[lineList[1]].append(lineList)
+                        SKSJ[lineList[1]] = []
+                        SKSJ[lineList[1]].append(lineList)
                         item = QTreeWidgetItem()
                         item.setText(0, lineList[1])
                         item.setIcon(0, QtGui.QIcon('images/29.ico'))
@@ -1099,12 +1531,6 @@ class QmyMainWindow(QMainWindow):
             finally:
                 fileDevice.close()
 
-            # print(self.XSPMSJ[-1])
-
-            # item = QTreeWidgetItem()
-            # item.setText(0, "射孔数据")
-            # item.setIcon(0, QtGui.QIcon('images/29.ico'))
-            # self.ui.treeWidget.topLevelItem(1).child(2).addChild(item)
         self.ui.treeWidget.topLevelItem(1).child(2).setExpanded(True)
 
     @pyqtSlot()
@@ -1121,11 +1547,25 @@ class QmyMainWindow(QMainWindow):
                 fileStream = QTextStream(fileDevice)
                 fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
                 fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
-                while not fileStream.atEnd():
-                    lineStr = fileStream.readLine()  # 返回QByteArray类型
 
+                i = 0
+                while not fileStream.atEnd():
+                    i = i + 1
+                    lineStr = fileStream.readLine()  # 返回QByteArray类型
                     lineList = lineStr.split("\t")
-                    CSSJ.append(lineList)
+
+                    if i == 1:
+                        continue
+
+                    if lineList[1] in CSSJ:
+                        CSSJ[lineList[1]].append(lineList)
+                    else:
+                        CSSJ[lineList[1]] = []
+                        CSSJ[lineList[1]].append(lineList)
+                        item = QTreeWidgetItem()
+                        item.setText(0, lineList[1])
+                        item.setIcon(0, QtGui.QIcon('images/29.ico'))
+                        self.ui.treeWidget.topLevelItem(1).child(5).addChild(item)
 
             except UnicodeDecodeError:
                 print(fileName[0] + "文件编码格式有误！")
@@ -1133,12 +1573,6 @@ class QmyMainWindow(QMainWindow):
             finally:
                 fileDevice.close()
 
-            # print(self.XSPMSJ[-1])
-
-            item = QTreeWidgetItem()
-            item.setText(0, "措施数据")
-            item.setIcon(0, QtGui.QIcon('images/29.ico'))
-            self.ui.treeWidget.topLevelItem(1).child(5).addChild(item)
         self.ui.treeWidget.topLevelItem(1).child(5).setExpanded(True)
 
     @pyqtSlot()
@@ -1201,11 +1635,7 @@ class QmyMainWindow(QMainWindow):
         filt = "文本文件(*.txt);;所有文件(*.*)"
         fileName, flt = QFileDialog.getOpenFileName(self, title, curPath, filt)
 
-        self.ui.comboBox_6.addItem("绘制曲线")
-        self.ui.comboBox_6.addItem("油压")
-        self.ui.comboBox_6.addItem("日注水量")
-        self.ui.comboBox_6.addItem("累产水量")
-        self.ui.comboBox_6.addItem("删除曲线")
+
 
         if fileName != "":
             fileDevice = QFile(fileName)
@@ -1233,7 +1663,77 @@ class QmyMainWindow(QMainWindow):
                         item.setIcon(0, QtGui.QIcon('images/29.ico'))
                         self.ui.treeWidget.topLevelItem(1).child(0).addChild(item)
 
+            except UnicodeDecodeError:
+                print(fileName[0] + "文件编码格式有误！")
 
+            finally:
+                fileDevice.close()
+
+        self.ui.treeWidget.topLevelItem(1).child(0).setExpanded(True)
+
+    @pyqtSlot()
+    def on_actioncyjs_triggered(self):
+
+        curPath = QDir.currentPath()  # 获取系统当前目录
+        title = "打开一个文件"
+        filt = "文本文件(*.txt);;所有文件(*.*)"
+        fileName, flt = QFileDialog.getOpenFileName(self, title, curPath, filt)
+
+        if fileName != "":
+            fileDevice = QFile(fileName)
+            fileDevice.open(QIODevice.ReadOnly | QIODevice.Text)
+            try:
+                fileStream = QTextStream(fileDevice)
+                fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
+                fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
+                i = 0
+                while not fileStream.atEnd():
+                    i = i + 1
+                    lineStr = fileStream.readLine()  # 返回QByteArray类型
+                    lineList = lineStr.split("\t")
+
+                    if i == 1:
+                        continue
+
+                    if lineList[1] in CYJS:
+                        CYJS[lineList[1]].append(lineList)
+                    else:
+                        CYJS[lineList[1]] = []
+                        CYJS[lineList[1]].append(lineList)
+                        item = QTreeWidgetItem()
+                        item.setText(0, lineList[1])
+                        item.setIcon(0, QtGui.QIcon('images/29.ico'))
+                        self.ui.treeWidget.topLevelItem(1).child(6).addChild(item)
+
+            except UnicodeDecodeError:
+                print(fileName[0] + "文件编码格式有误！")
+
+            finally:
+                fileDevice.close()
+
+        self.ui.treeWidget.topLevelItem(1).child(6).setExpanded(True)
+
+    @pyqtSlot()
+    def on_actionxsqx_triggered(self):
+
+        curPath = QDir.currentPath()  # 获取系统当前目录
+        title = "打开一个文件"
+        filt = "文本文件(*.txt);;所有文件(*.*)"
+        fileName, flt = QFileDialog.getOpenFileName(self, title, curPath, filt)
+
+        if fileName != "":
+            fileDevice = QFile(fileName)
+            fileDevice.open(QIODevice.ReadOnly | QIODevice.Text)
+            try:
+                fileStream = QTextStream(fileDevice)
+                fileStream.setAutoDetectUnicode(True)  # 自动检测Unicode
+                fileStream.setCodec("GBK")  # 必须设置编码，否则不能正常显示汉字
+                i = 0
+                while not fileStream.atEnd():
+                    i = i + 1
+                    lineStr = fileStream.readLine()  # 返回QByteArray类型
+                    lineList = lineStr.split("\t")
+                    XSQX.append(lineList)
 
 
             except UnicodeDecodeError:
@@ -1242,8 +1742,16 @@ class QmyMainWindow(QMainWindow):
             finally:
                 fileDevice.close()
 
+            item = QTreeWidgetItem()
+            item.setText(0, '油水相渗')
+            item.setIcon(0, QtGui.QIcon('images/29.ico'))
+            self.ui.treeWidget.topLevelItem(0).child(3).addChild(item)
+            item = QTreeWidgetItem()
+            item.setText(0, '油气相渗')
+            item.setIcon(0, QtGui.QIcon('images/29.ico'))
+            self.ui.treeWidget.topLevelItem(0).child(3).addChild(item)
 
-        self.ui.treeWidget.topLevelItem(1).child(0).setExpanded(True)
+        self.ui.treeWidget.topLevelItem(0).child(3).setExpanded(True)
 
     @pyqtSlot()
     def on_actionfsd_triggered(self):
@@ -2660,8 +3168,8 @@ class QmyMainWindow(QMainWindow):
             fileStream << str(len(self.XMXxb[0])) + "\t"
             fileStream << str(len(self.XMXyb[0])) + "\t"
             fileStream << str(len(self.qlqFloor)) + "\t\n"
-            fileStream << "KDIR DOWN\n" + str(len(self.XMXxb[0])) + "*" + str(self.stepx)
-            fileStream << "DJ JVAR \n" + str(len(self.XMXyb[0])) + "*" + str(self.stepy)
+            fileStream << "KDIR DOWN\n" + str(len(self.XMXxb[0])) + "*" + str(self.stepx) + "\n"
+            fileStream << "DJ JVAR \n" + str(len(self.XMXyb[0])) + "*" + str(self.stepy) + "\n"
             fileStream << "DK ALL\n"
             for f in self.XMXYXHD:
                 for row in f:
@@ -2803,15 +3311,9 @@ class QmyMainWindow(QMainWindow):
                     fileStream << "\n"
 
 
-
-
-
-
-
         finally:
             fileDevice.close()
         return True
-
 
 
 if __name__ == "__main__":  # 用于当前窗体测试
