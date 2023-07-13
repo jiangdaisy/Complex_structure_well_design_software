@@ -2121,9 +2121,29 @@ class QmyMainWindow(QMainWindow):
             self.qlqTableList.append(listrow)
         print(self.qlqTableList)
 
+    @pyqtSlot(str)  #小模型画图
+    def on_comboBox_7_activated(self, curText):
 
-    @pyqtSlot()
-    def on_pushButton_clicked(self):
+        comBoxin = self.ui.comboBox_7.currentIndex()
+        if comBoxin == 1:
+            print(comBoxin)
+            print(self.ui.tabWidget.currentIndex())
+            print(self.ui.tabWidget.setTabToolTip(self.ui.tabWidget.currentIndex(), '选项卡' + str(self.ui.tabWidget.currentIndex())))
+            print(self.ui.tabWidget.currentWidget().objectName())
+            self.ui.
+
+            #for i in range(len(DJDZSJ)):
+
+
+               # print(list(DJDZSJ.keys())[i])
+               # print(float(DJDZSJ[list(DJDZSJ.keys())[i]][1]))
+               # print(float(DJDZSJ[list(DJDZSJ.keys())[i]][0]))
+
+               #self.im3 = self.ax1.scatter(float(DJDZSJ[list(DJDZSJ.keys())[i]][1]),float(DJDZSJ[list(DJDZSJ.keys())[i]][0]),c='red',s=100)
+               # self.im4 = self.ax1.text(float(DJDZSJ[list(DJDZSJ.keys())[i]][1]),float(DJDZSJ[list(DJDZSJ.keys())[i]][0]),list(DJDZSJ.keys())[i])
+
+    @pyqtSlot(str)#潜力区绘图
+    def on_comboBox_activated(self, curText):
 
         comBoxText = self.ui.comboBox.currentText()
 
@@ -2132,6 +2152,7 @@ class QmyMainWindow(QMainWindow):
         fig1.setAttribute(Qt.WA_DeleteOnClose)
         curIndex = self.ui.tabWidget.addTab(fig1, title)  # 添加到tabWidget
         self.ui.tabWidget.setCurrentIndex(curIndex)
+
 
 
 
@@ -2150,6 +2171,7 @@ class QmyMainWindow(QMainWindow):
             ax1.plot(contour[:, 1], contour[:, 0], linewidth=2)
 
         print("pushBotton")
+
 
     @pyqtSlot(str)  #层间连通性判断得下拉列表变化时运行得函数
     def on_comboBox_2_activated(self, curText):
